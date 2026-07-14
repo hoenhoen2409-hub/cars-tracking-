@@ -60,7 +60,7 @@ def mom_pct_series(df, col):
 
 def kpi_row(df, value_col, label):
     if not df[value_col].notna().any():
-        st.info(f"Không có dữ liệu cho {label}.")
+        st.info(f"No data available for {label}.")
         return
 
     latest = df.dropna(subset=[value_col]).iloc[-1]
@@ -81,22 +81,22 @@ def kpi_row(df, value_col, label):
 
     c1, c2, c3, c4 = st.columns(4)
     c1.metric(f"{label} — {latest_period.strftime('%m/%Y')}", f"{latest_value:,.0f}")
-    c2.metric("So với tháng trước (MoM)", pct_change_label(latest_value, mom_value))
-    c3.metric("So với cùng kỳ năm trước (YoY)", pct_change_label(latest_value, yoy_value))
+    c2.metric("Month-over-month (MoM)", pct_change_label(latest_value, mom_value))
+    c3.metric("Year-over-year (YoY)", pct_change_label(latest_value, yoy_value))
     if prior_year_same_span > 0:
-        c4.metric(f"Lũy kế {latest_period.year} (YTD)", f"{ytd_current:,.0f}", pct_change_label(ytd_current, prior_year_same_span))
+        c4.metric(f"{latest_period.year} Year-to-date (YTD)", f"{ytd_current:,.0f}", pct_change_label(ytd_current, prior_year_same_span))
     else:
-        c4.metric(f"Lũy kế {latest_period.year} (YTD)", f"{ytd_current:,.0f}")
-        c4.caption("Chưa đủ data cùng kỳ năm trước để so sánh")
+        c4.metric(f"{latest_period.year} Year-to-date (YTD)", f"{ytd_current:,.0f}")
+        c4.caption("Not enough prior-year data for comparison")
 
 
 st.title("Vietnam Auto & Motorbike Sales Dashboard")
 st.caption(
-    "Nguồn: VAMA (thành viên hiệp hội), VinFast (SEC 6-K filings), Hyundai Thành Công "
-    "(press release), Honda Việt Nam (press release xe máy). Đơn vị: số xe bán ra/tháng."
+    "Sources: VAMA (association members), VinFast (SEC 6-K filings), Hyundai Thanh Cong "
+    "(press releases), Honda Vietnam (motorbike press releases). Unit: vehicles sold/month."
 )
 
-tab_cars, tab_moto = st.tabs(["🚗 Ô tô", "🏍️ Xe máy Honda"])
+tab_cars, tab_moto = st.tabs(["🚗 Cars", "🏍️ Honda Motorbikes"])
 
 # ---------------------------------------------------------------- CARS TAB
 with tab_cars:
@@ -106,11 +106,11 @@ with tab_cars:
     filter_col1, filter_col2 = st.columns([1, 2])
     with filter_col1:
         year_range = st.select_slider(
-            "Khoảng năm", options=all_years, value=(all_years[0], all_years[-1]), key="car_year_range"
+            "Year range", options=all_years, value=(all_years[0], all_years[-1]), key="car_year_range"
         )
     with filter_col2:
         selected_brands = st.multiselect(
-            "Chọn brand",
+            "Select brand(s)",
             options=list(CAR_BRAND_COLUMNS.keys()),
             default=["Toyota", "Honda (car)", "VinFast", "Hyundai (Thanh Cong)"],
             key="car_brands",
@@ -118,20 +118,20 @@ with tab_cars:
 
     filtered = car_df[(car_df["year"] >= year_range[0]) & (car_df["year"] <= year_range[1])]
 
-    st.subheader("Tổng quan thị trường")
+    st.subheader("Market Overview")
     st.caption(
-        "total_market = total_vama + vinfast + hyundai_tc, chỉ tính khi cả 3 nguồn đều có "
-        "dữ liệu tháng đó (đầy đủ từ 12/2024). total_vama = tổng các thành viên VAMA "
-        "(không gồm VinFast, không gồm Hyundai Thành Công)."
+        "total_market = total_vama + vinfast + hyundai_tc, calculated only when all 3 sources "
+        "have data for that month (fully available from 12/2024 onward). total_vama = sum of "
+        "VAMA member brands (excludes VinFast, excludes Hyundai Thanh Cong)."
     )
-    kpi_row(filtered, "total_market", "Tổng thị trường (VAMA+VinFast+Hyundai)")
+    kpi_row(filtered, "total_market", "Total Market (VAMA+VinFast+Hyundai)")
 
     st.divider()
 
     if not selected_brands:
-        st.warning("Chọn ít nhất 1 brand để xem chart/table.")
+        st.warning("Select at least 1 brand to view the chart/table.")
     else:
-        st.subheader("Trend theo tháng")
+        st.subheader("Monthly Trend")
         fig = go.Figure()
         for brand_label in selected_brands:
             col = CAR_BRAND_COLUMNS[brand_label]
@@ -142,12 +142,12 @@ with tab_cars:
                 )
             )
         fig.update_layout(
-            xaxis_title="Tháng", yaxis_title="Số xe bán ra", hovermode="x unified",
+            xaxis_title="Month", yaxis_title="Vehicles sold", hovermode="x unified",
             legend=dict(orientation="h", yanchor="bottom", y=1.02), height=480,
         )
         st.plotly_chart(fig, use_container_width=True)
 
-        st.subheader("Bảng chi tiết + % thay đổi MoM")
+        st.subheader("Detail Table + MoM % Change")
         display_df = filtered[["period"]].copy()
         for brand_label in selected_brands:
             col = CAR_BRAND_COLUMNS[brand_label]
@@ -164,7 +164,7 @@ with tab_cars:
         st.dataframe(display_df.set_index("period"), use_container_width=True, column_config=column_config)
 
         csv_bytes = display_df.to_csv(index=False).encode("utf-8-sig")
-        st.download_button("Tải bảng (CSV)", csv_bytes, "car_sales_filtered.csv", "text/csv", key="car_dl")
+        st.download_button("Download table (CSV)", csv_bytes, "car_sales_filtered.csv", "text/csv", key="car_dl")
 
 # --------------------------------------------------------------- MOTO TAB
 with tab_moto:
@@ -172,13 +172,13 @@ with tab_moto:
     moto_years = sorted(moto_df["year"].unique())
 
     moto_year_range = st.select_slider(
-        "Khoảng năm", options=moto_years, value=(moto_years[0], moto_years[-1]), key="moto_year_range"
+        "Year range", options=moto_years, value=(moto_years[0], moto_years[-1]), key="moto_year_range"
     )
     moto_filtered = moto_df[(moto_df["year"] >= moto_year_range[0]) & (moto_df["year"] <= moto_year_range[1])]
 
-    st.subheader("Honda Việt Nam — Doanh số xe máy hàng tháng")
-    st.caption("Dữ liệu chỉ có từ 09/2024 (Honda VN không công bố báo cáo tháng trên website trước đó).")
-    kpi_row(moto_filtered, "honda_motorbike_sales", "Xe máy Honda")
+    st.subheader("Honda Vietnam — Monthly Motorbike Sales")
+    st.caption("Data only available from 09/2024 onward (Honda VN did not publish monthly reports on its website before then).")
+    kpi_row(moto_filtered, "honda_motorbike_sales", "Honda Motorbikes")
 
     st.divider()
 
@@ -187,24 +187,24 @@ with tab_moto:
         go.Bar(x=moto_filtered["period"], y=moto_filtered["honda_motorbike_sales"],
                name="Honda motorbike sales", marker_color="#C8952A")
     )
-    fig_moto.update_layout(xaxis_title="Tháng", yaxis_title="Số xe máy bán ra", height=450)
+    fig_moto.update_layout(xaxis_title="Month", yaxis_title="Motorbikes sold", height=450)
     st.plotly_chart(fig_moto, use_container_width=True)
 
-    st.subheader("Bảng chi tiết")
+    st.subheader("Detail Table")
     moto_table = moto_filtered[["period", "honda_motorbike_sales"]].copy()
     moto_table["MoM%"] = mom_pct_series(moto_filtered, "honda_motorbike_sales")
     moto_table = moto_table.sort_values("period", ascending=False)
     moto_table["period"] = moto_table["period"].dt.strftime("%m/%Y")
-    moto_table = moto_table.rename(columns={"honda_motorbike_sales": "Số xe bán ra"})
+    moto_table = moto_table.rename(columns={"honda_motorbike_sales": "Units sold"})
 
     st.dataframe(
         moto_table.set_index("period"),
         use_container_width=True,
         column_config={
-            "Số xe bán ra": st.column_config.NumberColumn(format="%.0f"),
+            "Units sold": st.column_config.NumberColumn(format="%.0f"),
             "MoM%": st.column_config.NumberColumn(format="%+.1f%%"),
         },
     )
 
     csv_bytes_moto = moto_table.to_csv(index=False).encode("utf-8-sig")
-    st.download_button("Tải bảng (CSV)", csv_bytes_moto, "honda_motorbike_filtered.csv", "text/csv", key="moto_dl")
+    st.download_button("Download table (CSV)", csv_bytes_moto, "honda_motorbike_filtered.csv", "text/csv", key="moto_dl")
