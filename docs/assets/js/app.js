@@ -96,6 +96,14 @@ function renderCarsSection() {
     : `<tr><td colspan="${1 + brands.length * 2}" class="empty-state">No data in this range.</td></tr>`;
 
   document.getElementById("car-count-label").textContent = `${filtered.length} months shown · ${brands.length} brand(s) selected`;
+
+  const latestRow = state.cars[state.cars.length - 1];
+  const missingBrands = CAR_BRANDS.filter((b) => latestRow.brands[b] == null);
+  const noteEl = document.getElementById("car-data-note");
+  noteEl.textContent =
+    missingBrands.length > 0
+      ? `Note: ${fmtPeriodLabel(latestRow.period)} — ${missingBrands.join(", ")} not yet confirmed from the official VAMA report; Total Market is withheld for that month until complete.`
+      : "";
 }
 
 function exportCarsCsv() {
