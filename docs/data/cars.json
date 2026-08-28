@@ -1,0 +1,716 @@
+[
+  {
+    "period": "2023-01",
+    "year": 2023,
+    "month": 1,
+    "brands": {
+      "Toyota": 3023,
+      "Ford": 2360,
+      "Mitsubishi": 1145,
+      "Honda (car)": 1494,
+      "Peugeot": 220,
+      "Thaco (total)": 4476,
+      "Others (VAMA)": 1280,
+      "VinFast": null,
+      "Hyundai (Thanh Cong)": 3496
+    },
+    "total_market": null
+  },
+  {
+    "period": "2023-02",
+    "year": 2023,
+    "month": 2,
+    "brands": {
+      "Toyota": 4887,
+      "Ford": 2632,
+      "Mitsubishi": 2279,
+      "Honda (car)": 1385,
+      "Peugeot": 237,
+      "Thaco (total)": 6971,
+      "Others (VAMA)": 2145,
+      "VinFast": null,
+      "Hyundai (Thanh Cong)": 5467
+    },
+    "total_market": null
+  },
+  {
+    "period": "2023-03",
+    "year": 2023,
+    "month": 3,
+    "brands": {
+      "Toyota": 5656,
+      "Ford": 3676,
+      "Mitsubishi": 3656,
+      "Honda (car)": 1489,
+      "Peugeot": 250,
+      "Thaco (total)": 8445,
+      "Others (VAMA)": 3094,
+      "VinFast": null,
+      "Hyundai (Thanh Cong)": 5773
+    },
+    "total_market": null
+  },
+  {
+    "period": "2023-04",
+    "year": 2023,
+    "month": 4,
+    "brands": {
+      "Toyota": 4247,
+      "Ford": 3298,
+      "Mitsubishi": 1700,
+      "Honda (car)": 1944,
+      "Peugeot": 170,
+      "Thaco (total)": 6658,
+      "Others (VAMA)": 2650,
+      "VinFast": null,
+      "Hyundai (Thanh Cong)": 4592
+    },
+    "total_market": null
+  },
+  {
+    "period": "2023-05",
+    "year": 2023,
+    "month": 5,
+    "brands": {
+      "Toyota": 3734,
+      "Ford": 2336,
+      "Mitsubishi": 1803,
+      "Honda (car)": 1757,
+      "Peugeot": 170,
+      "Thaco (total)": 6459,
+      "Others (VAMA)": 3007,
+      "VinFast": null,
+      "Hyundai (Thanh Cong)": 3575
+    },
+    "total_market": null
+  },
+  {
+    "period": "2023-06",
+    "year": 2023,
+    "month": 6,
+    "brands": {
+      "Toyota": 5090,
+      "Ford": 3121,
+      "Mitsubishi": 2264,
+      "Honda (car)": 1419,
+      "Peugeot": 185,
+      "Thaco (total)": 7366,
+      "Others (VAMA)": 2448,
+      "VinFast": null,
+      "Hyundai (Thanh Cong)": 5108
+    },
+    "total_market": null
+  },
+  {
+    "period": "2023-07",
+    "year": 2023,
+    "month": 7,
+    "brands": {
+      "Toyota": 3813,
+      "Ford": 3150,
+      "Mitsubishi": 3518,
+      "Honda (car)": 1597,
+      "Peugeot": 191,
+      "Thaco (total)": 8237,
+      "Others (VAMA)": 2364,
+      "VinFast": null,
+      "Hyundai (Thanh Cong)": 4035
+    },
+    "total_market": null
+  },
+  {
+    "period": "2023-08",
+    "year": 2023,
+    "month": 8,
+    "brands": {
+      "Toyota": 3922,
+      "Ford": 2795,
+      "Mitsubishi": 2418,
+      "Honda (car)": 1431,
+      "Peugeot": 193,
+      "Thaco (total)": 7814,
+      "Others (VAMA)": 2070,
+      "VinFast": null,
+      "Hyundai (Thanh Cong)": 3145
+    },
+    "total_market": null
+  },
+  {
+    "period": "2023-09",
+    "year": 2023,
+    "month": 9,
+    "brands": {
+      "Toyota": 4118,
+      "Ford": 3118,
+      "Mitsubishi": 2863,
+      "Honda (car)": 2554,
+      "Peugeot": 226,
+      "Thaco (total)": 8960,
+      "Others (VAMA)": 2154,
+      "VinFast": null,
+      "Hyundai (Thanh Cong)": 5977
+    },
+    "total_market": null
+  },
+  {
+    "period": "2023-10",
+    "year": 2023,
+    "month": 10,
+    "brands": {
+      "Toyota": 4041,
+      "Ford": 3062,
+      "Mitsubishi": 2457,
+      "Honda (car)": 2148,
+      "Peugeot": 235,
+      "Thaco (total)": 9471,
+      "Others (VAMA)": 2044,
+      "VinFast": null,
+      "Hyundai (Thanh Cong)": 7458
+    },
+    "total_market": null
+  },
+  {
+    "period": "2023-11",
+    "year": 2023,
+    "month": 11,
+    "brands": {
+      "Toyota": 5833,
+      "Ford": 3922,
+      "Mitsubishi": 2517,
+      "Honda (car)": 2525,
+      "Peugeot": 408,
+      "Thaco (total)": 9140,
+      "Others (VAMA)": 2094,
+      "VinFast": null,
+      "Hyundai (Thanh Cong)": 7980
+    },
+    "total_market": null
+  },
+  {
+    "period": "2023-12",
+    "year": 2023,
+    "month": 12,
+    "brands": {
+      "Toyota": 9050,
+      "Ford": 4854,
+      "Mitsubishi": 4274,
+      "Honda (car)": 4059,
+      "Peugeot": 553,
+      "Thaco (total)": 10683,
+      "Others (VAMA)": 2877,
+      "VinFast": null,
+      "Hyundai (Thanh Cong)": 10884
+    },
+    "total_market": null
+  },
+  {
+    "period": "2024-01",
+    "year": 2024,
+    "month": 1,
+    "brands": {
+      "Toyota": 2208,
+      "Ford": 2671,
+      "Mitsubishi": 1793,
+      "Honda (car)": 2023,
+      "Peugeot": 224,
+      "Thaco (total)": 5219,
+      "Others (VAMA)": 2559,
+      "VinFast": null,
+      "Hyundai (Thanh Cong)": 3569
+    },
+    "total_market": null
+  },
+  {
+    "period": "2024-02",
+    "year": 2024,
+    "month": 2,
+    "brands": {
+      "Toyota": 1248,
+      "Ford": 1664,
+      "Mitsubishi": 818,
+      "Honda (car)": 1264,
+      "Peugeot": 167,
+      "Thaco (total)": 3643,
+      "Others (VAMA)": 1213,
+      "VinFast": null,
+      "Hyundai (Thanh Cong)": 2033
+    },
+    "total_market": null
+  },
+  {
+    "period": "2024-03",
+    "year": 2024,
+    "month": 3,
+    "brands": {
+      "Toyota": 3865,
+      "Ford": 3686,
+      "Mitsubishi": 3439,
+      "Honda (car)": 2832,
+      "Peugeot": 231,
+      "Thaco (total)": 6851,
+      "Others (VAMA)": 3229,
+      "VinFast": null,
+      "Hyundai (Thanh Cong)": 4542
+    },
+    "total_market": null
+  },
+  {
+    "period": "2024-04",
+    "year": 2024,
+    "month": 4,
+    "brands": {
+      "Toyota": 4483,
+      "Ford": 3053,
+      "Mitsubishi": 2508,
+      "Honda (car)": 1802,
+      "Peugeot": 210,
+      "Thaco (total)": 6512,
+      "Others (VAMA)": 2471,
+      "VinFast": null,
+      "Hyundai (Thanh Cong)": 4276
+    },
+    "total_market": null
+  },
+  {
+    "period": "2024-05",
+    "year": 2024,
+    "month": 5,
+    "brands": {
+      "Toyota": 5356,
+      "Ford": 3270,
+      "Mitsubishi": 3151,
+      "Honda (car)": 1179,
+      "Peugeot": 234,
+      "Thaco (total)": 6465,
+      "Others (VAMA)": 2114,
+      "VinFast": null,
+      "Hyundai (Thanh Cong)": 4914
+    },
+    "total_market": null
+  },
+  {
+    "period": "2024-06",
+    "year": 2024,
+    "month": 6,
+    "brands": {
+      "Toyota": 5178,
+      "Ford": 3307,
+      "Mitsubishi": 2913,
+      "Honda (car)": 1381,
+      "Peugeot": 287,
+      "Thaco (total)": 7169,
+      "Others (VAMA)": 1761,
+      "VinFast": null,
+      "Hyundai (Thanh Cong)": 5047
+    },
+    "total_market": null
+  },
+  {
+    "period": "2024-07",
+    "year": 2024,
+    "month": 7,
+    "brands": {
+      "Toyota": 6479,
+      "Ford": 3150,
+      "Mitsubishi": 3835,
+      "Honda (car)": 2406,
+      "Peugeot": 261,
+      "Thaco (total)": 6764,
+      "Others (VAMA)": 1879,
+      "VinFast": null,
+      "Hyundai (Thanh Cong)": 5329
+    },
+    "total_market": null
+  },
+  {
+    "period": "2024-08",
+    "year": 2024,
+    "month": 8,
+    "brands": {
+      "Toyota": 4700,
+      "Ford": 3270,
+      "Mitsubishi": 4091,
+      "Honda (car)": 1160,
+      "Peugeot": 257,
+      "Thaco (total)": 6366,
+      "Others (VAMA)": 1564,
+      "VinFast": null,
+      "Hyundai (Thanh Cong)": 4679
+    },
+    "total_market": null
+  },
+  {
+    "period": "2024-09",
+    "year": 2024,
+    "month": 9,
+    "brands": {
+      "Toyota": 6986,
+      "Ford": 3967,
+      "Mitsubishi": 5385,
+      "Honda (car)": 3607,
+      "Peugeot": 261,
+      "Thaco (total)": 9425,
+      "Others (VAMA)": 2392,
+      "VinFast": null,
+      "Hyundai (Thanh Cong)": 6518
+    },
+    "total_market": null
+  },
+  {
+    "period": "2024-10",
+    "year": 2024,
+    "month": 10,
+    "brands": {
+      "Toyota": 8736,
+      "Ford": 5052,
+      "Mitsubishi": 4401,
+      "Honda (car)": 3606,
+      "Peugeot": 401,
+      "Thaco (total)": 10304,
+      "Others (VAMA)": 2614,
+      "VinFast": null,
+      "Hyundai (Thanh Cong)": 7639
+    },
+    "total_market": null
+  },
+  {
+    "period": "2024-11",
+    "year": 2024,
+    "month": 11,
+    "brands": {
+      "Toyota": 8695,
+      "Ford": 5593,
+      "Mitsubishi": 5056,
+      "Honda (car)": 4633,
+      "Peugeot": 494,
+      "Thaco (total)": 12286,
+      "Others (VAMA)": 2851,
+      "VinFast": null,
+      "Hyundai (Thanh Cong)": 10303
+    },
+    "total_market": null
+  },
+  {
+    "period": "2024-12",
+    "year": 2024,
+    "month": 12,
+    "brands": {
+      "Toyota": 8642,
+      "Ford": 3492,
+      "Mitsubishi": 3808,
+      "Honda (car)": 2374,
+      "Peugeot": 463,
+      "Thaco (total)": 6495,
+      "Others (VAMA)": 2129,
+      "VinFast": 20000.0,
+      "Hyundai (Thanh Cong)": 8316
+    },
+    "total_market": 55719.0
+  },
+  {
+    "period": "2025-01",
+    "year": 2025,
+    "month": 1,
+    "brands": {
+      "Toyota": 3346,
+      "Ford": 2452,
+      "Mitsubishi": 1716,
+      "Honda (car)": 1826,
+      "Peugeot": 193,
+      "Thaco (total)": 5003,
+      "Others (VAMA)": 1140,
+      "VinFast": null,
+      "Hyundai (Thanh Cong)": 3074
+    },
+    "total_market": null
+  },
+  {
+    "period": "2025-02",
+    "year": 2025,
+    "month": 2,
+    "brands": {
+      "Toyota": 3114,
+      "Ford": 2758,
+      "Mitsubishi": 1792,
+      "Honda (car)": 1808,
+      "Peugeot": 239,
+      "Thaco (total)": 6096,
+      "Others (VAMA)": 1374,
+      "VinFast": 12500.0,
+      "Hyundai (Thanh Cong)": 3022
+    },
+    "total_market": 32703.0
+  },
+  {
+    "period": "2025-03",
+    "year": 2025,
+    "month": 3,
+    "brands": {
+      "Toyota": 5370,
+      "Ford": 4272,
+      "Mitsubishi": 4412,
+      "Honda (car)": 2450,
+      "Peugeot": 259,
+      "Thaco (total)": 7304,
+      "Others (VAMA)": 2012,
+      "VinFast": 12100.0,
+      "Hyundai (Thanh Cong)": 5368
+    },
+    "total_market": 43547.0
+  },
+  {
+    "period": "2025-04",
+    "year": 2025,
+    "month": 4,
+    "brands": {
+      "Toyota": 5566,
+      "Ford": 3997,
+      "Mitsubishi": 2038,
+      "Honda (car)": 2142,
+      "Peugeot": 213,
+      "Thaco (total)": 7346,
+      "Others (VAMA)": 1884,
+      "VinFast": 9588.0,
+      "Hyundai (Thanh Cong)": 4470
+    },
+    "total_market": 37244.0
+  },
+  {
+    "period": "2025-05",
+    "year": 2025,
+    "month": 5,
+    "brands": {
+      "Toyota": 5665,
+      "Ford": 4054,
+      "Mitsubishi": 2172,
+      "Honda (car)": 1484,
+      "Peugeot": 192,
+      "Thaco (total)": 6961,
+      "Others (VAMA)": 2130,
+      "VinFast": 11496.0,
+      "Hyundai (Thanh Cong)": 4063
+    },
+    "total_market": 38217.0
+  },
+  {
+    "period": "2025-06",
+    "year": 2025,
+    "month": 6,
+    "brands": {
+      "Toyota": 6213,
+      "Ford": 4167,
+      "Mitsubishi": 3663,
+      "Honda (car)": 1523,
+      "Peugeot": 228,
+      "Thaco (total)": 7894,
+      "Others (VAMA)": 2105,
+      "VinFast": 11382.0,
+      "Hyundai (Thanh Cong)": 4197
+    },
+    "total_market": 41372.0
+  },
+  {
+    "period": "2025-07",
+    "year": 2025,
+    "month": 7,
+    "brands": {
+      "Toyota": 6668,
+      "Ford": 4139,
+      "Mitsubishi": 3231,
+      "Honda (car)": 2617,
+      "Peugeot": 222,
+      "Thaco (total)": 7550,
+      "Others (VAMA)": 2146,
+      "VinFast": 11479.0,
+      "Hyundai (Thanh Cong)": 3601
+    },
+    "total_market": 41653.0
+  },
+  {
+    "period": "2025-08",
+    "year": 2025,
+    "month": 8,
+    "brands": {
+      "Toyota": 5171,
+      "Ford": 3546,
+      "Mitsubishi": 2180,
+      "Honda (car)": 2275,
+      "Peugeot": 153,
+      "Thaco (total)": 5949,
+      "Others (VAMA)": 2414,
+      "VinFast": 10922.0,
+      "Hyundai (Thanh Cong)": 3701
+    },
+    "total_market": 36311.0
+  },
+  {
+    "period": "2025-09",
+    "year": 2025,
+    "month": 9,
+    "brands": {
+      "Toyota": 7013,
+      "Ford": 4270,
+      "Mitsubishi": 3805,
+      "Honda (car)": 1704,
+      "Peugeot": 143,
+      "Thaco (total)": 6581,
+      "Others (VAMA)": 2775,
+      "VinFast": 13914.0,
+      "Hyundai (Thanh Cong)": 4296
+    },
+    "total_market": 44501.0
+  },
+  {
+    "period": "2025-10",
+    "year": 2025,
+    "month": 10,
+    "brands": {
+      "Toyota": 7768,
+      "Ford": 5206,
+      "Mitsubishi": 5082,
+      "Honda (car)": 3314,
+      "Peugeot": 183,
+      "Thaco (total)": 7581,
+      "Others (VAMA)": 2710,
+      "VinFast": 20380.0,
+      "Hyundai (Thanh Cong)": 5260
+    },
+    "total_market": 57484.0
+  },
+  {
+    "period": "2025-11",
+    "year": 2025,
+    "month": 11,
+    "brands": {
+      "Toyota": 7731,
+      "Ford": 5446,
+      "Mitsubishi": 5056,
+      "Honda (car)": 3986,
+      "Peugeot": 178,
+      "Thaco (total)": 8612,
+      "Others (VAMA)": 2680,
+      "VinFast": 23186.0,
+      "Hyundai (Thanh Cong)": 5463
+    },
+    "total_market": 62338.0
+  },
+  {
+    "period": "2025-12",
+    "year": 2025,
+    "month": 12,
+    "brands": {
+      "Toyota": 8329,
+      "Ford": 6143,
+      "Mitsubishi": 8960,
+      "Honda (car)": 3590,
+      "Peugeot": 232,
+      "Thaco (total)": 12065,
+      "Others (VAMA)": 3382,
+      "VinFast": 27649.0,
+      "Hyundai (Thanh Cong)": 6704
+    },
+    "total_market": 77054.0
+  },
+  {
+    "period": "2026-01",
+    "year": 2026,
+    "month": 1,
+    "brands": {
+      "Toyota": 4852,
+      "Ford": 5121,
+      "Mitsubishi": 5039,
+      "Honda (car)": 2712,
+      "Peugeot": 191,
+      "Thaco (total)": 9267,
+      "Others (VAMA)": 2592,
+      "VinFast": 16172.0,
+      "Hyundai (Thanh Cong)": 5872
+    },
+    "total_market": 51818.0
+  },
+  {
+    "period": "2026-02",
+    "year": 2026,
+    "month": 2,
+    "brands": {
+      "Toyota": 3890,
+      "Ford": 2473,
+      "Mitsubishi": 1784,
+      "Honda (car)": 1052,
+      "Peugeot": 98,
+      "Thaco (total)": 5037,
+      "Others (VAMA)": 1331,
+      "VinFast": 9903.0,
+      "Hyundai (Thanh Cong)": 3080
+    },
+    "total_market": 28648.0
+  },
+  {
+    "period": "2026-03",
+    "year": 2026,
+    "month": 3,
+    "brands": {
+      "Toyota": 8143,
+      "Ford": 4538,
+      "Mitsubishi": 5086,
+      "Honda (car)": 1839,
+      "Peugeot": 103,
+      "Thaco (total)": 8787,
+      "Others (VAMA)": 2855,
+      "VinFast": 27609.0,
+      "Hyundai (Thanh Cong)": 4546
+    },
+    "total_market": 63506.0
+  },
+  {
+    "period": "2026-04",
+    "year": 2026,
+    "month": 4,
+    "brands": {
+      "Toyota": 6378,
+      "Ford": 2866,
+      "Mitsubishi": 3439,
+      "Honda (car)": 1830,
+      "Peugeot": 72,
+      "Thaco (total)": 7756,
+      "Others (VAMA)": 2138,
+      "VinFast": 24774.0,
+      "Hyundai (Thanh Cong)": 3904
+    },
+    "total_market": 53157.0
+  },
+  {
+    "period": "2026-05",
+    "year": 2026,
+    "month": 5,
+    "brands": {
+      "Toyota": 5653,
+      "Ford": 3493,
+      "Mitsubishi": 3111,
+      "Honda (car)": 1870,
+      "Peugeot": 84,
+      "Thaco (total)": 7341,
+      "Others (VAMA)": 2584,
+      "VinFast": 19503.0,
+      "Hyundai (Thanh Cong)": 3921
+    },
+    "total_market": 47560.0
+  },
+  {
+    "period": "2026-06",
+    "year": 2026,
+    "month": 6,
+    "brands": {
+      "Toyota": 6494,
+      "Ford": 2741,
+      "Mitsubishi": 3158,
+      "Honda (car)": 2002,
+      "Peugeot": 122,
+      "Thaco (total)": 7365,
+      "Others (VAMA)": 2474,
+      "VinFast": 17955.0,
+      "Hyundai (Thanh Cong)": 3746
+    },
+    "total_market": 46057.0
+  }
+]
