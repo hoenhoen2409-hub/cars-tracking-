@@ -9,7 +9,7 @@
       "Mitsubishi": 1145,
       "Honda (car)": 1494,
       "Peugeot": 220,
-      "Thaco (total)": 4476.0,
+      "Thaco (total)": 4476,
       "Others (VAMA)": 1280.0,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 3496
@@ -26,7 +26,7 @@
       "Mitsubishi": 2279,
       "Honda (car)": 1385,
       "Peugeot": 237,
-      "Thaco (total)": 6971.0,
+      "Thaco (total)": 6971,
       "Others (VAMA)": 2145.0,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 5467
@@ -43,7 +43,7 @@
       "Mitsubishi": 3656,
       "Honda (car)": 1489,
       "Peugeot": 250,
-      "Thaco (total)": 8445.0,
+      "Thaco (total)": 8445,
       "Others (VAMA)": 3094.0,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 5773
@@ -60,7 +60,7 @@
       "Mitsubishi": 1700,
       "Honda (car)": 1944,
       "Peugeot": 170,
-      "Thaco (total)": 6658.0,
+      "Thaco (total)": 6658,
       "Others (VAMA)": 2650.0,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 4592
@@ -77,7 +77,7 @@
       "Mitsubishi": 1803,
       "Honda (car)": 1757,
       "Peugeot": 170,
-      "Thaco (total)": 6459.0,
+      "Thaco (total)": 6459,
       "Others (VAMA)": 3007.0,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 3575
@@ -94,7 +94,7 @@
       "Mitsubishi": 2264,
       "Honda (car)": 1419,
       "Peugeot": 185,
-      "Thaco (total)": 7366.0,
+      "Thaco (total)": 7366,
       "Others (VAMA)": 2448.0,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 5108
@@ -111,7 +111,7 @@
       "Mitsubishi": 3518,
       "Honda (car)": 1597,
       "Peugeot": 191,
-      "Thaco (total)": 8237.0,
+      "Thaco (total)": 8237,
       "Others (VAMA)": 2364.0,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 4035
@@ -128,7 +128,7 @@
       "Mitsubishi": 2418,
       "Honda (car)": 1431,
       "Peugeot": 193,
-      "Thaco (total)": 7814.0,
+      "Thaco (total)": 7814,
       "Others (VAMA)": 2070.0,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 3145
@@ -145,7 +145,7 @@
       "Mitsubishi": 2863,
       "Honda (car)": 2554,
       "Peugeot": 226,
-      "Thaco (total)": 8960.0,
+      "Thaco (total)": 8960,
       "Others (VAMA)": 2154.0,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 5977
@@ -162,7 +162,7 @@
       "Mitsubishi": 2457,
       "Honda (car)": 2148,
       "Peugeot": 235,
-      "Thaco (total)": 9471.0,
+      "Thaco (total)": 9471,
       "Others (VAMA)": 2044.0,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 7458
@@ -179,7 +179,7 @@
       "Mitsubishi": 2517,
       "Honda (car)": 2525,
       "Peugeot": 408,
-      "Thaco (total)": 9140.0,
+      "Thaco (total)": 9140,
       "Others (VAMA)": 2094.0,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 7980
@@ -196,7 +196,7 @@
       "Mitsubishi": 4274,
       "Honda (car)": 4059,
       "Peugeot": 553,
-      "Thaco (total)": 10683.0,
+      "Thaco (total)": 10683,
       "Others (VAMA)": 2877.0,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 10884
@@ -213,7 +213,7 @@
       "Mitsubishi": 1793,
       "Honda (car)": 2023,
       "Peugeot": 224,
-      "Thaco (total)": 5219.0,
+      "Thaco (total)": 5219,
       "Others (VAMA)": 2559.0,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 3569
@@ -230,7 +230,7 @@
       "Mitsubishi": 818,
       "Honda (car)": 1264,
       "Peugeot": 167,
-      "Thaco (total)": 3643.0,
+      "Thaco (total)": 3643,
       "Others (VAMA)": 1213.0,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 2033
@@ -247,7 +247,7 @@
       "Mitsubishi": 3439,
       "Honda (car)": 2832,
       "Peugeot": 231,
-      "Thaco (total)": 6851.0,
+      "Thaco (total)": 6851,
       "Others (VAMA)": 3229.0,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 4542
@@ -264,7 +264,7 @@
       "Mitsubishi": 2508,
       "Honda (car)": 1802,
       "Peugeot": 210,
-      "Thaco (total)": 6512.0,
+      "Thaco (total)": 6512,
       "Others (VAMA)": 2471.0,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 4276
@@ -281,7 +281,7 @@
       "Mitsubishi": 3151,
       "Honda (car)": 1179,
       "Peugeot": 234,
-      "Thaco (total)": 6465.0,
+      "Thaco (total)": 6465,
       "Others (VAMA)": 2114.0,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 4914
@@ -298,7 +298,7 @@
       "Mitsubishi": 2913,
       "Honda (car)": 1381,
       "Peugeot": 287,
-      "Thaco (total)": 7169.0,
+      "Thaco (total)": 7169,
       "Others (VAMA)": 1761.0,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 5047
@@ -315,7 +315,7 @@
       "Mitsubishi": 3835,
       "Honda (car)": 2406,
       "Peugeot": 261,
-      "Thaco (total)": 6764.0,
+      "Thaco (total)": 6764,
       "Others (VAMA)": 1879.0,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 5329
@@ -332,7 +332,7 @@
       "Mitsubishi": 4091,
       "Honda (car)": 1160,
       "Peugeot": 257,
-      "Thaco (total)": 6366.0,
+      "Thaco (total)": 6366,
       "Others (VAMA)": 1564.0,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 4679
@@ -349,7 +349,7 @@
       "Mitsubishi": 5385,
       "Honda (car)": 3607,
       "Peugeot": 261,
-      "Thaco (total)": 9425.0,
+      "Thaco (total)": 9425,
       "Others (VAMA)": 2392.0,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 6518
@@ -366,7 +366,7 @@
       "Mitsubishi": 4401,
       "Honda (car)": 3606,
       "Peugeot": 401,
-      "Thaco (total)": 10304.0,
+      "Thaco (total)": 10304,
       "Others (VAMA)": 2614.0,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 7639
@@ -383,7 +383,7 @@
       "Mitsubishi": 5056,
       "Honda (car)": 4633,
       "Peugeot": 494,
-      "Thaco (total)": 12286.0,
+      "Thaco (total)": 12286,
       "Others (VAMA)": 2851.0,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 10303
@@ -400,7 +400,7 @@
       "Mitsubishi": 3808,
       "Honda (car)": 2374,
       "Peugeot": 463,
-      "Thaco (total)": 6495.0,
+      "Thaco (total)": 6495,
       "Others (VAMA)": 2129.0,
       "VinFast": 20000.0,
       "Hyundai (Thanh Cong)": 8316
@@ -417,7 +417,7 @@
       "Mitsubishi": 1716,
       "Honda (car)": 1826,
       "Peugeot": 193,
-      "Thaco (total)": 5003.0,
+      "Thaco (total)": 5003,
       "Others (VAMA)": 1140.0,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 3074
@@ -434,7 +434,7 @@
       "Mitsubishi": 1792,
       "Honda (car)": 1808,
       "Peugeot": 239,
-      "Thaco (total)": 6096.0,
+      "Thaco (total)": 6096,
       "Others (VAMA)": 1374.0,
       "VinFast": 12500.0,
       "Hyundai (Thanh Cong)": 3022
@@ -451,7 +451,7 @@
       "Mitsubishi": 4412,
       "Honda (car)": 2450,
       "Peugeot": 259,
-      "Thaco (total)": 7304.0,
+      "Thaco (total)": 7304,
       "Others (VAMA)": 2012.0,
       "VinFast": 12100.0,
       "Hyundai (Thanh Cong)": 5368
@@ -468,7 +468,7 @@
       "Mitsubishi": 2038,
       "Honda (car)": 2142,
       "Peugeot": 213,
-      "Thaco (total)": 7346.0,
+      "Thaco (total)": 7346,
       "Others (VAMA)": 1884.0,
       "VinFast": 9588.0,
       "Hyundai (Thanh Cong)": 4470
@@ -485,7 +485,7 @@
       "Mitsubishi": 2172,
       "Honda (car)": 1484,
       "Peugeot": 192,
-      "Thaco (total)": 6961.0,
+      "Thaco (total)": 6961,
       "Others (VAMA)": 2130.0,
       "VinFast": 11496.0,
       "Hyundai (Thanh Cong)": 4063
@@ -502,7 +502,7 @@
       "Mitsubishi": 3663,
       "Honda (car)": 1523,
       "Peugeot": 228,
-      "Thaco (total)": 7894.0,
+      "Thaco (total)": 7894,
       "Others (VAMA)": 2105.0,
       "VinFast": 11382.0,
       "Hyundai (Thanh Cong)": 4197
@@ -519,7 +519,7 @@
       "Mitsubishi": 3231,
       "Honda (car)": 2617,
       "Peugeot": 222,
-      "Thaco (total)": 7550.0,
+      "Thaco (total)": 7550,
       "Others (VAMA)": 2146.0,
       "VinFast": 11479.0,
       "Hyundai (Thanh Cong)": 3601
@@ -536,7 +536,7 @@
       "Mitsubishi": 2180,
       "Honda (car)": 2275,
       "Peugeot": 153,
-      "Thaco (total)": 5949.0,
+      "Thaco (total)": 5949,
       "Others (VAMA)": 2414.0,
       "VinFast": 10922.0,
       "Hyundai (Thanh Cong)": 3701
@@ -553,7 +553,7 @@
       "Mitsubishi": 3805,
       "Honda (car)": 1704,
       "Peugeot": 143,
-      "Thaco (total)": 6581.0,
+      "Thaco (total)": 6581,
       "Others (VAMA)": 2775.0,
       "VinFast": 13914.0,
       "Hyundai (Thanh Cong)": 4296
@@ -570,7 +570,7 @@
       "Mitsubishi": 5082,
       "Honda (car)": 3314,
       "Peugeot": 183,
-      "Thaco (total)": 7581.0,
+      "Thaco (total)": 7581,
       "Others (VAMA)": 2710.0,
       "VinFast": 20380.0,
       "Hyundai (Thanh Cong)": 5260
@@ -587,7 +587,7 @@
       "Mitsubishi": 5056,
       "Honda (car)": 3986,
       "Peugeot": 178,
-      "Thaco (total)": 8612.0,
+      "Thaco (total)": 8612,
       "Others (VAMA)": 2680.0,
       "VinFast": 23186.0,
       "Hyundai (Thanh Cong)": 5463
@@ -604,7 +604,7 @@
       "Mitsubishi": 8960,
       "Honda (car)": 3590,
       "Peugeot": 232,
-      "Thaco (total)": 12065.0,
+      "Thaco (total)": 12065,
       "Others (VAMA)": 3382.0,
       "VinFast": 27649.0,
       "Hyundai (Thanh Cong)": 6704
@@ -621,7 +621,7 @@
       "Mitsubishi": 5039,
       "Honda (car)": 2712,
       "Peugeot": 191,
-      "Thaco (total)": 9267.0,
+      "Thaco (total)": 9267,
       "Others (VAMA)": 2592.0,
       "VinFast": 16172.0,
       "Hyundai (Thanh Cong)": 5872
@@ -638,7 +638,7 @@
       "Mitsubishi": 1784,
       "Honda (car)": 1052,
       "Peugeot": 98,
-      "Thaco (total)": 5037.0,
+      "Thaco (total)": 5037,
       "Others (VAMA)": 1331.0,
       "VinFast": 9903.0,
       "Hyundai (Thanh Cong)": 3080
@@ -655,7 +655,7 @@
       "Mitsubishi": 5086,
       "Honda (car)": 1839,
       "Peugeot": 103,
-      "Thaco (total)": 8787.0,
+      "Thaco (total)": 8787,
       "Others (VAMA)": 2855.0,
       "VinFast": 27609.0,
       "Hyundai (Thanh Cong)": 4546
@@ -672,7 +672,7 @@
       "Mitsubishi": 3439,
       "Honda (car)": 1830,
       "Peugeot": 72,
-      "Thaco (total)": 7756.0,
+      "Thaco (total)": 7756,
       "Others (VAMA)": 2138.0,
       "VinFast": 24774.0,
       "Hyundai (Thanh Cong)": 3904
@@ -689,7 +689,7 @@
       "Mitsubishi": 3111,
       "Honda (car)": 1870,
       "Peugeot": 84,
-      "Thaco (total)": 7341.0,
+      "Thaco (total)": 7341,
       "Others (VAMA)": 2584.0,
       "VinFast": 19503.0,
       "Hyundai (Thanh Cong)": 3921
@@ -706,7 +706,7 @@
       "Mitsubishi": 3158,
       "Honda (car)": 2002,
       "Peugeot": 122,
-      "Thaco (total)": 7365.0,
+      "Thaco (total)": 7365,
       "Others (VAMA)": 2474.0,
       "VinFast": 17955.0,
       "Hyundai (Thanh Cong)": 3746
@@ -723,7 +723,7 @@
       "Mitsubishi": 3216,
       "Honda (car)": 2129,
       "Peugeot": 131,
-      "Thaco (total)": 5380.0,
+      "Thaco (total)": 7505,
       "Others (VAMA)": null,
       "VinFast": 21781.0,
       "Hyundai (Thanh Cong)": 3543
@@ -740,7 +740,7 @@
       "Mitsubishi": 3209,
       "Honda (car)": 1001,
       "Peugeot": 82,
-      "Thaco (total)": null,
+      "Thaco (total)": 5983,
       "Others (VAMA)": null,
       "VinFast": 20161.0,
       "Hyundai (Thanh Cong)": 2928
