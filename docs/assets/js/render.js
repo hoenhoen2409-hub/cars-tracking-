@@ -45,6 +45,28 @@ function fmtPeriodShort(period) {
   return `${m}/${y.slice(2)}`;
 }
 
+// VAMA members only (excludes VinFast and Hyundai Thanh Cong, neither of
+// which is a VAMA member) -- null if any component is unconfirmed for the
+// month, same convention as the historical total_vama CSV column.
+const VAMA_MEMBER_BRANDS = ["Toyota", "Ford", "Mitsubishi", "Honda (car)", "Peugeot", "Thaco (total)", "Others (VAMA)"];
+
+function carVamaTotal(row) {
+  let sum = 0;
+  for (const label of VAMA_MEMBER_BRANDS) {
+    const v = row.brands[label];
+    if (v == null) return null;
+    sum += v;
+  }
+  return sum;
+}
+
+function carMarketExVinFast(row) {
+  const vama = carVamaTotal(row);
+  const htc = row.brands["Hyundai (Thanh Cong)"];
+  if (vama == null || htc == null) return null;
+  return vama + htc;
+}
+
 function shiftPeriod(period, deltaMonths) {
   const [y, m] = period.split("-").map(Number);
   const total = y * 12 + (m - 1) + deltaMonths;

@@ -70,19 +70,25 @@
     <div class="card">
       <div class="filter-bar">
         <div class="filter-field">
-          <span class="filter-label">Year from</span>
-          <select class="filter-select-native" id="car-year-from"></select>
+          <span class="filter-label">Month from</span>
+          <select class="filter-select-native" id="car-month-from"></select>
         </div>
         <div class="filter-field">
-          <span class="filter-label">Year to</span>
-          <select class="filter-select-native" id="car-year-to"></select>
+          <span class="filter-label">Month to</span>
+          <select class="filter-select-native" id="car-month-to"></select>
         </div>
         <div class="filter-field" style="flex:1;">
           <span class="filter-label">Brands</span>
           <div class="brand-toggles" id="brand-toggles"></div>
         </div>
       </div>
+
+      <div class="card-head" style="margin-bottom:10px;"><h3>Total Market</h3></div>
       <div id="car-kpis" class="kpis kpis-4"></div>
+
+      <div class="card-head" style="margin:20px 0 10px;"><h3>Total Market (excl. VinFast)</h3></div>
+      <div id="car-kpis-exvf" class="kpis kpis-4"></div>
+
       <p class="muted" id="car-data-note" style="margin-top:14px; font-size:12px;"></p>
     </div>
 

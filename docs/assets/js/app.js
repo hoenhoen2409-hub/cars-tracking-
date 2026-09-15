@@ -8,8 +8,10 @@ const state = {
   motos: [],
   meta: {},
   selectedBrands: new Set(DEFAULT_BRANDS),
-  carYearFrom: null,
-  carYearTo: null,
+  // Cars section is filtered (and its KPI "as of" reference month is set)
+  // by month, not just year -- see renderCarsSection().
+  carPeriodFrom: null,
+  carPeriodTo: null,
   motoYearFrom: null,
   motoYearTo: null,
 };
@@ -28,8 +30,19 @@ function fillYearSelect(selectEl, years, selected) {
   selectEl.innerHTML = years.map((y) => `<option value="${y}" ${y === selected ? "selected" : ""}>${y}</option>`).join("");
 }
 
+function fillPeriodSelect(selectEl, periods, selected) {
+  selectEl.innerHTML = periods
+    .map((p) => `<option value="${p}" ${p === selected ? "selected" : ""}>${fmtPeriodLabel(p)}</option>`)
+    .join("");
+}
+
 function filterByYear(rows, from, to) {
   return rows.filter((r) => r.year >= from && r.year <= to);
+}
+
+// Period strings are "YYYY-MM" so lexicographic comparison is chronological.
+function filterByPeriodRange(rows, from, to) {
+  return rows.filter((r) => r.period >= from && r.period <= to);
 }
 
 // -------------------------------------------------------------- cars tab
@@ -53,16 +66,23 @@ function renderBrandToggles() {
 }
 
 function renderCarsSection() {
-  const filtered = filterByYear(state.cars, state.carYearFrom, state.carYearTo);
+  const filtered = filterByPeriodRange(state.cars, state.carPeriodFrom, state.carPeriodTo);
   const periods = filtered.map((r) => r.period);
   const brands = CAR_BRANDS.filter((b) => state.selectedBrands.has(b));
 
-  // KPI: Total Market, computed over the full series (not just the
-  // year-filtered window) so MoM/YoY always has the adjacent month to
-  // compare against even when the filter starts at the latest year.
+  // KPI lookups (MoM/YoY/YTD) always resolve against the full, unfiltered
+  // series -- a YoY comparison still needs the same month a year earlier
+  // even if that's outside the selected range. Only which period counts as
+  // "latest" is bounded, by passing the range-filtered `periods` list: this
+  // is what makes the KPI cards move to whatever month "Month to" is set to
+  // (falling back to the closest earlier month with data, same as always).
   const marketByPeriod = Object.fromEntries(state.cars.map((r) => [r.period, r.total_market]));
-  const kpis = computeKpis(marketByPeriod, state.cars.map((r) => r.period), "Total Market");
+  const kpis = computeKpis(marketByPeriod, periods, "Total Market");
   renderKpis4(document.getElementById("car-kpis"), kpis);
+
+  const marketExVfByPeriod = Object.fromEntries(state.cars.map((r) => [r.period, carMarketExVinFast(r)]));
+  const kpisExVf = computeKpis(marketExVfByPeriod, periods, "Total Market (ex. VinFast)");
+  renderKpis4(document.getElementById("car-kpis-exvf"), kpisExVf);
 
   const series = brands.map((label) => ({
     label,
@@ -97,17 +117,20 @@ function renderCarsSection() {
 
   document.getElementById("car-count-label").textContent = `${filtered.length} months shown · ${brands.length} brand(s) selected`;
 
-  const latestRow = state.cars[state.cars.length - 1];
-  const missingBrands = CAR_BRANDS.filter((b) => latestRow.brands[b] == null);
+  // Flag missing brands for the selected "as of" month (carPeriodTo), not
+  // always the dataset's true latest -- the note should explain whatever
+  // month the KPI cards above actually landed on.
+  const refRow = state.cars.find((r) => r.period === state.carPeriodTo) || state.cars[state.cars.length - 1];
+  const missingBrands = CAR_BRANDS.filter((b) => refRow.brands[b] == null);
   const noteEl = document.getElementById("car-data-note");
   noteEl.textContent =
     missingBrands.length > 0
-      ? `Note: ${fmtPeriodLabel(latestRow.period)} — ${missingBrands.join(", ")} not yet confirmed from the official VAMA report; Total Market is withheld for that month until complete.`
+      ? `Note: ${fmtPeriodLabel(refRow.period)} — ${missingBrands.join(", ")} not yet confirmed from the official VAMA report; Total Market figures are withheld for that month until complete (KPI cards above show the latest complete month instead).`
       : "";
 }
 
 function exportCarsCsv() {
-  const filtered = filterByYear(state.cars, state.carYearFrom, state.carYearTo);
+  const filtered = filterByPeriodRange(state.cars, state.carPeriodFrom, state.carPeriodTo);
   const brands = CAR_BRANDS.filter((b) => state.selectedBrands.has(b));
   const header = ["period", ...brands.flatMap((b) => [b, `${b} MoM%`])];
   const lines = [header.join(",")];
@@ -184,27 +207,27 @@ async function init() {
   state.motos = motos;
   state.meta = meta;
 
-  const carYears = yearsFromRows(cars);
+  const carPeriods = cars.map((r) => r.period);
   const motoYears = yearsFromRows(motos);
-  state.carYearFrom = carYears[0];
-  state.carYearTo = carYears[carYears.length - 1];
+  state.carPeriodFrom = carPeriods[0];
+  state.carPeriodTo = carPeriods[carPeriods.length - 1];
   state.motoYearFrom = motoYears[0];
   state.motoYearTo = motoYears[motoYears.length - 1];
 
   renderHero(meta.latest_car_period, meta.latest_moto_period, meta.generated_at);
   renderTopSummary(cars, CAR_BRANDS);
 
-  fillYearSelect(document.getElementById("car-year-from"), carYears, state.carYearFrom);
-  fillYearSelect(document.getElementById("car-year-to"), carYears, state.carYearTo);
+  fillPeriodSelect(document.getElementById("car-month-from"), carPeriods, state.carPeriodFrom);
+  fillPeriodSelect(document.getElementById("car-month-to"), carPeriods, state.carPeriodTo);
   fillYearSelect(document.getElementById("moto-year-from"), motoYears, state.motoYearFrom);
   fillYearSelect(document.getElementById("moto-year-to"), motoYears, state.motoYearTo);
 
-  document.getElementById("car-year-from").addEventListener("change", (e) => {
-    state.carYearFrom = Number(e.target.value);
+  document.getElementById("car-month-from").addEventListener("change", (e) => {
+    state.carPeriodFrom = e.target.value;
     renderCarsSection();
   });
-  document.getElementById("car-year-to").addEventListener("change", (e) => {
-    state.carYearTo = Number(e.target.value);
+  document.getElementById("car-month-to").addEventListener("change", (e) => {
+    state.carPeriodTo = e.target.value;
     renderCarsSection();
   });
   document.getElementById("moto-year-from").addEventListener("change", (e) => {
