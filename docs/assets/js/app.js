@@ -9,7 +9,14 @@ const state = {
   meta: {},
   selectedBrands: new Set(DEFAULT_BRANDS),
   // Cars section is filtered (and its KPI "as of" reference month is set)
-  // by month, not just year -- see renderCarsSection().
+  // by month, not just year -- see renderCarsSection(). Year/month are
+  // picked via separate selects (carYearFrom/carMonthFrom etc.) and kept in
+  // sync with the derived "YYYY-MM" strings below, which are what the rest
+  // of the app (filtering, KPI lookups, CSV export) actually reads.
+  carYearFrom: null,
+  carMonthFrom: null,
+  carYearTo: null,
+  carMonthTo: null,
   carPeriodFrom: null,
   carPeriodTo: null,
   motoYearFrom: null,
@@ -30,9 +37,16 @@ function fillYearSelect(selectEl, years, selected) {
   selectEl.innerHTML = years.map((y) => `<option value="${y}" ${y === selected ? "selected" : ""}>${y}</option>`).join("");
 }
 
-function fillPeriodSelect(selectEl, periods, selected) {
-  selectEl.innerHTML = periods
-    .map((p) => `<option value="${p}" ${p === selected ? "selected" : ""}>${fmtPeriodLabel(p)}</option>`)
+const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const pad2 = (n) => String(n).padStart(2, "0");
+
+function monthsForYear(rows, year) {
+  return [...new Set(rows.filter((r) => r.year === year).map((r) => r.month))].sort((a, b) => a - b);
+}
+
+function fillMonthSelect(selectEl, months, selected) {
+  selectEl.innerHTML = months
+    .map((m) => `<option value="${m}" ${m === selected ? "selected" : ""}>${MONTH_NAMES[m - 1]}</option>`)
     .join("");
 }
 
@@ -207,27 +221,55 @@ async function init() {
   state.motos = motos;
   state.meta = meta;
 
-  const carPeriods = cars.map((r) => r.period);
+  const carYears = yearsFromRows(cars);
   const motoYears = yearsFromRows(motos);
-  state.carPeriodFrom = carPeriods[0];
-  state.carPeriodTo = carPeriods[carPeriods.length - 1];
+
+  state.carYearFrom = carYears[0];
+  state.carYearTo = carYears[carYears.length - 1];
+  const fromMonths = monthsForYear(cars, state.carYearFrom);
+  const toMonths = monthsForYear(cars, state.carYearTo);
+  state.carMonthFrom = fromMonths[0];
+  state.carMonthTo = toMonths[toMonths.length - 1];
+  state.carPeriodFrom = `${state.carYearFrom}-${pad2(state.carMonthFrom)}`;
+  state.carPeriodTo = `${state.carYearTo}-${pad2(state.carMonthTo)}`;
+
   state.motoYearFrom = motoYears[0];
   state.motoYearTo = motoYears[motoYears.length - 1];
 
   renderHero(meta.latest_car_period, meta.latest_moto_period, meta.generated_at);
   renderTopSummary(cars, CAR_BRANDS);
 
-  fillPeriodSelect(document.getElementById("car-month-from"), carPeriods, state.carPeriodFrom);
-  fillPeriodSelect(document.getElementById("car-month-to"), carPeriods, state.carPeriodTo);
+  fillYearSelect(document.getElementById("car-year-from"), carYears, state.carYearFrom);
+  fillYearSelect(document.getElementById("car-year-to"), carYears, state.carYearTo);
+  fillMonthSelect(document.getElementById("car-month-from"), fromMonths, state.carMonthFrom);
+  fillMonthSelect(document.getElementById("car-month-to"), toMonths, state.carMonthTo);
   fillYearSelect(document.getElementById("moto-year-from"), motoYears, state.motoYearFrom);
   fillYearSelect(document.getElementById("moto-year-to"), motoYears, state.motoYearTo);
 
+  document.getElementById("car-year-from").addEventListener("change", (e) => {
+    state.carYearFrom = Number(e.target.value);
+    const months = monthsForYear(state.cars, state.carYearFrom);
+    if (!months.includes(state.carMonthFrom)) state.carMonthFrom = months[0];
+    fillMonthSelect(document.getElementById("car-month-from"), months, state.carMonthFrom);
+    state.carPeriodFrom = `${state.carYearFrom}-${pad2(state.carMonthFrom)}`;
+    renderCarsSection();
+  });
   document.getElementById("car-month-from").addEventListener("change", (e) => {
-    state.carPeriodFrom = e.target.value;
+    state.carMonthFrom = Number(e.target.value);
+    state.carPeriodFrom = `${state.carYearFrom}-${pad2(state.carMonthFrom)}`;
+    renderCarsSection();
+  });
+  document.getElementById("car-year-to").addEventListener("change", (e) => {
+    state.carYearTo = Number(e.target.value);
+    const months = monthsForYear(state.cars, state.carYearTo);
+    if (!months.includes(state.carMonthTo)) state.carMonthTo = months[months.length - 1];
+    fillMonthSelect(document.getElementById("car-month-to"), months, state.carMonthTo);
+    state.carPeriodTo = `${state.carYearTo}-${pad2(state.carMonthTo)}`;
     renderCarsSection();
   });
   document.getElementById("car-month-to").addEventListener("change", (e) => {
-    state.carPeriodTo = e.target.value;
+    state.carMonthTo = Number(e.target.value);
+    state.carPeriodTo = `${state.carYearTo}-${pad2(state.carMonthTo)}`;
     renderCarsSection();
   });
   document.getElementById("moto-year-from").addEventListener("change", (e) => {

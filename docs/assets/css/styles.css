@@ -188,6 +188,8 @@ a:hover { color: var(--accent); }
 /* ---------------------------------------------------------- filter bar */
 .filter-bar { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-end; margin-bottom: 20px; }
 .filter-field { display: flex; flex-direction: column; gap: 6px; }
+.filter-subrow { display: flex; gap: 6px; }
+.filter-subrow select { min-width: 0; }
 .filter-label { font-size: var(--t-eyebrow); text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3); font-weight: 700; }
 select.filter-select-native {
   font-family: var(--font-sans);
