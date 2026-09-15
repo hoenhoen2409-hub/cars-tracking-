@@ -95,14 +95,14 @@ function pctSpanHtml(pct, { arrows = true } = {}) {
   return `<span class="${dir}">${arrow}${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%</span>`;
 }
 
-// A rowsByPeriod entry is either a plain number (assumed complete -- the
-// simple case used by the top-summary and moto KPIs) or a {value, complete}
-// pair (the cars KPIs, where "complete" tracks whether every VAMA brand
-// that contributes to it was confirmed for that month).
-function normalizeEntry(v) {
-  if (v == null) return { value: null, complete: false };
-  if (typeof v === "object") return { value: v.value, complete: v.complete };
-  return { value: v, complete: true };
+// A rowsByPeriod entry is either a plain number (the simple case used by
+// the top-summary and moto KPIs) or a {value, complete} pair (the cars
+// KPIs, from carMarketTotal/carMarketExVinFast) -- either way, only the
+// value is needed here.
+function entryValue(v) {
+  if (v == null) return null;
+  if (typeof v === "object") return v.value;
+  return v;
 }
 
 // -------------------------------------------------------------- KPI block
@@ -110,25 +110,23 @@ function normalizeEntry(v) {
 // Streamlit app's kpi_row(), just re-derived client-side against the
 // {period -> value} lookup instead of a pandas frame.
 function kpisAnchoredAt(rowsByPeriod, latestPeriod, valueLabel) {
-  const latest = normalizeEntry(rowsByPeriod[latestPeriod]);
-  const mom = normalizeEntry(rowsByPeriod[shiftPeriod(latestPeriod, -1)]);
-  const yoy = normalizeEntry(rowsByPeriod[shiftPeriod(latestPeriod, -12)]);
+  const latestValue = entryValue(rowsByPeriod[latestPeriod]);
+  const momValue = entryValue(rowsByPeriod[shiftPeriod(latestPeriod, -1)]);
+  const yoyValue = entryValue(rowsByPeriod[shiftPeriod(latestPeriod, -12)]);
 
   const [latestYear, latestMonth] = latestPeriod.split("-").map(Number);
   let ytdCurrent = 0;
   let ytdPrior = 0;
   let havePrior = false;
-  let ytdComplete = true;
   for (let m = 1; m <= latestMonth; m++) {
     const p = `${latestYear}-${String(m).padStart(2, "0")}`;
-    const entry = normalizeEntry(rowsByPeriod[p]);
-    if (entry.value != null) ytdCurrent += entry.value;
-    if (!entry.complete) ytdComplete = false;
+    const v = entryValue(rowsByPeriod[p]);
+    if (v != null) ytdCurrent += v;
 
     const pPrior = `${latestYear - 1}-${String(m).padStart(2, "0")}`;
-    const priorEntry = normalizeEntry(rowsByPeriod[pPrior]);
-    if (priorEntry.value != null) {
-      ytdPrior += priorEntry.value;
+    const vPrior = entryValue(rowsByPeriod[pPrior]);
+    if (vPrior != null) {
+      ytdPrior += vPrior;
       havePrior = true;
     }
   }
@@ -136,12 +134,10 @@ function kpisAnchoredAt(rowsByPeriod, latestPeriod, valueLabel) {
   return {
     label: valueLabel,
     latestPeriod,
-    latestValue: latest.value,
-    latestComplete: latest.complete,
-    momPct: pctChange(latest.value, mom.value),
-    yoyPct: pctChange(latest.value, yoy.value),
+    latestValue,
+    momPct: pctChange(latestValue, momValue),
+    yoyPct: pctChange(latestValue, yoyValue),
     ytdCurrent,
-    ytdComplete,
     ytdPriorPct: havePrior ? pctChange(ytdCurrent, ytdPrior) : null,
     latestYear,
   };
@@ -167,18 +163,8 @@ function renderKpis4(containerEl, kpis) {
     containerEl.innerHTML = `<div class="empty-state">No data available.</div>`;
     return;
   }
-  const partialTag = (complete) =>
-    complete
-      ? ""
-      : ` <span class="partial-tag" title="Sum of confirmed figures only -- one or more months/components in this range aren't reported yet">partial</span>`;
-
   const cards = [
-    {
-      lbl: `${kpis.label} — ${fmtPeriodLabel(kpis.latestPeriod)}`,
-      val: fmtInt(kpis.latestValue),
-      sub: "",
-      tag: partialTag(kpis.latestComplete),
-    },
+    { lbl: `${kpis.label} — ${fmtPeriodLabel(kpis.latestPeriod)}`, val: fmtInt(kpis.latestValue), sub: "" },
     { lbl: "Month-over-month (MoM)", val: null, pct: kpis.momPct },
     { lbl: "Year-over-year (YoY)", val: null, pct: kpis.yoyPct },
     {
@@ -186,14 +172,13 @@ function renderKpis4(containerEl, kpis) {
       val: fmtInt(kpis.ytdCurrent),
       sub: kpis.ytdPriorPct == null ? "Not enough prior-year data" : "",
       pct: kpis.ytdPriorPct,
-      tag: partialTag(kpis.ytdComplete),
     },
   ];
   containerEl.innerHTML = cards
     .map((c) => {
       const mainHtml =
         c.val != null
-          ? `<div class="val">${escapeHtml(c.val)}${c.tag || ""}${c.pct != null ? ` <small>${pctSpanHtml(c.pct)}</small>` : ""}</div>`
+          ? `<div class="val">${escapeHtml(c.val)}${c.pct != null ? ` <small>${pctSpanHtml(c.pct)}</small>` : ""}</div>`
           : `<div class="val ${c.pct != null && c.pct >= 0 ? "up" : c.pct != null ? "down" : ""}">${pctSpanHtml(c.pct)}</div>`;
       return `
       <div class="kpi">
