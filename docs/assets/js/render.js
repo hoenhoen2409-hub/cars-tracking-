@@ -91,11 +91,8 @@ function pctSpanHtml(pct, { arrows = true } = {}) {
 // Mirrors the MoM / YoY / YTD-vs-prior-year-YTD logic in the original
 // Streamlit app's kpi_row(), just re-derived client-side against the
 // {period -> value} lookup instead of a pandas frame.
-function computeKpis(rowsByPeriod, periods, valueLabel) {
-  const validPeriods = periods.filter((p) => rowsByPeriod[p] != null);
-  if (!validPeriods.length) return null;
-  const latestPeriod = validPeriods[validPeriods.length - 1];
-  const latestValue = rowsByPeriod[latestPeriod];
+function kpisAnchoredAt(rowsByPeriod, latestPeriod, valueLabel) {
+  const latestValue = rowsByPeriod[latestPeriod] ?? null;
 
   const momValue = rowsByPeriod[shiftPeriod(latestPeriod, -1)] ?? null;
   const yoyValue = rowsByPeriod[shiftPeriod(latestPeriod, -12)] ?? null;
@@ -124,6 +121,21 @@ function computeKpis(rowsByPeriod, periods, valueLabel) {
     ytdPriorPct: havePrior ? pctChange(ytdCurrent, ytdPrior) : null,
     latestYear,
   };
+}
+
+function computeKpis(rowsByPeriod, periods, valueLabel) {
+  const validPeriods = periods.filter((p) => rowsByPeriod[p] != null);
+  if (!validPeriods.length) return null;
+  return kpisAnchoredAt(rowsByPeriod, validPeriods[validPeriods.length - 1], valueLabel);
+}
+
+// Same MoM/YoY/YTD math as computeKpis, but always anchored on the exact
+// `refPeriod` given -- e.g. the user's "Month to" selection -- instead of
+// searching backward for the latest period with a non-null value. If
+// refPeriod itself has no data yet, the value card shows "-" rather than
+// silently substituting an earlier month.
+function computeKpisAt(rowsByPeriod, refPeriod, valueLabel) {
+  return kpisAnchoredAt(rowsByPeriod, refPeriod, valueLabel);
 }
 
 function renderKpis4(containerEl, kpis) {

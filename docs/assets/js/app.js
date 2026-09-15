@@ -86,16 +86,17 @@ function renderCarsSection() {
 
   // KPI lookups (MoM/YoY/YTD) always resolve against the full, unfiltered
   // series -- a YoY comparison still needs the same month a year earlier
-  // even if that's outside the selected range. Only which period counts as
-  // "latest" is bounded, by passing the range-filtered `periods` list: this
-  // is what makes the KPI cards move to whatever month "Month to" is set to
-  // (falling back to the closest earlier month with data, same as always).
+  // even if that's outside the selected range -- but the "latest" anchor
+  // itself is always exactly carPeriodTo (the selected "Month to"), not a
+  // search for the closest earlier month with data. If that month's figure
+  // isn't in yet, the card shows "-" rather than quietly substituting an
+  // earlier one.
   const marketByPeriod = Object.fromEntries(state.cars.map((r) => [r.period, r.total_market]));
-  const kpis = computeKpis(marketByPeriod, periods, "Total Market");
+  const kpis = computeKpisAt(marketByPeriod, state.carPeriodTo, "Total Market");
   renderKpis4(document.getElementById("car-kpis"), kpis);
 
   const marketExVfByPeriod = Object.fromEntries(state.cars.map((r) => [r.period, carMarketExVinFast(r)]));
-  const kpisExVf = computeKpis(marketExVfByPeriod, periods, "Total Market (ex. VinFast)");
+  const kpisExVf = computeKpisAt(marketExVfByPeriod, state.carPeriodTo, "Total Market (ex. VinFast)");
   renderKpis4(document.getElementById("car-kpis-exvf"), kpisExVf);
 
   const series = brands.map((label) => ({
@@ -139,7 +140,7 @@ function renderCarsSection() {
   const noteEl = document.getElementById("car-data-note");
   noteEl.textContent =
     missingBrands.length > 0
-      ? `Note: ${fmtPeriodLabel(refRow.period)} — ${missingBrands.join(", ")} not yet confirmed from the official VAMA report; Total Market figures are withheld for that month until complete (KPI cards above show the latest complete month instead).`
+      ? `Note: ${fmtPeriodLabel(refRow.period)} — ${missingBrands.join(", ")} not yet confirmed from the official VAMA report; Total Market figures above show "—" for this month until complete. Pick an earlier "Month to" to see the last fully confirmed month.`
       : "";
 }
 
