@@ -729,5 +729,22 @@
       "Hyundai (Thanh Cong)": 3543
     },
     "total_market": null
+  },
+  {
+    "period": "2026-08",
+    "year": 2026,
+    "month": 8,
+    "brands": {
+      "Toyota": 4767,
+      "Ford": 2242,
+      "Mitsubishi": 3209,
+      "Honda (car)": 1001,
+      "Peugeot": 82.0,
+      "Thaco (total)": null,
+      "Others (VAMA)": null,
+      "VinFast": 20161.0,
+      "Hyundai (Thanh Cong)": 2928
+    },
+    "total_market": null
   }
 ]
