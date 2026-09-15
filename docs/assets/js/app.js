@@ -88,10 +88,14 @@ function renderCarsSection() {
   // series -- a YoY comparison still needs the same month a year earlier
   // even if that's outside the selected range -- but the "latest" anchor
   // itself is always exactly carPeriodTo (the selected "Month to"), not a
-  // search for the closest earlier month with data. If that month's figure
-  // isn't in yet, the card shows "-" rather than quietly substituting an
-  // earlier one.
-  const marketByPeriod = Object.fromEntries(state.cars.map((r) => [r.period, r.total_market]));
+  // search for the closest earlier month with data.
+  //
+  // Both totals are summed from whatever brands are confirmed that month
+  // (carMarketTotal / carMarketExVinFast return {value, complete}) rather
+  // than requiring every single VAMA member to be in -- a running total
+  // that's mostly there is more useful than a blank "-", as long as it's
+  // clearly marked "partial" (via renderKpis4) when something's missing.
+  const marketByPeriod = Object.fromEntries(state.cars.map((r) => [r.period, carMarketTotal(r)]));
   const kpis = computeKpisAt(marketByPeriod, state.carPeriodTo, "Total Market");
   renderKpis4(document.getElementById("car-kpis"), kpis);
 
@@ -140,7 +144,7 @@ function renderCarsSection() {
   const noteEl = document.getElementById("car-data-note");
   noteEl.textContent =
     missingBrands.length > 0
-      ? `Note: ${fmtPeriodLabel(refRow.period)} — ${missingBrands.join(", ")} not yet confirmed from the official VAMA report; Total Market figures above show "—" for this month until complete. Pick an earlier "Month to" to see the last fully confirmed month.`
+      ? `Note: ${fmtPeriodLabel(refRow.period)} — ${missingBrands.join(", ")} not yet confirmed from the official VAMA report; Total Market figures above are tagged "partial" for this month (sum of confirmed brands only, so understated by whatever ${missingBrands.join(", ")} would add).`
       : "";
 }
 

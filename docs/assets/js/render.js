@@ -46,25 +46,33 @@ function fmtPeriodShort(period) {
 }
 
 // VAMA members only (excludes VinFast and Hyundai Thanh Cong, neither of
-// which is a VAMA member) -- null if any component is unconfirmed for the
-// month, same convention as the historical total_vama CSV column.
+// which is a VAMA member). Sums whatever brands are confirmed for the month
+// rather than requiring all of them -- `complete` says whether any were
+// missing, so callers can show a running total plus a "partial" flag
+// instead of hiding the number entirely until every brand is in.
 const VAMA_MEMBER_BRANDS = ["Toyota", "Ford", "Mitsubishi", "Honda (car)", "Peugeot", "Thaco (total)", "Others (VAMA)"];
 
-function carVamaTotal(row) {
+function carVamaPartial(row) {
   let sum = 0;
+  let complete = true;
   for (const label of VAMA_MEMBER_BRANDS) {
     const v = row.brands[label];
-    if (v == null) return null;
-    sum += v;
+    if (v == null) complete = false;
+    else sum += v;
   }
-  return sum;
+  return { value: sum, complete };
 }
 
 function carMarketExVinFast(row) {
-  const vama = carVamaTotal(row);
+  const vama = carVamaPartial(row);
   const htc = row.brands["Hyundai (Thanh Cong)"];
-  if (vama == null || htc == null) return null;
-  return vama + htc;
+  return { value: vama.value + (htc ?? 0), complete: vama.complete && htc != null };
+}
+
+function carMarketTotal(row) {
+  const exVf = carMarketExVinFast(row);
+  const vf = row.brands["VinFast"];
+  return { value: exVf.value + (vf ?? 0), complete: exVf.complete && vf != null };
 }
 
 function shiftPeriod(period, deltaMonths) {
@@ -87,26 +95,40 @@ function pctSpanHtml(pct, { arrows = true } = {}) {
   return `<span class="${dir}">${arrow}${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%</span>`;
 }
 
+// A rowsByPeriod entry is either a plain number (assumed complete -- the
+// simple case used by the top-summary and moto KPIs) or a {value, complete}
+// pair (the cars KPIs, where "complete" tracks whether every VAMA brand
+// that contributes to it was confirmed for that month).
+function normalizeEntry(v) {
+  if (v == null) return { value: null, complete: false };
+  if (typeof v === "object") return { value: v.value, complete: v.complete };
+  return { value: v, complete: true };
+}
+
 // -------------------------------------------------------------- KPI block
 // Mirrors the MoM / YoY / YTD-vs-prior-year-YTD logic in the original
 // Streamlit app's kpi_row(), just re-derived client-side against the
 // {period -> value} lookup instead of a pandas frame.
 function kpisAnchoredAt(rowsByPeriod, latestPeriod, valueLabel) {
-  const latestValue = rowsByPeriod[latestPeriod] ?? null;
-
-  const momValue = rowsByPeriod[shiftPeriod(latestPeriod, -1)] ?? null;
-  const yoyValue = rowsByPeriod[shiftPeriod(latestPeriod, -12)] ?? null;
+  const latest = normalizeEntry(rowsByPeriod[latestPeriod]);
+  const mom = normalizeEntry(rowsByPeriod[shiftPeriod(latestPeriod, -1)]);
+  const yoy = normalizeEntry(rowsByPeriod[shiftPeriod(latestPeriod, -12)]);
 
   const [latestYear, latestMonth] = latestPeriod.split("-").map(Number);
   let ytdCurrent = 0;
   let ytdPrior = 0;
   let havePrior = false;
+  let ytdComplete = true;
   for (let m = 1; m <= latestMonth; m++) {
     const p = `${latestYear}-${String(m).padStart(2, "0")}`;
-    if (rowsByPeriod[p] != null) ytdCurrent += rowsByPeriod[p];
+    const entry = normalizeEntry(rowsByPeriod[p]);
+    if (entry.value != null) ytdCurrent += entry.value;
+    if (!entry.complete) ytdComplete = false;
+
     const pPrior = `${latestYear - 1}-${String(m).padStart(2, "0")}`;
-    if (rowsByPeriod[pPrior] != null) {
-      ytdPrior += rowsByPeriod[pPrior];
+    const priorEntry = normalizeEntry(rowsByPeriod[pPrior]);
+    if (priorEntry.value != null) {
+      ytdPrior += priorEntry.value;
       havePrior = true;
     }
   }
@@ -114,10 +136,12 @@ function kpisAnchoredAt(rowsByPeriod, latestPeriod, valueLabel) {
   return {
     label: valueLabel,
     latestPeriod,
-    latestValue,
-    momPct: pctChange(latestValue, momValue),
-    yoyPct: pctChange(latestValue, yoyValue),
+    latestValue: latest.value,
+    latestComplete: latest.complete,
+    momPct: pctChange(latest.value, mom.value),
+    yoyPct: pctChange(latest.value, yoy.value),
     ytdCurrent,
+    ytdComplete,
     ytdPriorPct: havePrior ? pctChange(ytdCurrent, ytdPrior) : null,
     latestYear,
   };
@@ -143,8 +167,18 @@ function renderKpis4(containerEl, kpis) {
     containerEl.innerHTML = `<div class="empty-state">No data available.</div>`;
     return;
   }
+  const partialTag = (complete) =>
+    complete
+      ? ""
+      : ` <span class="partial-tag" title="Sum of confirmed figures only -- one or more months/components in this range aren't reported yet">partial</span>`;
+
   const cards = [
-    { lbl: `${kpis.label} — ${fmtPeriodLabel(kpis.latestPeriod)}`, val: fmtInt(kpis.latestValue), sub: "" },
+    {
+      lbl: `${kpis.label} — ${fmtPeriodLabel(kpis.latestPeriod)}`,
+      val: fmtInt(kpis.latestValue),
+      sub: "",
+      tag: partialTag(kpis.latestComplete),
+    },
     { lbl: "Month-over-month (MoM)", val: null, pct: kpis.momPct },
     { lbl: "Year-over-year (YoY)", val: null, pct: kpis.yoyPct },
     {
@@ -152,13 +186,14 @@ function renderKpis4(containerEl, kpis) {
       val: fmtInt(kpis.ytdCurrent),
       sub: kpis.ytdPriorPct == null ? "Not enough prior-year data" : "",
       pct: kpis.ytdPriorPct,
+      tag: partialTag(kpis.ytdComplete),
     },
   ];
   containerEl.innerHTML = cards
     .map((c) => {
       const mainHtml =
         c.val != null
-          ? `<div class="val">${escapeHtml(c.val)}${c.pct != null ? ` <small>${pctSpanHtml(c.pct)}</small>` : ""}</div>`
+          ? `<div class="val">${escapeHtml(c.val)}${c.tag || ""}${c.pct != null ? ` <small>${pctSpanHtml(c.pct)}</small>` : ""}</div>`
           : `<div class="val ${c.pct != null && c.pct >= 0 ? "up" : c.pct != null ? "down" : ""}">${pctSpanHtml(c.pct)}</div>`;
       return `
       <div class="kpi">

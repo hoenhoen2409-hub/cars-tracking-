@@ -159,6 +159,20 @@ a:hover { color: var(--accent); }
 .kpi .val.up { color: var(--act-add); }
 .kpi .val.down { color: var(--act-exit); }
 .kpi .sub { margin-top: 4px; font-size: var(--t-meta); color: var(--ink-3); }
+.partial-tag {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 4px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--bg-tint);
+  color: var(--accent-ink);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: help;
+}
 
 /* ------------------------------------------------------------- section */
 .section { padding: 0 56px; margin-bottom: 64px; }
