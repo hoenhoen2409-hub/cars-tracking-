@@ -267,7 +267,10 @@ function renderTopSummary(carRows, brandLabels) {
 }
 
 // ------------------------------------------------------------ line chart
-function renderLineChart(containerEl, periods, series) {
+// yFormat/tooltipFormat let callers reuse this for non-unit series (e.g.
+// percentage share) without duplicating the whole chart -- default to the
+// same compact-number formatting the unit charts (car/moto) always used.
+function renderLineChart(containerEl, periods, series, { yFormat = fmtCompact, tooltipFormat = fmtInt } = {}) {
   if (!periods.length || !series.length) {
     containerEl.innerHTML = `<div class="empty-state">Select at least one brand.</div>`;
     return;
@@ -280,7 +283,7 @@ function renderLineChart(containerEl, periods, series) {
 
   const gridVals = [0, maxV / 2, maxV];
   const grid = gridVals
-    .map((v) => `<line class="chart-grid" x1="${padL}" x2="${W - padR}" y1="${y(v)}" y2="${y(v)}"/><text x="4" y="${(y(v) + 4).toFixed(1)}">${fmtCompact(v)}</text>`)
+    .map((v) => `<line class="chart-grid" x1="${padL}" x2="${W - padR}" y1="${y(v)}" y2="${y(v)}"/><text x="4" y="${(y(v) + 4).toFixed(1)}">${yFormat(v)}</text>`)
     .join("");
 
   let marks = "";
@@ -305,7 +308,7 @@ function renderLineChart(containerEl, periods, series) {
     periods.forEach((p, i) => {
       const v = s.values[i];
       if (v == null) return;
-      marks += `<circle class="chart-dot" cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="3" style="stroke:${s.color}"><title>${escapeHtml(s.label)} · ${fmtPeriodLabel(p)}: ${fmtInt(v)}</title></circle>`;
+      marks += `<circle class="chart-dot" cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="3" style="stroke:${s.color}"><title>${escapeHtml(s.label)} · ${fmtPeriodLabel(p)}: ${tooltipFormat(v)}</title></circle>`;
     });
   });
 
@@ -357,4 +360,172 @@ function renderBarChart(containerEl, periods, values) {
     .join("");
 
   containerEl.innerHTML = `<svg class="chart-svg" viewBox="0 0 ${W} ${H}" width="100%" height="${H}"><g class="chart-bar">${grid}${bars}</g>${xLabels}</svg>`;
+}
+
+// ------------------------------------------------- market structure (§3)
+// Everything below works from the brand-level monthly units already in
+// cars.json -- no per-model or per-powertrain data is scraped, so these
+// are the trends that CAN be derived from what's tracked today: brand mix
+// shift, VinFast (100% BEV, used as an EV proxy) share of the market, and
+// annual brand totals/CAGR. A true Hybrid/Gasoline/BEV split per brand or
+// VAMA's passenger/commercial/special segmentation would need additional
+// scraping this tracker doesn't do yet.
+
+function fmtPct1(v) {
+  return v == null ? "—" : `${v.toFixed(1)}%`;
+}
+
+// Sum of every tracked brand column that's confirmed for the month -- the
+// denominator for "share of tracked brands" below. Not a claim about the
+// true total market: recent months are still missing "Others" (Suzuki,
+// Isuzu, Mercedes-Benz, ...), same caveat as carVamaPartial elsewhere.
+function carRowKnownTotal(row) {
+  let sum = 0;
+  for (const label of Object.keys(BRAND_COLORS)) {
+    const v = row.brands[label];
+    if (v != null) sum += v;
+  }
+  return sum;
+}
+
+function carShareSeries(rows) {
+  return Object.keys(BRAND_COLORS).map((label) => ({
+    label,
+    color: BRAND_COLORS[label],
+    values: rows.map((r) => {
+      const v = r.brands[label];
+      if (v == null) return null;
+      const denom = carRowKnownTotal(r);
+      return denom > 0 ? (v / denom) * 100 : null;
+    }),
+  }));
+}
+
+function renderShareChart(chartEl, legendEl, rows) {
+  const periods = rows.map((r) => r.period);
+  const series = carShareSeries(rows);
+  renderLineChart(chartEl, periods, series, { yFormat: (v) => `${Math.round(v)}%`, tooltipFormat: fmtPct1 });
+  renderChartLegend(legendEl, series);
+}
+
+function evShareByPeriod(rows) {
+  const out = {};
+  rows.forEach((r) => {
+    const vf = r.brands["VinFast"];
+    const denom = carRowKnownTotal(r);
+    out[r.period] = vf != null && denom > 0 ? (vf / denom) * 100 : null;
+  });
+  return out;
+}
+
+function renderEvKpis(containerEl, rows) {
+  const shareByPeriod = evShareByPeriod(rows);
+  const latestPeriod = rows[rows.length - 1].period;
+  const latest = shareByPeriod[latestPeriod] ?? null;
+  const mom = shareByPeriod[shiftPeriod(latestPeriod, -1)] ?? null;
+  const yoy = shareByPeriod[shiftPeriod(latestPeriod, -12)] ?? null;
+
+  const ppSpan = (cur, prev) => {
+    if (cur == null || prev == null) return `<span class="muted">n/a</span>`;
+    const d = cur - prev;
+    const dir = d >= 0 ? "up" : "down";
+    return `<span class="${dir}">${d >= 0 ? "▲ +" : "▼ "}${Math.abs(d).toFixed(1)}pp</span>`;
+  };
+
+  const cards = [
+    { lbl: `EV (VinFast) share — ${fmtPeriodLabel(latestPeriod)}`, valHtml: escapeHtml(fmtPct1(latest)) },
+    { lbl: "vs. 1 month ago", valHtml: ppSpan(latest, mom) },
+    { lbl: "vs. 1 year ago", valHtml: ppSpan(latest, yoy) },
+  ];
+  containerEl.innerHTML = cards
+    .map(
+      (c) => `
+      <div class="kpi">
+        <div class="lbl">${escapeHtml(c.lbl)}</div>
+        <div class="val">${c.valHtml}</div>
+      </div>`
+    )
+    .join("");
+}
+
+function renderEvChart(containerEl, rows) {
+  const shareByPeriod = evShareByPeriod(rows);
+  const periods = rows.map((r) => r.period);
+  const series = [{ label: "VinFast", color: BRAND_COLORS["VinFast"], values: periods.map((p) => shareByPeriod[p]) }];
+  renderLineChart(containerEl, periods, series, { yFormat: (v) => `${Math.round(v)}%`, tooltipFormat: fmtPct1 });
+}
+
+// { sum, months } per brand per calendar year -- `months` (how many of
+// that year's rows had a non-null value for this brand) is what lets the
+// CAGR below tell "brand had zero sales" apart from "brand wasn't tracked
+// yet that year" (e.g. VinFast in 2023).
+function carAnnualTotals(rows) {
+  const years = [...new Set(rows.map((r) => r.year))].sort((a, b) => a - b);
+  const brands = Object.keys(BRAND_COLORS);
+  const totals = {};
+  brands.forEach((b) => {
+    totals[b] = {};
+    years.forEach((y) => (totals[b][y] = { sum: 0, months: 0 }));
+  });
+  const grandTotal = {};
+  years.forEach((y) => (grandTotal[y] = 0));
+
+  rows.forEach((r) => {
+    brands.forEach((b) => {
+      const v = r.brands[b];
+      if (v != null) {
+        totals[b][r.year].sum += v;
+        totals[b][r.year].months += 1;
+        grandTotal[r.year] += v;
+      }
+    });
+  });
+
+  const monthsPerYear = Object.fromEntries(years.map((y) => [y, rows.filter((r) => r.year === y).length]));
+  return { years, brands, totals, grandTotal, monthsPerYear };
+}
+
+function cagrPct(startVal, endVal, numYears) {
+  if (startVal == null || endVal == null || startVal <= 0 || numYears <= 0) return null;
+  return (Math.pow(endVal / startVal, 1 / numYears) - 1) * 100;
+}
+
+function renderAnnualTable(headEl, bodyEl, rows) {
+  const { years, brands, totals, grandTotal, monthsPerYear } = carAnnualTotals(rows);
+  const fullYears = years.filter((y) => monthsPerYear[y] === 12);
+  const firstFullYear = fullYears[0];
+  const lastFullYear = fullYears[fullYears.length - 1];
+  const cagrYears = firstFullYear != null && lastFullYear != null && lastFullYear > firstFullYear ? lastFullYear - firstFullYear : null;
+
+  headEl.innerHTML =
+    `<th class="ta-left">Brand</th>` +
+    years.map((y) => `<th>${monthsPerYear[y] < 12 ? `${y} YTD` : y}</th>`).join("") +
+    (cagrYears ? `<th>CAGR '${String(firstFullYear).slice(2)}&ndash;'${String(lastFullYear).slice(2)}</th>` : "");
+
+  const brandRows = brands
+    .map((b) => {
+      const cells = years.map((y) => `<td>${totals[b][y].months > 0 ? fmtInt(totals[b][y].sum) : "—"}</td>`).join("");
+      let cagrCell = "";
+      if (cagrYears) {
+        const startCell = totals[b][firstFullYear];
+        const endCell = totals[b][lastFullYear];
+        const cagr = startCell.months === 12 && endCell.months === 12 ? cagrPct(startCell.sum, endCell.sum, cagrYears) : null;
+        const dir = cagr == null ? "" : cagr >= 0 ? "up" : "down";
+        cagrCell = `<td class="pct ${dir}">${cagr == null ? "n/a" : (cagr >= 0 ? "+" : "") + cagr.toFixed(1) + "%"}</td>`;
+      }
+      return `<tr><td class="ta-left">${escapeHtml(b)}</td>${cells}${cagrCell}</tr>`;
+    })
+    .join("");
+
+  let totalCagrCell = "";
+  if (cagrYears) {
+    const totalCagr = cagrPct(grandTotal[firstFullYear], grandTotal[lastFullYear], cagrYears);
+    const dir = totalCagr == null ? "" : totalCagr >= 0 ? "up" : "down";
+    totalCagrCell = `<td class="pct ${dir}">${totalCagr == null ? "n/a" : (totalCagr >= 0 ? "+" : "") + totalCagr.toFixed(1) + "%"}</td>`;
+  }
+  const totalRow = `<tr style="font-weight:700; border-top:2px solid var(--ink-1);"><td class="ta-left">Total (tracked brands)</td>${years
+    .map((y) => `<td>${fmtInt(grandTotal[y])}</td>`)
+    .join("")}${totalCagrCell}</tr>`;
+
+  bodyEl.innerHTML = brandRows + totalRow;
 }

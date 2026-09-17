@@ -292,6 +292,13 @@ async function init() {
   renderBrandToggles();
   renderCarsSection();
   renderMotoSection();
+
+  // §3 Market Structure -- fixed full-history view, not tied to §1's
+  // Month from/to filter, so this only needs rendering once at load.
+  renderShareChart(document.getElementById("share-chart"), document.getElementById("share-chart-legend"), cars);
+  renderEvKpis(document.getElementById("ev-kpis"), cars);
+  renderEvChart(document.getElementById("ev-chart"), cars);
+  renderAnnualTable(document.getElementById("annual-table-head"), document.getElementById("annual-table-body"), cars);
 }
 
 init().catch((err) => {

@@ -153,6 +153,61 @@
     </div>
   </section>
 
+  <section class="section" id="structure-section">
+    <div class="section-head">
+      <span class="num">&sect;3</span>
+      <h2>Market Structure &amp; EV Trend</h2>
+      <span class="right">Full history, all brands</span>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Brand Market Share Trend</h3></div>
+      <p class="muted" style="margin-bottom:14px; font-size:12px;">
+        Each brand's monthly share of the sum of all tracked brands. Independent of the Month
+        from/to filter in &sect;1 above -- always shows the full history.
+      </p>
+      <div class="chart-wrap" id="share-chart"></div>
+      <div class="chart-legend" id="share-chart-legend"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>EV (VinFast) Share of Total Market</h3></div>
+      <p class="muted" style="margin-bottom:14px; font-size:12px;">
+        VinFast is used as a proxy for EV volume since it's Vietnam's dominant battery-EV seller
+        and the only tracked brand that's 100% electric. Other brands' hybrid/EV models aren't
+        broken out separately in this dataset, so this understates true electrified volume.
+      </p>
+      <div id="ev-kpis" class="kpis kpis-3"></div>
+      <div class="chart-wrap" id="ev-chart" style="margin-top:18px;"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Annual Sales by Brand</h3></div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr id="annual-table-head"></tr></thead>
+          <tbody id="annual-table-body"></tbody>
+        </table>
+      </div>
+      <p class="muted" style="margin-top:14px; font-size:12px;">
+        The current year is year-to-date through the latest confirmed month; its growth column
+        (if shown) only compares full calendar years with 12 confirmed months on both ends.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Not yet available from this data</h3></div>
+      <p class="muted" style="font-size:12px;">
+        This tracker records total monthly units per brand, not per model or powertrain, so a
+        Hybrid / Gasoline / Battery-EV split within a brand (e.g. Toyota's hybrid mix) can't be
+        derived from it. VAMA's own passenger / commercial / special-purpose vehicle segmentation
+        is also not tracked monthly here (it was only pulled once, from the raw VAMA PDFs, to get
+        July&ndash;Aug 2026's Thaco sub-brand figures). Both would need additional scraping of
+        VAMA's segment tables or brand-level model/powertrain disclosures.
+      </p>
+    </div>
+  </section>
+
   <footer class="footer">
     <div>Sources: VAMA, VinFast (SEC 6-K), Hyundai Thanh Cong, Honda Vietnam. Rebuilt from data/*.csv via export_site_data.py.</div>
     <div id="footer-generated"></div>
