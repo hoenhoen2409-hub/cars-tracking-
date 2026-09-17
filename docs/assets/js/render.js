@@ -401,33 +401,55 @@ function carShareSeries(rows) {
   }));
 }
 
+function avgShare(s) {
+  const vals = s.values.filter((v) => v != null);
+  return vals.length ? vals.reduce((sum, v) => sum + v, 0) / vals.length : 0;
+}
+
+// Caps the stack at topK individually-colored brands (by average share) and
+// folds the rest into one grey "Other tracked brands" band -- 9 overlapping
+// colors was too much to read at once, so the smaller/noisier brands are
+// collapsed into a single band instead of demanding a color for each.
+function carShareSeriesGrouped(rows, topK) {
+  const all = carShareSeries(rows);
+  const ranked = [...all].sort((a, b) => avgShare(b) - avgShare(a));
+  const top = ranked.slice(0, topK);
+  const rest = ranked.slice(topK);
+  if (!rest.length) return top;
+  const otherValues = rows.map((_, i) => rest.reduce((sum, s) => sum + (s.values[i] ?? 0), 0));
+  const other = {
+    label: "Other tracked brands",
+    color: "#ACAEB0",
+    values: otherValues,
+    members: rest.map((s) => s.label),
+  };
+  return [...top, other];
+}
+
 // 100%-stacked area instead of 9 overlapping/crossing lines -- much easier
 // to read a composition-over-time story from than a spaghetti line chart.
 function renderShareChart(chartEl, legendEl, rows) {
   const periods = rows.map((r) => r.period);
-  const series = carShareSeries(rows);
-  // Largest-average brand at the bottom of the stack (a stable visual
-  // anchor); smaller/more volatile brands stacked above it. The legend
+  const grouped = carShareSeriesGrouped(rows, 5);
+  // Largest-average band at the bottom of the stack (a stable visual
+  // anchor); smaller/more volatile bands stacked above it. The legend
   // follows the same order so color position in the stack matches the
   // legend's reading order.
-  const avgShare = (s) => {
-    const vals = s.values.filter((v) => v != null);
-    return vals.length ? vals.reduce((sum, v) => sum + v, 0) / vals.length : 0;
-  };
-  const ordered = [...series].sort((a, b) => avgShare(b) - avgShare(a));
-  renderStackedAreaChart(chartEl, periods, ordered, { yFormat: (v) => `${v}%` });
+  const ordered = [...grouped].sort((a, b) => avgShare(b) - avgShare(a));
+  renderStackedAreaChart(chartEl, periods, ordered, { yFormat: (v) => `${v}%`, endLabels: true });
   renderChartLegend(legendEl, ordered);
 }
 
 // Cumulative stack per period (series[0] at the bottom); each brand's
 // nulls are treated as a 0% contribution that month so the stack stays a
 // continuous 0-100% band even where a brand isn't confirmed yet.
-function renderStackedAreaChart(containerEl, periods, series, { yFormat = (v) => `${v}` } = {}) {
+function renderStackedAreaChart(containerEl, periods, series, { yFormat = (v) => `${v}`, endLabels = false } = {}) {
   if (!periods.length || !series.length) {
     containerEl.innerHTML = `<div class="empty-state">No data yet.</div>`;
     return;
   }
-  const W = 960, H = 340, padL = 44, padR = 16, padT = 16, padB = 26;
+  const W = 960, H = 340, padL = 44, padT = 16, padB = 26;
+  const padR = endLabels ? 140 : 16;
   const n = periods.length;
   const x = (i) => padL + (i / Math.max(1, n - 1)) * (W - padL - padR);
   const y = (v) => H - padB - (v / 100) * (H - padT - padB);
@@ -443,6 +465,7 @@ function renderStackedAreaChart(containerEl, periods, series, { yFormat = (v) =>
     .join("");
 
   let areas = "";
+  const endLabelSpecs = [];
   series.forEach((s, j) => {
     const topAt = (i) => cum[i][j];
     const bottomAt = (i) => (j === 0 ? 0 : cum[i][j - 1]);
@@ -451,14 +474,46 @@ function renderStackedAreaChart(containerEl, periods, series, { yFormat = (v) =>
     for (let i = n - 1; i >= 0; i--) d += `L${x(i).toFixed(1)},${y(bottomAt(i)).toFixed(1)} `;
     d += "Z";
     areas += `<path d="${d}" fill="${s.color}" fill-opacity="0.88" stroke="${s.color}" stroke-width="0.5"><title>${escapeHtml(s.label)}</title></path>`;
+
+    // Direct end-of-line labels so the latest share/brand can be read
+    // straight off the chart instead of cross-referencing the legend.
+    // Skipped for bands too thin to hold a label without overlapping.
+    if (endLabels) {
+      const latestVal = topAt(n - 1) - bottomAt(n - 1);
+      if (latestVal >= 4) {
+        endLabelSpecs.push({
+          y: y((topAt(n - 1) + bottomAt(n - 1)) / 2),
+          text: `${s.label} ${Math.round(latestVal)}%`,
+          color: s.color,
+        });
+      }
+    }
   });
+
+  let endLabelsHtml = "";
+  if (endLabels && endLabelSpecs.length) {
+    endLabelSpecs.sort((a, b) => a.y - b.y);
+    const minGap = 14;
+    for (let i = 1; i < endLabelSpecs.length; i++) {
+      if (endLabelSpecs[i].y - endLabelSpecs[i - 1].y < minGap) {
+        endLabelSpecs[i].y = endLabelSpecs[i - 1].y + minGap;
+      }
+    }
+    const lineX1 = W - padR + 2, lineX2 = W - padR + 10;
+    endLabelsHtml = endLabelSpecs
+      .map(
+        (l) => `<line x1="${lineX1}" x2="${lineX2}" y1="${l.y.toFixed(1)}" y2="${l.y.toFixed(1)}" style="stroke:${l.color}" stroke-width="1"/>
+        <text x="${lineX2 + 4}" y="${(l.y + 3.5).toFixed(1)}" style="fill:${l.color}; font-weight:600;">${escapeHtml(l.text)}</text>`
+      )
+      .join("");
+  }
 
   const tickIdx = n > 1 ? [0, Math.floor((n - 1) / 2), n - 1] : [0];
   const xLabels = [...new Set(tickIdx)]
     .map((i) => `<text x="${x(i).toFixed(1)}" y="${H - 8}" text-anchor="middle">${fmtPeriodShort(periods[i])}</text>`)
     .join("");
 
-  containerEl.innerHTML = `<svg class="chart-svg" viewBox="0 0 ${W} ${H}" width="100%" height="${H}">${grid}${areas}${xLabels}</svg>`;
+  containerEl.innerHTML = `<svg class="chart-svg" viewBox="0 0 ${W} ${H}" width="100%" height="${H}">${grid}${areas}${endLabelsHtml}${xLabels}</svg>`;
 }
 
 function evShareByPeriod(rows) {
@@ -469,51 +524,6 @@ function evShareByPeriod(rows) {
     out[r.period] = vf != null && denom > 0 ? (vf / denom) * 100 : null;
   });
   return out;
-}
-
-function ppSpan(cur, prev) {
-  if (cur == null || prev == null) return `<span class="muted">n/a</span>`;
-  const d = cur - prev;
-  const dir = d >= 0 ? "up" : "down";
-  return `<span class="${dir}">${d >= 0 ? "▲ +" : "▼ "}${Math.abs(d).toFixed(1)}pp</span>`;
-}
-
-// A latest/MoM/YoY 3-card KPI row for a percentage-share metric -- MoM/YoY
-// shown as percentage-POINT deltas (not a relative % change of a %, which
-// reads as confusing for a share metric). Shared by the EV and Hybrid share
-// KPI rows below.
-function renderShareKpis3(containerEl, shareByPeriod, latestPeriod, label) {
-  const latest = shareByPeriod[latestPeriod] ?? null;
-  const mom = shareByPeriod[shiftPeriod(latestPeriod, -1)] ?? null;
-  const yoy = shareByPeriod[shiftPeriod(latestPeriod, -12)] ?? null;
-
-  const cards = [
-    { lbl: `${label} — ${fmtPeriodLabel(latestPeriod)}`, valHtml: escapeHtml(fmtPct1(latest)) },
-    { lbl: "vs. 1 month ago", valHtml: ppSpan(latest, mom) },
-    { lbl: "vs. 1 year ago", valHtml: ppSpan(latest, yoy) },
-  ];
-  containerEl.innerHTML = cards
-    .map(
-      (c) => `
-      <div class="kpi">
-        <div class="lbl">${escapeHtml(c.lbl)}</div>
-        <div class="val">${c.valHtml}</div>
-      </div>`
-    )
-    .join("");
-}
-
-function renderEvKpis(containerEl, rows) {
-  const shareByPeriod = evShareByPeriod(rows);
-  const latestPeriod = rows[rows.length - 1].period;
-  renderShareKpis3(containerEl, shareByPeriod, latestPeriod, "EV (VinFast) share");
-}
-
-function renderEvChart(containerEl, rows) {
-  const shareByPeriod = evShareByPeriod(rows);
-  const periods = rows.map((r) => r.period);
-  const series = [{ label: "VinFast", color: BRAND_COLORS["VinFast"], values: periods.map((p) => shareByPeriod[p]) }];
-  renderLineChart(containerEl, periods, series, { yFormat: (v) => `${Math.round(v)}%`, tooltipFormat: fmtPct1 });
 }
 
 // --------------------------------------- VAMA segment/powertrain (segments.json)
@@ -692,9 +702,12 @@ function renderDeepDiveSummary(containerEl, cars, segments) {
   if (firstVfRow) {
     const startShare = evByPeriod[firstVfRow.period];
     const latestShare = evByPeriod[latestCarRow.period];
+    const momShare = evByPeriod[shiftPeriod(latestCarRow.period, -1)] ?? null;
+    const momDelta = momShare != null ? latestShare - momShare : null;
+    const momNote = momDelta != null ? `; ${momDelta >= 0 ? "+" : ""}${momDelta.toFixed(1)}pp vs. last month` : "";
     items.push({
       title: "EV (VinFast) share of market",
-      desc: `${fmtPct1(startShare)} in ${fmtPeriodLabel(firstVfRow.period)} → ${fmtPct1(latestShare)} in ${fmtPeriodLabel(latestCarRow.period)}`,
+      desc: `${fmtPct1(startShare)} in ${fmtPeriodLabel(firstVfRow.period)} → ${fmtPct1(latestShare)} in ${fmtPeriodLabel(latestCarRow.period)}${momNote}`,
       deltaHtml: ppDeltaSpan(latestShare - startShare),
       dir: latestShare >= startShare ? "up" : "down",
     });

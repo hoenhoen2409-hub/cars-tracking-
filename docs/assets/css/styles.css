@@ -153,7 +153,6 @@ a:hover { color: var(--accent); }
 /* --------------------------------------------------------------- kpis -- */
 .kpis { display: grid; gap: 1px; background: var(--rule-1); border: 1px solid var(--rule-1); border-radius: var(--radius); overflow: hidden; }
 .kpis-4 { grid-template-columns: repeat(4, 1fr); }
-.kpis-3 { grid-template-columns: repeat(3, 1fr); }
 .kpi { background: var(--bg-paper); padding: 20px 22px; }
 .kpi .lbl { font-size: var(--t-eyebrow); text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-3); font-weight: 700; }
 .kpi .val { font-family: var(--font-disp); font-size: 28px; font-weight: 400; letter-spacing: -0.02em; margin-top: 6px; }
@@ -272,5 +271,4 @@ select.filter-select-native:focus { outline: none; border-color: var(--accent); 
   .top-summary { grid-template-columns: 1fr; }
   .ts-col { border-right: none; border-bottom: 1px solid var(--rule-1); }
   .kpis-4 { grid-template-columns: repeat(2, 1fr); }
-  .kpis-3 { grid-template-columns: repeat(1, 1fr); }
 }

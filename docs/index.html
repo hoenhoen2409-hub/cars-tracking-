@@ -163,8 +163,10 @@
     <div class="card">
       <div class="card-head"><h3>Brand Market Share Trend</h3></div>
       <p class="muted" style="margin-bottom:14px; font-size:12px;">
-        Each brand's monthly share of the sum of all tracked brands, stacked to 100%. Independent
-        of the Month from/to filter in &sect;1 above -- always shows the full history.
+        Each brand's monthly share of the sum of all tracked brands, stacked to 100%. The 5
+        largest brands (by average share) are shown individually; smaller/noisier brands are
+        grouped into "Other tracked brands". Independent of the Month from/to filter in &sect;1
+        above -- always shows the full history.
       </p>
       <div class="chart-wrap" id="share-chart"></div>
       <div class="chart-legend" id="share-chart-legend"></div>
@@ -178,18 +180,6 @@
       </p>
       <div class="chart-wrap" id="segment-chart"></div>
       <div class="chart-legend" id="segment-chart-legend"></div>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><h3>EV (VinFast) Share of Total Market</h3></div>
-      <p class="muted" style="margin-bottom:14px; font-size:12px;">
-        VinFast is used as a proxy for EV volume since it's Vietnam's dominant battery-EV seller
-        and the only tracked brand that's 100% electric -- this is the metric that actually
-        captures Vietnam's EV shift (VAMA's own BEV row above does not, since VinFast isn't a
-        VAMA member).
-      </p>
-      <div id="ev-kpis" class="kpis kpis-3"></div>
-      <div class="chart-wrap" id="ev-chart" style="margin-top:18px;"></div>
     </div>
 
     <div class="card">
