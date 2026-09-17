@@ -293,16 +293,14 @@ function renderLineChart(containerEl, periods, series, { yFormat = fmtCompact, t
       if (s.values[i] != null) known.push([i, s.values[i]]);
     });
 
-    // With connectGaps, a missing month still gets a line drawn across it
-    // (dashed, to mark it as a gap bridge, not confirmed data) instead of
-    // splitting the series into disconnected islands.
+    // With connectGaps, a missing month still gets a line drawn straight
+    // across it instead of splitting the series into disconnected islands.
     for (let k = 1; k < known.length; k++) {
       const [i0, v0] = known[k - 1];
       const [i1, v1] = known[k];
       const isGap = i1 - i0 > 1;
       if (isGap && !connectGaps) continue;
-      const dashAttr = isGap ? ' stroke-dasharray="4 3"' : "";
-      marks += `<path class="chart-line" d="M${x(i0).toFixed(1)},${y(v0).toFixed(1)} L${x(i1).toFixed(1)},${y(v1).toFixed(1)}"${dashAttr} style="stroke:${s.color}" />`;
+      marks += `<path class="chart-line" d="M${x(i0).toFixed(1)},${y(v0).toFixed(1)} L${x(i1).toFixed(1)},${y(v1).toFixed(1)}" style="stroke:${s.color}" />`;
     }
     known.forEach(([i, v]) => {
       const p = periods[i];
