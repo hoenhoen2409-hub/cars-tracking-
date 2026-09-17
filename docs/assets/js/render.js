@@ -367,7 +367,7 @@ function renderBarChart(containerEl, periods, values) {
 // cars.json -- no per-model or per-powertrain data is scraped, so these
 // are the trends that CAN be derived from what's tracked today: brand mix
 // shift, VinFast (100% BEV, used as an EV proxy) share of the market, and
-// annual brand totals/CAGR. A true Hybrid/Gasoline/BEV split per brand or
+// annual brand totals/YoY. A true Hybrid/Gasoline/BEV split per brand or
 // VAMA's passenger/commercial/special segmentation would need additional
 // scraping this tracker doesn't do yet.
 
@@ -545,8 +545,8 @@ function renderSegmentChart(chartEl, legendEl, segRows) {
 
 // { sum, months } per brand per calendar year -- `months` (how many of
 // that year's rows had a non-null value for this brand) is what lets the
-// CAGR below tell "brand had zero sales" apart from "brand wasn't tracked
-// yet that year" (e.g. VinFast in 2023).
+// Annual Sales table tell "brand had zero sales" apart from "brand wasn't
+// tracked yet that year" (e.g. VinFast in 2023).
 function carAnnualTotals(rows) {
   const years = [...new Set(rows.map((r) => r.year))].sort((a, b) => a - b);
   const brands = Object.keys(BRAND_COLORS);
@@ -573,64 +573,77 @@ function carAnnualTotals(rows) {
   return { years, brands, totals, grandTotal, monthsPerYear };
 }
 
-function cagrPct(startVal, endVal, numYears) {
-  if (startVal == null || endVal == null || startVal <= 0 || numYears <= 0) return null;
-  return (Math.pow(endVal / startVal, 1 / numYears) - 1) * 100;
-}
+// Per-brand YoY: the latest calendar year's sum vs the prior year's sum
+// over the *same set of months* (so a partial current year, e.g. 2026
+// Jan-Aug, is compared against 2025 Jan-Aug too, not misleadingly against
+// all 12 months of 2025). null if the brand is missing any of those months
+// in the prior year. Shared by the Annual Sales table and the Deep Dive
+// Summary.
+function brandAnnualYoy(rows) {
+  const years = [...new Set(rows.map((r) => r.year))].sort((a, b) => a - b);
+  const latestYear = years[years.length - 1] ?? null;
+  const priorYear = latestYear != null ? latestYear - 1 : null;
+  const brands = Object.keys(BRAND_COLORS);
+  const months = latestYear != null ? rows.filter((r) => r.year === latestYear).map((r) => r.month) : [];
 
-// Per-brand CAGR between the first and last *full* (12-confirmed-month)
-// calendar year -- e.g. VinFast's 2023 is all-null (months=0), so it's
-// excluded from `cagrs` rather than producing a nonsense growth-from-zero
-// number. Shared by the Annual Sales table and the Deep Dive Summary.
-function brandAnnualCagrs(rows) {
-  const { years, brands, totals, monthsPerYear } = carAnnualTotals(rows);
-  const fullYears = years.filter((y) => monthsPerYear[y] === 12);
-  const firstFullYear = fullYears[0] ?? null;
-  const lastFullYear = fullYears.length > 1 ? fullYears[fullYears.length - 1] : null;
-  const numYears = firstFullYear != null && lastFullYear != null ? lastFullYear - firstFullYear : null;
+  const sumOver = (year, brand) =>
+    rows
+      .filter((r) => r.year === year && months.includes(r.month) && r.brands[brand] != null)
+      .reduce((s, r) => s + r.brands[brand], 0);
+  const countOver = (year, brand) => rows.filter((r) => r.year === year && months.includes(r.month) && r.brands[brand] != null).length;
 
-  const cagrs = numYears
-    ? brands
-        .map((b) => {
-          const startCell = totals[b][firstFullYear];
-          const endCell = totals[b][lastFullYear];
-          const cagr = startCell.months === 12 && endCell.months === 12 ? cagrPct(startCell.sum, endCell.sum, numYears) : null;
-          return { brand: b, cagr, startSum: startCell.sum, endSum: endCell.sum };
-        })
-        .filter((c) => c.cagr != null)
-    : [];
+  const yoys =
+    priorYear != null && months.length
+      ? brands
+          .map((b) => {
+            const sum = sumOver(latestYear, b);
+            const priorSum = countOver(priorYear, b) === months.length ? sumOver(priorYear, b) : null;
+            return { brand: b, pct: pctChange(sum, priorSum), sum, priorSum };
+          })
+          .filter((c) => c.pct != null)
+      : [];
 
-  return { firstFullYear, lastFullYear, numYears, cagrs };
+  return { latestYear, priorYear, months: months.length, yoys };
 }
 
 function renderAnnualTable(headEl, bodyEl, rows) {
   const { years, totals, grandTotal, monthsPerYear } = carAnnualTotals(rows);
-  const { firstFullYear, lastFullYear, numYears, cagrs } = brandAnnualCagrs(rows);
-  const cagrByBrand = Object.fromEntries(cagrs.map((c) => [c.brand, c.cagr]));
+  const { latestYear, priorYear, months, yoys } = brandAnnualYoy(rows);
+  const yoyByBrand = Object.fromEntries(yoys.map((c) => [c.brand, c.pct]));
   const brands = Object.keys(BRAND_COLORS);
+  const hasYoy = months > 0;
 
-  const cagrCellHtml = (cagr) => {
-    if (!numYears) return "";
-    const dir = cagr == null ? "" : cagr >= 0 ? "up" : "down";
-    return `<td class="pct ${dir}">${cagr == null ? "n/a" : (cagr >= 0 ? "+" : "") + cagr.toFixed(1) + "%"}</td>`;
+  const yoyCellHtml = (pct) => {
+    if (!hasYoy) return "";
+    const dir = pct == null ? "" : pct >= 0 ? "up" : "down";
+    return `<td class="pct ${dir}">${pct == null ? "n/a" : (pct >= 0 ? "+" : "") + pct.toFixed(1) + "%"}</td>`;
   };
 
   headEl.innerHTML =
     `<th class="ta-left">Brand</th>` +
     years.map((y) => `<th>${monthsPerYear[y] < 12 ? `${y} YTD` : y}</th>`).join("") +
-    (numYears ? `<th>CAGR '${String(firstFullYear).slice(2)}&ndash;'${String(lastFullYear).slice(2)}</th>` : "");
+    (hasYoy ? `<th>YoY (${monthsPerYear[latestYear] < 12 ? `${months}mo, ` : ""}'${String(priorYear).slice(2)}&rarr;'${String(latestYear).slice(2)})</th>` : "");
 
   const brandRows = brands
     .map((b) => {
       const cells = years.map((y) => `<td>${totals[b][y].months > 0 ? fmtInt(totals[b][y].sum) : "—"}</td>`).join("");
-      return `<tr><td class="ta-left">${escapeHtml(b)}</td>${cells}${cagrCellHtml(cagrByBrand[b] ?? null)}</tr>`;
+      return `<tr><td class="ta-left">${escapeHtml(b)}</td>${cells}${yoyCellHtml(yoyByBrand[b] ?? null)}</tr>`;
     })
     .join("");
 
-  const totalCagr = numYears ? cagrPct(grandTotal[firstFullYear], grandTotal[lastFullYear], numYears) : null;
+  let totalYoy = null;
+  if (hasYoy) {
+    const monthsList = rows.filter((r) => r.year === latestYear).map((r) => r.month);
+    const sumFor = (year) =>
+      monthsList.reduce((total, m) => {
+        const row = rows.find((r) => r.year === year && r.month === m);
+        return row ? total + carRowKnownTotal(row) : total;
+      }, 0);
+    totalYoy = pctChange(sumFor(latestYear), sumFor(priorYear));
+  }
   const totalRow = `<tr style="font-weight:700; border-top:2px solid var(--ink-1);"><td class="ta-left">Total (tracked brands)</td>${years
     .map((y) => `<td>${fmtInt(grandTotal[y])}</td>`)
-    .join("")}${cagrCellHtml(totalCagr)}</tr>`;
+    .join("")}${yoyCellHtml(totalYoy)}</tr>`;
 
   bodyEl.innerHTML = brandRows + totalRow;
 }
@@ -687,21 +700,21 @@ function renderDeepDiveSummary(containerEl, cars, segments) {
     });
   }
 
-  const { firstFullYear, lastFullYear, cagrs } = brandAnnualCagrs(cars);
-  if (cagrs.length) {
-    const best = cagrs.reduce((a, b) => (b.cagr > a.cagr ? b : a));
-    const worst = cagrs.reduce((a, b) => (b.cagr < a.cagr ? b : a));
+  const { priorYear, latestYear, yoys } = brandAnnualYoy(cars);
+  if (yoys.length) {
+    const best = yoys.reduce((a, b) => (b.pct > a.pct ? b : a));
+    const worst = yoys.reduce((a, b) => (b.pct < a.pct ? b : a));
     items.push({
-      title: `Fastest-growing brand (${firstFullYear}–${lastFullYear} CAGR)`,
-      desc: `${best.brand}: ${fmtInt(best.startSum)} → ${fmtInt(best.endSum)} units/yr`,
-      deltaHtml: pctSpanHtml(best.cagr),
+      title: `Fastest-growing brand (${priorYear}→${latestYear} YoY)`,
+      desc: `${best.brand}: ${fmtInt(best.priorSum)} → ${fmtInt(best.sum)} units`,
+      deltaHtml: pctSpanHtml(best.pct),
       dir: "up",
     });
     if (worst.brand !== best.brand) {
       items.push({
-        title: `Steepest decline (${firstFullYear}–${lastFullYear} CAGR)`,
-        desc: `${worst.brand}: ${fmtInt(worst.startSum)} → ${fmtInt(worst.endSum)} units/yr`,
-        deltaHtml: pctSpanHtml(worst.cagr),
+        title: `Steepest decline (${priorYear}→${latestYear} YoY)`,
+        desc: `${worst.brand}: ${fmtInt(worst.priorSum)} → ${fmtInt(worst.sum)} units`,
+        deltaHtml: pctSpanHtml(worst.pct),
         dir: "down",
       });
     }
