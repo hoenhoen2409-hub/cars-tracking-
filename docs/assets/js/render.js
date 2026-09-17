@@ -270,7 +270,7 @@ function renderTopSummary(carRows, brandLabels) {
 // yFormat/tooltipFormat let callers reuse this for non-unit series (e.g.
 // percentage share) without duplicating the whole chart -- default to the
 // same compact-number formatting the unit charts (car/moto) always used.
-function renderLineChart(containerEl, periods, series, { yFormat = fmtCompact, tooltipFormat = fmtInt } = {}) {
+function renderLineChart(containerEl, periods, series, { yFormat = fmtCompact, tooltipFormat = fmtInt, connectGaps = false } = {}) {
   if (!periods.length || !series.length) {
     containerEl.innerHTML = `<div class="empty-state">Select at least one brand.</div>`;
     return;
@@ -288,26 +288,24 @@ function renderLineChart(containerEl, periods, series, { yFormat = fmtCompact, t
 
   let marks = "";
   series.forEach((s) => {
-    const segments = [];
-    let cur = [];
+    const known = [];
     periods.forEach((p, i) => {
-      const v = s.values[i];
-      if (v == null) {
-        if (cur.length) segments.push(cur);
-        cur = [];
-      } else {
-        cur.push([i, v]);
-      }
+      if (s.values[i] != null) known.push([i, s.values[i]]);
     });
-    if (cur.length) segments.push(cur);
 
-    segments.forEach((seg) => {
-      const d = seg.map(([i, v], idx) => `${idx === 0 ? "M" : "L"}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
-      marks += `<path class="chart-line" d="${d}" style="stroke:${s.color}" />`;
-    });
-    periods.forEach((p, i) => {
-      const v = s.values[i];
-      if (v == null) return;
+    // With connectGaps, a missing month still gets a line drawn across it
+    // (dashed, to mark it as a gap bridge, not confirmed data) instead of
+    // splitting the series into disconnected islands.
+    for (let k = 1; k < known.length; k++) {
+      const [i0, v0] = known[k - 1];
+      const [i1, v1] = known[k];
+      const isGap = i1 - i0 > 1;
+      if (isGap && !connectGaps) continue;
+      const dashAttr = isGap ? ' stroke-dasharray="4 3"' : "";
+      marks += `<path class="chart-line" d="M${x(i0).toFixed(1)},${y(v0).toFixed(1)} L${x(i1).toFixed(1)},${y(v1).toFixed(1)}"${dashAttr} style="stroke:${s.color}" />`;
+    }
+    known.forEach(([i, v]) => {
+      const p = periods[i];
       marks += `<circle class="chart-dot" cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="3" style="stroke:${s.color}"><title>${escapeHtml(s.label)} · ${fmtPeriodLabel(p)}: ${tooltipFormat(v)}</title></circle>`;
     });
   });
@@ -549,7 +547,7 @@ function renderSegmentChart(chartEl, legendEl, segRows) {
     color: s.color,
     values: segRows.map((r) => segShare(r, s.key)),
   }));
-  renderLineChart(chartEl, periods, series, { yFormat: (v) => `${Math.round(v)}%`, tooltipFormat: fmtPct1 });
+  renderLineChart(chartEl, periods, series, { yFormat: (v) => `${Math.round(v)}%`, tooltipFormat: fmtPct1, connectGaps: true });
   renderChartLegend(legendEl, series);
 }
 
