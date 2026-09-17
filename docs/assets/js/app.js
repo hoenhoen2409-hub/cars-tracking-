@@ -300,11 +300,10 @@ async function init() {
   // Month from/to filter, so this only needs rendering once at load.
   renderShareChart(document.getElementById("share-chart"), document.getElementById("share-chart-legend"), cars);
   renderSegmentChart(document.getElementById("segment-chart"), document.getElementById("segment-chart-legend"), segments);
-  renderHybridKpis(document.getElementById("hybrid-kpis"), segments);
-  renderPowertrainChart(document.getElementById("powertrain-chart"), document.getElementById("powertrain-chart-legend"), segments);
   renderEvKpis(document.getElementById("ev-kpis"), cars);
   renderEvChart(document.getElementById("ev-chart"), cars);
   renderAnnualTable(document.getElementById("annual-table-head"), document.getElementById("annual-table-body"), cars);
+  renderDeepDiveSummary(document.getElementById("deep-dive-summary"), cars, segments);
 }
 
 init().catch((err) => {

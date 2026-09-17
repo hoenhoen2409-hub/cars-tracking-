@@ -163,8 +163,8 @@
     <div class="card">
       <div class="card-head"><h3>Brand Market Share Trend</h3></div>
       <p class="muted" style="margin-bottom:14px; font-size:12px;">
-        Each brand's monthly share of the sum of all tracked brands. Independent of the Month
-        from/to filter in &sect;1 above -- always shows the full history.
+        Each brand's monthly share of the sum of all tracked brands, stacked to 100%. Independent
+        of the Month from/to filter in &sect;1 above -- always shows the full history.
       </p>
       <div class="chart-wrap" id="share-chart"></div>
       <div class="chart-legend" id="share-chart-legend"></div>
@@ -178,19 +178,6 @@
       </p>
       <div class="chart-wrap" id="segment-chart"></div>
       <div class="chart-legend" id="segment-chart-legend"></div>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><h3>Powertrain Mix (VAMA members)</h3></div>
-      <p class="muted" style="margin-bottom:14px; font-size:12px;">
-        Gasoline/ICE vs. Hybrid vs. Battery-EV, as reported by VAMA for its own members --
-        <strong>this excludes VinFast</strong>, which isn't a VAMA member and is tracked
-        separately below. VAMA's BEV row is a handful of units/month (other members' occasional
-        EV models); the real EV story in Vietnam is almost entirely VinFast, not this line.
-      </p>
-      <div id="hybrid-kpis" class="kpis kpis-3"></div>
-      <div class="chart-wrap" id="powertrain-chart" style="margin-top:18px;"></div>
-      <div class="chart-legend" id="powertrain-chart-legend"></div>
     </div>
 
     <div class="card">
@@ -222,14 +209,20 @@
     <div class="card">
       <div class="card-head"><h3>Not yet available from this data</h3></div>
       <p class="muted" style="font-size:12px;">
-        VAMA's Summary report gives segment and powertrain totals across all its members
-        combined, not broken out per brand -- so "Toyota's hybrid volume" specifically, or which
-        model is driving it, isn't derivable from this data. The Summary PDF wasn't found for
-        three months (Sep 2023, Mar 2024, Dec 2025); those show as gaps in the charts above.
-        Getting a true per-brand powertrain split would need VAMA's brand-level Detail report
-        (used elsewhere in this tracker for Thaco's sub-brands) cross-referenced against each
-        model's known powertrain -- not currently scraped.
+        VAMA's Summary report gives segment (and Hybrid/BEV powertrain) totals across all its
+        members combined, not broken out per brand -- so "Toyota's hybrid volume" specifically,
+        or which model is driving it, isn't derivable from this data. The Summary PDF wasn't
+        found for three months (Sep 2023, Mar 2024, Dec 2025); those show as gaps in the Segment
+        Trend chart above. Getting a true per-brand powertrain split would need VAMA's
+        brand-level Detail report (used elsewhere in this tracker for Thaco's sub-brands)
+        cross-referenced against each model's known powertrain -- not currently scraped.
       </p>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Deep Dive Summary</h3></div>
+      <p class="muted" style="margin-bottom:16px; font-size:12px;">Key trends from everything above, at a glance.</p>
+      <div class="ranked-events" id="deep-dive-summary"></div>
     </div>
   </section>
 

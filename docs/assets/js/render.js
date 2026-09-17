@@ -401,11 +401,64 @@ function carShareSeries(rows) {
   }));
 }
 
+// 100%-stacked area instead of 9 overlapping/crossing lines -- much easier
+// to read a composition-over-time story from than a spaghetti line chart.
 function renderShareChart(chartEl, legendEl, rows) {
   const periods = rows.map((r) => r.period);
   const series = carShareSeries(rows);
-  renderLineChart(chartEl, periods, series, { yFormat: (v) => `${Math.round(v)}%`, tooltipFormat: fmtPct1 });
-  renderChartLegend(legendEl, series);
+  // Largest-average brand at the bottom of the stack (a stable visual
+  // anchor); smaller/more volatile brands stacked above it. The legend
+  // follows the same order so color position in the stack matches the
+  // legend's reading order.
+  const avgShare = (s) => {
+    const vals = s.values.filter((v) => v != null);
+    return vals.length ? vals.reduce((sum, v) => sum + v, 0) / vals.length : 0;
+  };
+  const ordered = [...series].sort((a, b) => avgShare(b) - avgShare(a));
+  renderStackedAreaChart(chartEl, periods, ordered, { yFormat: (v) => `${v}%` });
+  renderChartLegend(legendEl, ordered);
+}
+
+// Cumulative stack per period (series[0] at the bottom); each brand's
+// nulls are treated as a 0% contribution that month so the stack stays a
+// continuous 0-100% band even where a brand isn't confirmed yet.
+function renderStackedAreaChart(containerEl, periods, series, { yFormat = (v) => `${v}` } = {}) {
+  if (!periods.length || !series.length) {
+    containerEl.innerHTML = `<div class="empty-state">No data yet.</div>`;
+    return;
+  }
+  const W = 960, H = 340, padL = 44, padR = 16, padT = 16, padB = 26;
+  const n = periods.length;
+  const x = (i) => padL + (i / Math.max(1, n - 1)) * (W - padL - padR);
+  const y = (v) => H - padB - (v / 100) * (H - padT - padB);
+
+  const cum = periods.map((_, i) => {
+    let running = 0;
+    return series.map((s) => (running += s.values[i] ?? 0));
+  });
+
+  const gridVals = [0, 25, 50, 75, 100];
+  const grid = gridVals
+    .map((v) => `<line class="chart-grid" x1="${padL}" x2="${W - padR}" y1="${y(v)}" y2="${y(v)}"/><text x="4" y="${(y(v) + 4).toFixed(1)}">${yFormat(v)}</text>`)
+    .join("");
+
+  let areas = "";
+  series.forEach((s, j) => {
+    const topAt = (i) => cum[i][j];
+    const bottomAt = (i) => (j === 0 ? 0 : cum[i][j - 1]);
+    let d = "";
+    for (let i = 0; i < n; i++) d += `${i === 0 ? "M" : "L"}${x(i).toFixed(1)},${y(topAt(i)).toFixed(1)} `;
+    for (let i = n - 1; i >= 0; i--) d += `L${x(i).toFixed(1)},${y(bottomAt(i)).toFixed(1)} `;
+    d += "Z";
+    areas += `<path d="${d}" fill="${s.color}" fill-opacity="0.88" stroke="${s.color}" stroke-width="0.5"><title>${escapeHtml(s.label)}</title></path>`;
+  });
+
+  const tickIdx = n > 1 ? [0, Math.floor((n - 1) / 2), n - 1] : [0];
+  const xLabels = [...new Set(tickIdx)]
+    .map((i) => `<text x="${x(i).toFixed(1)}" y="${H - 8}" text-anchor="middle">${fmtPeriodShort(periods[i])}</text>`)
+    .join("");
+
+  containerEl.innerHTML = `<svg class="chart-svg" viewBox="0 0 ${W} ${H}" width="100%" height="${H}">${grid}${areas}${xLabels}</svg>`;
 }
 
 function evShareByPeriod(rows) {
@@ -490,33 +543,6 @@ function renderSegmentChart(chartEl, legendEl, segRows) {
   renderChartLegend(legendEl, series);
 }
 
-function powertrainShareByPeriod(segRows, key) {
-  const out = {};
-  segRows.forEach((r) => (out[r.period] = segShare(r, key)));
-  return out;
-}
-
-function renderHybridKpis(containerEl, segRows) {
-  const shareByPeriod = powertrainShareByPeriod(segRows, "hybrid");
-  const latestPeriod = segRows[segRows.length - 1].period;
-  renderShareKpis3(containerEl, shareByPeriod, latestPeriod, "Hybrid share of VAMA volume");
-}
-
-function renderPowertrainChart(chartEl, legendEl, segRows) {
-  const periods = segRows.map((r) => r.period);
-  const iceValues = segRows.map((r) => {
-    if (r.total == null || r.hybrid == null || r.bev == null || r.total <= 0) return null;
-    return ((r.total - r.hybrid - r.bev) / r.total) * 100;
-  });
-  const series = [
-    { label: "Gasoline / ICE", color: "#171819", values: iceValues },
-    { label: "Hybrid", color: "#C8952A", values: segRows.map((r) => segShare(r, "hybrid")) },
-    { label: "BEV (VAMA members)", color: "#0051CC", values: segRows.map((r) => segShare(r, "bev")) },
-  ];
-  renderLineChart(chartEl, periods, series, { yFormat: (v) => `${Math.round(v)}%`, tooltipFormat: fmtPct1 });
-  renderChartLegend(legendEl, series);
-}
-
 // { sum, months } per brand per calendar year -- `months` (how many of
 // that year's rows had a non-null value for this brand) is what lets the
 // CAGR below tell "brand had zero sales" apart from "brand wasn't tracked
@@ -552,42 +578,150 @@ function cagrPct(startVal, endVal, numYears) {
   return (Math.pow(endVal / startVal, 1 / numYears) - 1) * 100;
 }
 
-function renderAnnualTable(headEl, bodyEl, rows) {
-  const { years, brands, totals, grandTotal, monthsPerYear } = carAnnualTotals(rows);
+// Per-brand CAGR between the first and last *full* (12-confirmed-month)
+// calendar year -- e.g. VinFast's 2023 is all-null (months=0), so it's
+// excluded from `cagrs` rather than producing a nonsense growth-from-zero
+// number. Shared by the Annual Sales table and the Deep Dive Summary.
+function brandAnnualCagrs(rows) {
+  const { years, brands, totals, monthsPerYear } = carAnnualTotals(rows);
   const fullYears = years.filter((y) => monthsPerYear[y] === 12);
-  const firstFullYear = fullYears[0];
-  const lastFullYear = fullYears[fullYears.length - 1];
-  const cagrYears = firstFullYear != null && lastFullYear != null && lastFullYear > firstFullYear ? lastFullYear - firstFullYear : null;
+  const firstFullYear = fullYears[0] ?? null;
+  const lastFullYear = fullYears.length > 1 ? fullYears[fullYears.length - 1] : null;
+  const numYears = firstFullYear != null && lastFullYear != null ? lastFullYear - firstFullYear : null;
+
+  const cagrs = numYears
+    ? brands
+        .map((b) => {
+          const startCell = totals[b][firstFullYear];
+          const endCell = totals[b][lastFullYear];
+          const cagr = startCell.months === 12 && endCell.months === 12 ? cagrPct(startCell.sum, endCell.sum, numYears) : null;
+          return { brand: b, cagr, startSum: startCell.sum, endSum: endCell.sum };
+        })
+        .filter((c) => c.cagr != null)
+    : [];
+
+  return { firstFullYear, lastFullYear, numYears, cagrs };
+}
+
+function renderAnnualTable(headEl, bodyEl, rows) {
+  const { years, totals, grandTotal, monthsPerYear } = carAnnualTotals(rows);
+  const { firstFullYear, lastFullYear, numYears, cagrs } = brandAnnualCagrs(rows);
+  const cagrByBrand = Object.fromEntries(cagrs.map((c) => [c.brand, c.cagr]));
+  const brands = Object.keys(BRAND_COLORS);
+
+  const cagrCellHtml = (cagr) => {
+    if (!numYears) return "";
+    const dir = cagr == null ? "" : cagr >= 0 ? "up" : "down";
+    return `<td class="pct ${dir}">${cagr == null ? "n/a" : (cagr >= 0 ? "+" : "") + cagr.toFixed(1) + "%"}</td>`;
+  };
 
   headEl.innerHTML =
     `<th class="ta-left">Brand</th>` +
     years.map((y) => `<th>${monthsPerYear[y] < 12 ? `${y} YTD` : y}</th>`).join("") +
-    (cagrYears ? `<th>CAGR '${String(firstFullYear).slice(2)}&ndash;'${String(lastFullYear).slice(2)}</th>` : "");
+    (numYears ? `<th>CAGR '${String(firstFullYear).slice(2)}&ndash;'${String(lastFullYear).slice(2)}</th>` : "");
 
   const brandRows = brands
     .map((b) => {
       const cells = years.map((y) => `<td>${totals[b][y].months > 0 ? fmtInt(totals[b][y].sum) : "—"}</td>`).join("");
-      let cagrCell = "";
-      if (cagrYears) {
-        const startCell = totals[b][firstFullYear];
-        const endCell = totals[b][lastFullYear];
-        const cagr = startCell.months === 12 && endCell.months === 12 ? cagrPct(startCell.sum, endCell.sum, cagrYears) : null;
-        const dir = cagr == null ? "" : cagr >= 0 ? "up" : "down";
-        cagrCell = `<td class="pct ${dir}">${cagr == null ? "n/a" : (cagr >= 0 ? "+" : "") + cagr.toFixed(1) + "%"}</td>`;
-      }
-      return `<tr><td class="ta-left">${escapeHtml(b)}</td>${cells}${cagrCell}</tr>`;
+      return `<tr><td class="ta-left">${escapeHtml(b)}</td>${cells}${cagrCellHtml(cagrByBrand[b] ?? null)}</tr>`;
     })
     .join("");
 
-  let totalCagrCell = "";
-  if (cagrYears) {
-    const totalCagr = cagrPct(grandTotal[firstFullYear], grandTotal[lastFullYear], cagrYears);
-    const dir = totalCagr == null ? "" : totalCagr >= 0 ? "up" : "down";
-    totalCagrCell = `<td class="pct ${dir}">${totalCagr == null ? "n/a" : (totalCagr >= 0 ? "+" : "") + totalCagr.toFixed(1) + "%"}</td>`;
-  }
+  const totalCagr = numYears ? cagrPct(grandTotal[firstFullYear], grandTotal[lastFullYear], numYears) : null;
   const totalRow = `<tr style="font-weight:700; border-top:2px solid var(--ink-1);"><td class="ta-left">Total (tracked brands)</td>${years
     .map((y) => `<td>${fmtInt(grandTotal[y])}</td>`)
-    .join("")}${totalCagrCell}</tr>`;
+    .join("")}${cagrCellHtml(totalCagr)}</tr>`;
 
   bodyEl.innerHTML = brandRows + totalRow;
+}
+
+// ---------------------------------------------------- Deep Dive Summary
+function ppDeltaSpan(d) {
+  if (d == null || Number.isNaN(d)) return `<span class="muted">n/a</span>`;
+  const dir = d >= 0 ? "up" : "down";
+  return `<span class="${dir}">${d >= 0 ? "▲ +" : "▼ "}${Math.abs(d).toFixed(1)}pp</span>`;
+}
+
+function summaryRowHtml({ title, desc, deltaHtml, dir }) {
+  return `
+    <div class="ranked-event">
+      <span class="re-dot" style="background:${dir === "up" ? "var(--act-add)" : "var(--act-exit)"}"></span>
+      <div class="re-body">
+        <span class="re-title">${escapeHtml(title)}</span>
+        <div class="re-desc">${escapeHtml(desc)}</div>
+      </div>
+      <div class="re-score tnum">${deltaHtml}</div>
+    </div>`;
+}
+
+// Synthesizes the headline numbers from every chart/table above into a
+// short, scannable list -- computed fresh from cars/segments each load, not
+// hardcoded, so it can't drift out of sync with the data as months are added.
+function renderDeepDiveSummary(containerEl, cars, segments) {
+  const items = [];
+
+  const { years, grandTotal, monthsPerYear } = carAnnualTotals(cars);
+  const fullYears = years.filter((y) => monthsPerYear[y] === 12);
+  if (fullYears.length >= 2) {
+    const fy = fullYears[0];
+    const ly = fullYears[fullYears.length - 1];
+    items.push({
+      title: `Total market size, ${fy} → ${ly}`,
+      desc: `${fmtInt(grandTotal[fy])} → ${fmtInt(grandTotal[ly])} units/yr across all tracked brands`,
+      deltaHtml: pctSpanHtml(pctChange(grandTotal[ly], grandTotal[fy])),
+      dir: grandTotal[ly] >= grandTotal[fy] ? "up" : "down",
+    });
+  }
+
+  const evByPeriod = evShareByPeriod(cars);
+  const firstVfRow = cars.find((r) => r.brands["VinFast"] != null);
+  const latestCarRow = cars[cars.length - 1];
+  if (firstVfRow) {
+    const startShare = evByPeriod[firstVfRow.period];
+    const latestShare = evByPeriod[latestCarRow.period];
+    items.push({
+      title: "EV (VinFast) share of market",
+      desc: `${fmtPct1(startShare)} in ${fmtPeriodLabel(firstVfRow.period)} → ${fmtPct1(latestShare)} in ${fmtPeriodLabel(latestCarRow.period)}`,
+      deltaHtml: ppDeltaSpan(latestShare - startShare),
+      dir: latestShare >= startShare ? "up" : "down",
+    });
+  }
+
+  const { firstFullYear, lastFullYear, cagrs } = brandAnnualCagrs(cars);
+  if (cagrs.length) {
+    const best = cagrs.reduce((a, b) => (b.cagr > a.cagr ? b : a));
+    const worst = cagrs.reduce((a, b) => (b.cagr < a.cagr ? b : a));
+    items.push({
+      title: `Fastest-growing brand (${firstFullYear}–${lastFullYear} CAGR)`,
+      desc: `${best.brand}: ${fmtInt(best.startSum)} → ${fmtInt(best.endSum)} units/yr`,
+      deltaHtml: pctSpanHtml(best.cagr),
+      dir: "up",
+    });
+    if (worst.brand !== best.brand) {
+      items.push({
+        title: `Steepest decline (${firstFullYear}–${lastFullYear} CAGR)`,
+        desc: `${worst.brand}: ${fmtInt(worst.startSum)} → ${fmtInt(worst.endSum)} units/yr`,
+        deltaHtml: pctSpanHtml(worst.cagr),
+        dir: "down",
+      });
+    }
+  }
+
+  const segValid = segments.filter((s) => s.total != null);
+  if (segValid.length >= 2) {
+    const firstSeg = segValid[0];
+    const lastSeg = segValid[segValid.length - 1];
+    const firstShare = segShare(firstSeg, "passenger_cars");
+    const lastShare = segShare(lastSeg, "passenger_cars");
+    items.push({
+      title: "Passenger-car share of VAMA volume",
+      desc: `${fmtPct1(firstShare)} in ${fmtPeriodLabel(firstSeg.period)} → ${fmtPct1(lastShare)} in ${fmtPeriodLabel(lastSeg.period)}`,
+      deltaHtml: ppDeltaSpan(lastShare - firstShare),
+      dir: lastShare >= firstShare ? "up" : "down",
+    });
+  }
+
+  containerEl.innerHTML = items.length
+    ? items.map(summaryRowHtml).join("")
+    : `<div class="empty-state">Not enough history yet to summarize.</div>`;
 }
