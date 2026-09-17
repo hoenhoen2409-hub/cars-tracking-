@@ -72,13 +72,50 @@ def build_motos_json():
     return rows
 
 
+SEGMENT_COLUMNS = [
+    "total",
+    "passenger_cars",
+    "commercial_vehicles",
+    "trucks",
+    "buses",
+    "special_purpose",
+    "bev",
+    "hybrid",
+    "bus_chassis",
+]
+
+
+def build_segments_json():
+    """VAMA's own monthly Summary PDF (passenger/commercial/special-purpose
+    segments + VAMA-member BEV/Hybrid/ICE powertrain split). VAMA-member
+    only -- VinFast, not a VAMA member, isn't in this breakdown at all; see
+    the separate VinFast-share-of-market figures in cars.json for that."""
+    df = pd.read_csv(DATA_DIR / "monthly_vama_segments.csv")
+    df["period"] = pd.to_datetime(dict(year=df["year"], month=df["month"], day=1))
+    df = df.sort_values("period").reset_index(drop=True)
+
+    rows = []
+    for _, r in df.iterrows():
+        rows.append(
+            {
+                "period": r["period"].strftime("%Y-%m"),
+                "year": int(r["year"]),
+                "month": int(r["month"]),
+                **{col: clean(r[col]) for col in SEGMENT_COLUMNS},
+            }
+        )
+    return rows
+
+
 def main():
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     cars = build_cars_json()
     motos = build_motos_json()
+    segments = build_segments_json()
 
     (OUT_DIR / "cars.json").write_text(json.dumps(cars, indent=2), encoding="utf-8")
     (OUT_DIR / "motos.json").write_text(json.dumps(motos, indent=2), encoding="utf-8")
+    (OUT_DIR / "segments.json").write_text(json.dumps(segments, indent=2), encoding="utf-8")
     (OUT_DIR / "meta.json").write_text(
         json.dumps(
             {
@@ -90,7 +127,7 @@ def main():
         ),
         encoding="utf-8",
     )
-    print(f"Wrote {len(cars)} car rows and {len(motos)} moto rows to {OUT_DIR}")
+    print(f"Wrote {len(cars)} car rows, {len(motos)} moto rows, {len(segments)} segment rows to {OUT_DIR}")
 
 
 if __name__ == "__main__":

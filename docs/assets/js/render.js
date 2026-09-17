@@ -418,22 +418,24 @@ function evShareByPeriod(rows) {
   return out;
 }
 
-function renderEvKpis(containerEl, rows) {
-  const shareByPeriod = evShareByPeriod(rows);
-  const latestPeriod = rows[rows.length - 1].period;
+function ppSpan(cur, prev) {
+  if (cur == null || prev == null) return `<span class="muted">n/a</span>`;
+  const d = cur - prev;
+  const dir = d >= 0 ? "up" : "down";
+  return `<span class="${dir}">${d >= 0 ? "▲ +" : "▼ "}${Math.abs(d).toFixed(1)}pp</span>`;
+}
+
+// A latest/MoM/YoY 3-card KPI row for a percentage-share metric -- MoM/YoY
+// shown as percentage-POINT deltas (not a relative % change of a %, which
+// reads as confusing for a share metric). Shared by the EV and Hybrid share
+// KPI rows below.
+function renderShareKpis3(containerEl, shareByPeriod, latestPeriod, label) {
   const latest = shareByPeriod[latestPeriod] ?? null;
   const mom = shareByPeriod[shiftPeriod(latestPeriod, -1)] ?? null;
   const yoy = shareByPeriod[shiftPeriod(latestPeriod, -12)] ?? null;
 
-  const ppSpan = (cur, prev) => {
-    if (cur == null || prev == null) return `<span class="muted">n/a</span>`;
-    const d = cur - prev;
-    const dir = d >= 0 ? "up" : "down";
-    return `<span class="${dir}">${d >= 0 ? "▲ +" : "▼ "}${Math.abs(d).toFixed(1)}pp</span>`;
-  };
-
   const cards = [
-    { lbl: `EV (VinFast) share — ${fmtPeriodLabel(latestPeriod)}`, valHtml: escapeHtml(fmtPct1(latest)) },
+    { lbl: `${label} — ${fmtPeriodLabel(latestPeriod)}`, valHtml: escapeHtml(fmtPct1(latest)) },
     { lbl: "vs. 1 month ago", valHtml: ppSpan(latest, mom) },
     { lbl: "vs. 1 year ago", valHtml: ppSpan(latest, yoy) },
   ];
@@ -448,11 +450,71 @@ function renderEvKpis(containerEl, rows) {
     .join("");
 }
 
+function renderEvKpis(containerEl, rows) {
+  const shareByPeriod = evShareByPeriod(rows);
+  const latestPeriod = rows[rows.length - 1].period;
+  renderShareKpis3(containerEl, shareByPeriod, latestPeriod, "EV (VinFast) share");
+}
+
 function renderEvChart(containerEl, rows) {
   const shareByPeriod = evShareByPeriod(rows);
   const periods = rows.map((r) => r.period);
   const series = [{ label: "VinFast", color: BRAND_COLORS["VinFast"], values: periods.map((p) => shareByPeriod[p]) }];
   renderLineChart(containerEl, periods, series, { yFormat: (v) => `${Math.round(v)}%`, tooltipFormat: fmtPct1 });
+}
+
+// --------------------------------------- VAMA segment/powertrain (segments.json)
+// `segRows` here are flat {period, year, month, total, passenger_cars,
+// commercial_vehicles, trucks, buses, special_purpose, bev, hybrid,
+// bus_chassis} rows from VAMA's own monthly Summary report -- a different
+// shape from cars.json's {brands: {...}} rows, and VAMA-member-only (no
+// VinFast in it at all).
+
+function segShare(row, key) {
+  return row.total != null && row[key] != null && row.total > 0 ? (row[key] / row.total) * 100 : null;
+}
+
+function renderSegmentChart(chartEl, legendEl, segRows) {
+  const periods = segRows.map((r) => r.period);
+  const specs = [
+    { key: "passenger_cars", label: "Passenger cars", color: "#008478" },
+    { key: "commercial_vehicles", label: "Commercial vehicles", color: "#171819" },
+    { key: "special_purpose", label: "Special-purpose", color: "#ACAEB0" },
+  ];
+  const series = specs.map((s) => ({
+    label: s.label,
+    color: s.color,
+    values: segRows.map((r) => segShare(r, s.key)),
+  }));
+  renderLineChart(chartEl, periods, series, { yFormat: (v) => `${Math.round(v)}%`, tooltipFormat: fmtPct1 });
+  renderChartLegend(legendEl, series);
+}
+
+function powertrainShareByPeriod(segRows, key) {
+  const out = {};
+  segRows.forEach((r) => (out[r.period] = segShare(r, key)));
+  return out;
+}
+
+function renderHybridKpis(containerEl, segRows) {
+  const shareByPeriod = powertrainShareByPeriod(segRows, "hybrid");
+  const latestPeriod = segRows[segRows.length - 1].period;
+  renderShareKpis3(containerEl, shareByPeriod, latestPeriod, "Hybrid share of VAMA volume");
+}
+
+function renderPowertrainChart(chartEl, legendEl, segRows) {
+  const periods = segRows.map((r) => r.period);
+  const iceValues = segRows.map((r) => {
+    if (r.total == null || r.hybrid == null || r.bev == null || r.total <= 0) return null;
+    return ((r.total - r.hybrid - r.bev) / r.total) * 100;
+  });
+  const series = [
+    { label: "Gasoline / ICE", color: "#171819", values: iceValues },
+    { label: "Hybrid", color: "#C8952A", values: segRows.map((r) => segShare(r, "hybrid")) },
+    { label: "BEV (VAMA members)", color: "#0051CC", values: segRows.map((r) => segShare(r, "bev")) },
+  ];
+  renderLineChart(chartEl, periods, series, { yFormat: (v) => `${Math.round(v)}%`, tooltipFormat: fmtPct1 });
+  renderChartLegend(legendEl, series);
 }
 
 // { sum, months } per brand per calendar year -- `months` (how many of

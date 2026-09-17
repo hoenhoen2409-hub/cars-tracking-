@@ -10,7 +10,7 @@
       "Honda (car)": 1494,
       "Peugeot": 220,
       "Thaco (total)": 4476,
-      "Others (VAMA)": 1280.0,
+      "Others (VAMA)": 1280,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 3496
     },
@@ -27,7 +27,7 @@
       "Honda (car)": 1385,
       "Peugeot": 237,
       "Thaco (total)": 6971,
-      "Others (VAMA)": 2145.0,
+      "Others (VAMA)": 2145,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 5467
     },
@@ -44,7 +44,7 @@
       "Honda (car)": 1489,
       "Peugeot": 250,
       "Thaco (total)": 8445,
-      "Others (VAMA)": 3094.0,
+      "Others (VAMA)": 3094,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 5773
     },
@@ -61,7 +61,7 @@
       "Honda (car)": 1944,
       "Peugeot": 170,
       "Thaco (total)": 6658,
-      "Others (VAMA)": 2650.0,
+      "Others (VAMA)": 2650,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 4592
     },
@@ -78,7 +78,7 @@
       "Honda (car)": 1757,
       "Peugeot": 170,
       "Thaco (total)": 6459,
-      "Others (VAMA)": 3007.0,
+      "Others (VAMA)": 3007,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 3575
     },
@@ -95,7 +95,7 @@
       "Honda (car)": 1419,
       "Peugeot": 185,
       "Thaco (total)": 7366,
-      "Others (VAMA)": 2448.0,
+      "Others (VAMA)": 2448,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 5108
     },
@@ -112,7 +112,7 @@
       "Honda (car)": 1597,
       "Peugeot": 191,
       "Thaco (total)": 8237,
-      "Others (VAMA)": 2364.0,
+      "Others (VAMA)": 2364,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 4035
     },
@@ -129,7 +129,7 @@
       "Honda (car)": 1431,
       "Peugeot": 193,
       "Thaco (total)": 7814,
-      "Others (VAMA)": 2070.0,
+      "Others (VAMA)": 2070,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 3145
     },
@@ -146,7 +146,7 @@
       "Honda (car)": 2554,
       "Peugeot": 226,
       "Thaco (total)": 8960,
-      "Others (VAMA)": 2154.0,
+      "Others (VAMA)": 2154,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 5977
     },
@@ -163,7 +163,7 @@
       "Honda (car)": 2148,
       "Peugeot": 235,
       "Thaco (total)": 9471,
-      "Others (VAMA)": 2044.0,
+      "Others (VAMA)": 2044,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 7458
     },
@@ -180,7 +180,7 @@
       "Honda (car)": 2525,
       "Peugeot": 408,
       "Thaco (total)": 9140,
-      "Others (VAMA)": 2094.0,
+      "Others (VAMA)": 2094,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 7980
     },
@@ -197,7 +197,7 @@
       "Honda (car)": 4059,
       "Peugeot": 553,
       "Thaco (total)": 10683,
-      "Others (VAMA)": 2877.0,
+      "Others (VAMA)": 2877,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 10884
     },
@@ -214,7 +214,7 @@
       "Honda (car)": 2023,
       "Peugeot": 224,
       "Thaco (total)": 5219,
-      "Others (VAMA)": 2559.0,
+      "Others (VAMA)": 2559,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 3569
     },
@@ -231,7 +231,7 @@
       "Honda (car)": 1264,
       "Peugeot": 167,
       "Thaco (total)": 3643,
-      "Others (VAMA)": 1213.0,
+      "Others (VAMA)": 1213,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 2033
     },
@@ -248,7 +248,7 @@
       "Honda (car)": 2832,
       "Peugeot": 231,
       "Thaco (total)": 6851,
-      "Others (VAMA)": 3229.0,
+      "Others (VAMA)": 3229,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 4542
     },
@@ -265,7 +265,7 @@
       "Honda (car)": 1802,
       "Peugeot": 210,
       "Thaco (total)": 6512,
-      "Others (VAMA)": 2471.0,
+      "Others (VAMA)": 2471,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 4276
     },
@@ -282,7 +282,7 @@
       "Honda (car)": 1179,
       "Peugeot": 234,
       "Thaco (total)": 6465,
-      "Others (VAMA)": 2114.0,
+      "Others (VAMA)": 2114,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 4914
     },
@@ -299,7 +299,7 @@
       "Honda (car)": 1381,
       "Peugeot": 287,
       "Thaco (total)": 7169,
-      "Others (VAMA)": 1761.0,
+      "Others (VAMA)": 1761,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 5047
     },
@@ -316,7 +316,7 @@
       "Honda (car)": 2406,
       "Peugeot": 261,
       "Thaco (total)": 6764,
-      "Others (VAMA)": 1879.0,
+      "Others (VAMA)": 1879,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 5329
     },
@@ -333,7 +333,7 @@
       "Honda (car)": 1160,
       "Peugeot": 257,
       "Thaco (total)": 6366,
-      "Others (VAMA)": 1564.0,
+      "Others (VAMA)": 1564,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 4679
     },
@@ -350,7 +350,7 @@
       "Honda (car)": 3607,
       "Peugeot": 261,
       "Thaco (total)": 9425,
-      "Others (VAMA)": 2392.0,
+      "Others (VAMA)": 2392,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 6518
     },
@@ -367,7 +367,7 @@
       "Honda (car)": 3606,
       "Peugeot": 401,
       "Thaco (total)": 10304,
-      "Others (VAMA)": 2614.0,
+      "Others (VAMA)": 2614,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 7639
     },
@@ -384,7 +384,7 @@
       "Honda (car)": 4633,
       "Peugeot": 494,
       "Thaco (total)": 12286,
-      "Others (VAMA)": 2851.0,
+      "Others (VAMA)": 2851,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 10303
     },
@@ -401,7 +401,7 @@
       "Honda (car)": 2374,
       "Peugeot": 463,
       "Thaco (total)": 6495,
-      "Others (VAMA)": 2129.0,
+      "Others (VAMA)": 2129,
       "VinFast": 20000.0,
       "Hyundai (Thanh Cong)": 8316
     },
@@ -418,7 +418,7 @@
       "Honda (car)": 1826,
       "Peugeot": 193,
       "Thaco (total)": 5003,
-      "Others (VAMA)": 1140.0,
+      "Others (VAMA)": 1140,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 3074
     },
@@ -435,7 +435,7 @@
       "Honda (car)": 1808,
       "Peugeot": 239,
       "Thaco (total)": 6096,
-      "Others (VAMA)": 1374.0,
+      "Others (VAMA)": 1374,
       "VinFast": 12500.0,
       "Hyundai (Thanh Cong)": 3022
     },
@@ -452,7 +452,7 @@
       "Honda (car)": 2450,
       "Peugeot": 259,
       "Thaco (total)": 7304,
-      "Others (VAMA)": 2012.0,
+      "Others (VAMA)": 2012,
       "VinFast": 12100.0,
       "Hyundai (Thanh Cong)": 5368
     },
@@ -469,7 +469,7 @@
       "Honda (car)": 2142,
       "Peugeot": 213,
       "Thaco (total)": 7346,
-      "Others (VAMA)": 1884.0,
+      "Others (VAMA)": 1884,
       "VinFast": 9588.0,
       "Hyundai (Thanh Cong)": 4470
     },
@@ -486,7 +486,7 @@
       "Honda (car)": 1484,
       "Peugeot": 192,
       "Thaco (total)": 6961,
-      "Others (VAMA)": 2130.0,
+      "Others (VAMA)": 2130,
       "VinFast": 11496.0,
       "Hyundai (Thanh Cong)": 4063
     },
@@ -503,7 +503,7 @@
       "Honda (car)": 1523,
       "Peugeot": 228,
       "Thaco (total)": 7894,
-      "Others (VAMA)": 2105.0,
+      "Others (VAMA)": 2105,
       "VinFast": 11382.0,
       "Hyundai (Thanh Cong)": 4197
     },
@@ -520,7 +520,7 @@
       "Honda (car)": 2617,
       "Peugeot": 222,
       "Thaco (total)": 7550,
-      "Others (VAMA)": 2146.0,
+      "Others (VAMA)": 2146,
       "VinFast": 11479.0,
       "Hyundai (Thanh Cong)": 3601
     },
@@ -537,7 +537,7 @@
       "Honda (car)": 2275,
       "Peugeot": 153,
       "Thaco (total)": 5949,
-      "Others (VAMA)": 2414.0,
+      "Others (VAMA)": 2414,
       "VinFast": 10922.0,
       "Hyundai (Thanh Cong)": 3701
     },
@@ -554,7 +554,7 @@
       "Honda (car)": 1704,
       "Peugeot": 143,
       "Thaco (total)": 6581,
-      "Others (VAMA)": 2775.0,
+      "Others (VAMA)": 2775,
       "VinFast": 13914.0,
       "Hyundai (Thanh Cong)": 4296
     },
@@ -571,7 +571,7 @@
       "Honda (car)": 3314,
       "Peugeot": 183,
       "Thaco (total)": 7581,
-      "Others (VAMA)": 2710.0,
+      "Others (VAMA)": 2710,
       "VinFast": 20380.0,
       "Hyundai (Thanh Cong)": 5260
     },
@@ -588,7 +588,7 @@
       "Honda (car)": 3986,
       "Peugeot": 178,
       "Thaco (total)": 8612,
-      "Others (VAMA)": 2680.0,
+      "Others (VAMA)": 2680,
       "VinFast": 23186.0,
       "Hyundai (Thanh Cong)": 5463
     },
@@ -605,7 +605,7 @@
       "Honda (car)": 3590,
       "Peugeot": 232,
       "Thaco (total)": 12065,
-      "Others (VAMA)": 3382.0,
+      "Others (VAMA)": 3382,
       "VinFast": 27649.0,
       "Hyundai (Thanh Cong)": 6704
     },
@@ -622,7 +622,7 @@
       "Honda (car)": 2712,
       "Peugeot": 191,
       "Thaco (total)": 9267,
-      "Others (VAMA)": 2592.0,
+      "Others (VAMA)": 2592,
       "VinFast": 16172.0,
       "Hyundai (Thanh Cong)": 5872
     },
@@ -639,7 +639,7 @@
       "Honda (car)": 1052,
       "Peugeot": 98,
       "Thaco (total)": 5037,
-      "Others (VAMA)": 1331.0,
+      "Others (VAMA)": 1331,
       "VinFast": 9903.0,
       "Hyundai (Thanh Cong)": 3080
     },
@@ -656,7 +656,7 @@
       "Honda (car)": 1839,
       "Peugeot": 103,
       "Thaco (total)": 8787,
-      "Others (VAMA)": 2855.0,
+      "Others (VAMA)": 2855,
       "VinFast": 27609.0,
       "Hyundai (Thanh Cong)": 4546
     },
@@ -673,7 +673,7 @@
       "Honda (car)": 1830,
       "Peugeot": 72,
       "Thaco (total)": 7756,
-      "Others (VAMA)": 2138.0,
+      "Others (VAMA)": 2138,
       "VinFast": 24774.0,
       "Hyundai (Thanh Cong)": 3904
     },
@@ -690,7 +690,7 @@
       "Honda (car)": 1870,
       "Peugeot": 84,
       "Thaco (total)": 7341,
-      "Others (VAMA)": 2584.0,
+      "Others (VAMA)": 2584,
       "VinFast": 19503.0,
       "Hyundai (Thanh Cong)": 3921
     },
@@ -707,7 +707,7 @@
       "Honda (car)": 2002,
       "Peugeot": 122,
       "Thaco (total)": 7365,
-      "Others (VAMA)": 2474.0,
+      "Others (VAMA)": 2474,
       "VinFast": 17955.0,
       "Hyundai (Thanh Cong)": 3746
     },
@@ -724,11 +724,11 @@
       "Honda (car)": 2129,
       "Peugeot": 131,
       "Thaco (total)": 7505,
-      "Others (VAMA)": null,
+      "Others (VAMA)": 2270,
       "VinFast": 21781.0,
       "Hyundai (Thanh Cong)": 3543
     },
-    "total_market": null
+    "total_market": 50570.0
   },
   {
     "period": "2026-08",
@@ -741,10 +741,10 @@
       "Honda (car)": 1001,
       "Peugeot": 82,
       "Thaco (total)": 5983,
-      "Others (VAMA)": null,
+      "Others (VAMA)": 1607,
       "VinFast": 20161.0,
       "Hyundai (Thanh Cong)": 2928
     },
-    "total_market": null
+    "total_market": 41980.0
   }
 ]

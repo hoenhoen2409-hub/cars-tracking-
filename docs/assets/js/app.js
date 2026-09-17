@@ -7,6 +7,7 @@ const state = {
   cars: [],
   motos: [],
   meta: {},
+  segments: [],
   selectedBrands: new Set(DEFAULT_BRANDS),
   // Cars section is filtered (and its KPI "as of" reference month is set)
   // by month, not just year -- see renderCarsSection(). Year/month are
@@ -217,14 +218,16 @@ function downloadCsv(csvText, filename) {
 
 // -------------------------------------------------------------------- init
 async function init() {
-  const [cars, motos, meta] = await Promise.all([
+  const [cars, motos, meta, segments] = await Promise.all([
     loadJson("./data/cars.json"),
     loadJson("./data/motos.json"),
     loadJson("./data/meta.json"),
+    loadJson("./data/segments.json"),
   ]);
   state.cars = cars;
   state.motos = motos;
   state.meta = meta;
+  state.segments = segments;
 
   const carYears = yearsFromRows(cars);
   const motoYears = yearsFromRows(motos);
@@ -296,6 +299,9 @@ async function init() {
   // §3 Market Structure -- fixed full-history view, not tied to §1's
   // Month from/to filter, so this only needs rendering once at load.
   renderShareChart(document.getElementById("share-chart"), document.getElementById("share-chart-legend"), cars);
+  renderSegmentChart(document.getElementById("segment-chart"), document.getElementById("segment-chart-legend"), segments);
+  renderHybridKpis(document.getElementById("hybrid-kpis"), segments);
+  renderPowertrainChart(document.getElementById("powertrain-chart"), document.getElementById("powertrain-chart-legend"), segments);
   renderEvKpis(document.getElementById("ev-kpis"), cars);
   renderEvChart(document.getElementById("ev-chart"), cars);
   renderAnnualTable(document.getElementById("annual-table-head"), document.getElementById("annual-table-body"), cars);

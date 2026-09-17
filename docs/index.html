@@ -171,11 +171,35 @@
     </div>
 
     <div class="card">
+      <div class="card-head"><h3>Vehicle Segment Trend</h3></div>
+      <p class="muted" style="margin-bottom:14px; font-size:12px;">
+        VAMA's own passenger / commercial / special-purpose classification, from its monthly
+        Summary report (not this tracker's per-brand columns). VAMA members only.
+      </p>
+      <div class="chart-wrap" id="segment-chart"></div>
+      <div class="chart-legend" id="segment-chart-legend"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Powertrain Mix (VAMA members)</h3></div>
+      <p class="muted" style="margin-bottom:14px; font-size:12px;">
+        Gasoline/ICE vs. Hybrid vs. Battery-EV, as reported by VAMA for its own members --
+        <strong>this excludes VinFast</strong>, which isn't a VAMA member and is tracked
+        separately below. VAMA's BEV row is a handful of units/month (other members' occasional
+        EV models); the real EV story in Vietnam is almost entirely VinFast, not this line.
+      </p>
+      <div id="hybrid-kpis" class="kpis kpis-3"></div>
+      <div class="chart-wrap" id="powertrain-chart" style="margin-top:18px;"></div>
+      <div class="chart-legend" id="powertrain-chart-legend"></div>
+    </div>
+
+    <div class="card">
       <div class="card-head"><h3>EV (VinFast) Share of Total Market</h3></div>
       <p class="muted" style="margin-bottom:14px; font-size:12px;">
         VinFast is used as a proxy for EV volume since it's Vietnam's dominant battery-EV seller
-        and the only tracked brand that's 100% electric. Other brands' hybrid/EV models aren't
-        broken out separately in this dataset, so this understates true electrified volume.
+        and the only tracked brand that's 100% electric -- this is the metric that actually
+        captures Vietnam's EV shift (VAMA's own BEV row above does not, since VinFast isn't a
+        VAMA member).
       </p>
       <div id="ev-kpis" class="kpis kpis-3"></div>
       <div class="chart-wrap" id="ev-chart" style="margin-top:18px;"></div>
@@ -198,12 +222,13 @@
     <div class="card">
       <div class="card-head"><h3>Not yet available from this data</h3></div>
       <p class="muted" style="font-size:12px;">
-        This tracker records total monthly units per brand, not per model or powertrain, so a
-        Hybrid / Gasoline / Battery-EV split within a brand (e.g. Toyota's hybrid mix) can't be
-        derived from it. VAMA's own passenger / commercial / special-purpose vehicle segmentation
-        is also not tracked monthly here (it was only pulled once, from the raw VAMA PDFs, to get
-        July&ndash;Aug 2026's Thaco sub-brand figures). Both would need additional scraping of
-        VAMA's segment tables or brand-level model/powertrain disclosures.
+        VAMA's Summary report gives segment and powertrain totals across all its members
+        combined, not broken out per brand -- so "Toyota's hybrid volume" specifically, or which
+        model is driving it, isn't derivable from this data. The Summary PDF wasn't found for
+        three months (Sep 2023, Mar 2024, Dec 2025); those show as gaps in the charts above.
+        Getting a true per-brand powertrain split would need VAMA's brand-level Detail report
+        (used elsewhere in this tracker for Thaco's sub-brands) cross-referenced against each
+        model's known powertrain -- not currently scraped.
       </p>
     </div>
   </section>
