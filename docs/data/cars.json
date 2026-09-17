@@ -419,10 +419,10 @@
       "Peugeot": 193,
       "Thaco (total)": 5003,
       "Others (VAMA)": 1140,
-      "VinFast": null,
+      "VinFast": 10503.0,
       "Hyundai (Thanh Cong)": 3074
     },
-    "total_market": null
+    "total_market": 29253.0
   },
   {
     "period": "2025-02",
