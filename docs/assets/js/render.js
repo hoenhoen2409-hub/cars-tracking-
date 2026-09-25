@@ -797,35 +797,45 @@ function ytdYoyItem(title, ytd, { worstNote = "" } = {}) {
   };
 }
 
-// "tăng X%" / "giảm -X%" -- toFixed(1) already carries the minus sign for
-// negatives, matching the exact phrasing convention of the reference note
-// this narrative is modeled on (e.g. "giảm -1% YoY", not "giảm 1%").
-function taiGiam(pct) {
-  return `${pct >= 0 ? "tăng" : "giảm"} ${pct.toFixed(1)}%`;
+function roseFell(pct) {
+  return pct >= 0 ? "rose" : "fell";
+}
+function upDown(pct) {
+  return pct >= 0 ? "up" : "down";
+}
+function abs1(pct) {
+  return Math.abs(pct).toFixed(1);
 }
 
 // Free-text version of the same underlying-demand numbers as the bullets
-// below -- a copy-pasteable note in the mixed Vietnamese/English "analyst
-// comment" style the user asked to match, not a UI summary. Both read off
-// the same computed {pcInclVf, pcExVf, cv, moto, worstMonth, worstBrand}
-// inputs so the two presentations can't drift apart.
+// below -- a copy-pasteable analyst-style note, not a UI summary. Both
+// presentations read off the same computed {pcInclVf, pcExVf, cv, moto,
+// worstMonth, worstBrand} inputs so they can't drift apart.
 function buildDemandNarrative({ pcInclVf, pcExVf, cv, moto, worstMonth, worstBrand }) {
-  const carLines = [];
+  const carSentences = [];
   if (pcInclVf) {
-    carLines.push(`So far cả ngành Passenger Car, tính cả VinFast ${taiGiam(pcInclVf.pct)} in ${pcInclVf.months}M`);
+    carSentences.push(
+      `Vietnam's passenger car industry, including VinFast, ${roseFell(pcInclVf.pct)} ${abs1(pcInclVf.pct)}% YoY over the first ${pcInclVf.months} months of the year.`
+    );
   }
   if (pcExVf) {
-    const worstText = worstMonth ? `, có tháng ${worstMonth.pct >= 0 ? "tăng" : "âm"} tới ${Math.abs(worstMonth.pct).toFixed(1)}% YoY (${fmtPeriodLabel(worstMonth.period)})` : "";
-    const brandText = worstBrand ? `, giảm mạnh nhất ở ${worstBrand.brand} (${worstBrand.pct.toFixed(1)}%)` : "";
-    carLines.push(`Nhưng nếu bỏ VinFast ra, PC ${taiGiam(pcExVf.pct)} YoY${worstText}${brandText}`);
+    const worstText = worstMonth
+      ? `, with the weakest month at ${abs1(worstMonth.pct)}% ${worstMonth.pct >= 0 ? "growth" : "decline"} in ${fmtPeriodLabel(worstMonth.period)}`
+      : "";
+    const brandText = worstBrand ? ` — ${worstBrand.brand} posted the steepest brand-level decline, down ${abs1(worstBrand.pct)}%` : "";
+    carSentences.push(
+      `Excluding VinFast, however, underlying PC demand ${roseFell(pcExVf.pct)} ${abs1(pcExVf.pct)}% YoY${worstText}${brandText}.`
+    );
   }
   if (cv) {
-    carLines.push(`Nhóm xe thương mại tốt hơn, cả ngành ${taiGiam(cv.pct)} YoY in ${cv.months}M`);
+    carSentences.push(`Commercial vehicles held up better, ${upDown(cv.pct)} ${abs1(cv.pct)}% YoY over the same period.`);
   }
 
-  const motoLine = moto ? `Xe máy Honda ${taiGiam(moto.pct)} in ${moto.months}M` : "";
+  const motoSentence = moto
+    ? `Honda motorbike volumes were ${upDown(moto.pct)} ${abs1(moto.pct)}% YoY over ${moto.months} months of comparable data.`
+    : "";
 
-  return { carText: carLines.join("\n"), motoText: motoLine };
+  return { carText: carSentences.join(" "), motoText: motoSentence };
 }
 
 function renderDeepDiveNarrative(containerEl, { pcInclVf, pcExVf, cv, moto, worstMonth, worstBrand }) {
