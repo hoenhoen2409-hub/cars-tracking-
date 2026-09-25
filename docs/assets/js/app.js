@@ -27,6 +27,12 @@ const state = {
   carPeriodTo: null,
   motoYearFrom: null,
   motoYearTo: null,
+  segYearFrom: null,
+  segMonthFrom: null,
+  segYearTo: null,
+  segMonthTo: null,
+  segPeriodFrom: null,
+  segPeriodTo: null,
 };
 
 async function loadJson(path) {
@@ -209,6 +215,14 @@ function exportMotosCsv() {
   downloadCsv(lines.join("\n"), "honda_motorbike_filtered.csv");
 }
 
+// ---------------------------------------------------------- segment tab
+function renderSegmentSection() {
+  const filtered = filterByPeriodRange(state.segments, state.segPeriodFrom, state.segPeriodTo);
+  renderSegmentChart(document.getElementById("segment-chart"), document.getElementById("segment-chart-legend"), filtered);
+  renderSegmentTable(document.getElementById("segment-table-head"), document.getElementById("segment-table-body"), filtered, state.segments);
+  document.getElementById("seg-count-label").textContent = `${filtered.length} months shown`;
+}
+
 function downloadCsv(csvText, filename) {
   const blob = new Blob([csvText], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
@@ -249,6 +263,16 @@ async function init() {
   state.motoYearFrom = motoYears[0];
   state.motoYearTo = motoYears[motoYears.length - 1];
 
+  const segYears = yearsFromRows(segments);
+  state.segYearFrom = segYears[0];
+  state.segYearTo = segYears[segYears.length - 1];
+  const segFromMonths = monthsForYear(segments, state.segYearFrom);
+  const segToMonths = monthsForYear(segments, state.segYearTo);
+  state.segMonthFrom = segFromMonths[0];
+  state.segMonthTo = segToMonths[segToMonths.length - 1];
+  state.segPeriodFrom = `${state.segYearFrom}-${pad2(state.segMonthFrom)}`;
+  state.segPeriodTo = `${state.segYearTo}-${pad2(state.segMonthTo)}`;
+
   renderHero(meta.latest_car_period, meta.latest_moto_period, meta.generated_at);
   renderTopSummary(cars, CAR_BRANDS);
 
@@ -258,6 +282,10 @@ async function init() {
   fillMonthSelect(document.getElementById("car-month-to"), toMonths, state.carMonthTo);
   fillYearSelect(document.getElementById("moto-year-from"), motoYears, state.motoYearFrom);
   fillYearSelect(document.getElementById("moto-year-to"), motoYears, state.motoYearTo);
+  fillYearSelect(document.getElementById("seg-year-from"), segYears, state.segYearFrom);
+  fillYearSelect(document.getElementById("seg-year-to"), segYears, state.segYearTo);
+  fillMonthSelect(document.getElementById("seg-month-from"), segFromMonths, state.segMonthFrom);
+  fillMonthSelect(document.getElementById("seg-month-to"), segToMonths, state.segMonthTo);
 
   document.getElementById("car-year-from").addEventListener("change", (e) => {
     state.carYearFrom = Number(e.target.value);
@@ -293,6 +321,32 @@ async function init() {
     state.motoYearTo = Number(e.target.value);
     renderMotoSection();
   });
+  document.getElementById("seg-year-from").addEventListener("change", (e) => {
+    state.segYearFrom = Number(e.target.value);
+    const months = monthsForYear(state.segments, state.segYearFrom);
+    if (!months.includes(state.segMonthFrom)) state.segMonthFrom = months[0];
+    fillMonthSelect(document.getElementById("seg-month-from"), months, state.segMonthFrom);
+    state.segPeriodFrom = `${state.segYearFrom}-${pad2(state.segMonthFrom)}`;
+    renderSegmentSection();
+  });
+  document.getElementById("seg-month-from").addEventListener("change", (e) => {
+    state.segMonthFrom = Number(e.target.value);
+    state.segPeriodFrom = `${state.segYearFrom}-${pad2(state.segMonthFrom)}`;
+    renderSegmentSection();
+  });
+  document.getElementById("seg-year-to").addEventListener("change", (e) => {
+    state.segYearTo = Number(e.target.value);
+    const months = monthsForYear(state.segments, state.segYearTo);
+    if (!months.includes(state.segMonthTo)) state.segMonthTo = months[months.length - 1];
+    fillMonthSelect(document.getElementById("seg-month-to"), months, state.segMonthTo);
+    state.segPeriodTo = `${state.segYearTo}-${pad2(state.segMonthTo)}`;
+    renderSegmentSection();
+  });
+  document.getElementById("seg-month-to").addEventListener("change", (e) => {
+    state.segMonthTo = Number(e.target.value);
+    state.segPeriodTo = `${state.segYearTo}-${pad2(state.segMonthTo)}`;
+    renderSegmentSection();
+  });
 
   document.getElementById("car-csv-btn").addEventListener("click", exportCarsCsv);
   document.getElementById("moto-csv-btn").addEventListener("click", exportMotosCsv);
@@ -301,10 +355,12 @@ async function init() {
   renderCarsSection();
   renderMotoSection();
 
-  // §3 Market Structure -- fixed full-history view, not tied to §1's
-  // Month from/to filter, so this only needs rendering once at load.
+  // §3 Market Structure -- Brand Market Share Trend/Annual table/Deep Dive
+  // Summary are a fixed full-history view, not tied to any filter, so they
+  // only need rendering once at load. Vehicle Segment Trend has its own
+  // Month from/to filter (renderSegmentSection), same pattern as §1.
   renderShareChart(document.getElementById("share-chart"), document.getElementById("share-chart-legend"), cars);
-  renderSegmentChart(document.getElementById("segment-chart"), document.getElementById("segment-chart-legend"), segments);
+  renderSegmentSection();
   renderAnnualTable(document.getElementById("annual-table-head"), document.getElementById("annual-table-body"), cars);
   renderDeepDiveSummary(document.getElementById("deep-dive-summary"), cars, segments);
 }

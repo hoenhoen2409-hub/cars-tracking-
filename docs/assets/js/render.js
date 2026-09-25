@@ -543,20 +543,48 @@ function segShare(row, key) {
   return row.total != null && row[key] != null && row.total > 0 ? (row[key] / row.total) * 100 : null;
 }
 
+const SEGMENT_SPECS = [
+  { key: "passenger_cars", label: "Passenger cars", color: "#008478" },
+  { key: "commercial_vehicles", label: "Commercial vehicles", color: "#171819" },
+  { key: "special_purpose", label: "Special-purpose", color: "#ACAEB0" },
+];
+
+// Absolute units (not % share) so the chart doubles as a growth-rate view,
+// matching §1's chart style -- MoM/YoY reads straight off the detail table
+// below it instead of needing a separate share-vs-growth mental model.
 function renderSegmentChart(chartEl, legendEl, segRows) {
   const periods = segRows.map((r) => r.period);
-  const specs = [
-    { key: "passenger_cars", label: "Passenger cars", color: "#008478" },
-    { key: "commercial_vehicles", label: "Commercial vehicles", color: "#171819" },
-    { key: "special_purpose", label: "Special-purpose", color: "#ACAEB0" },
-  ];
-  const series = specs.map((s) => ({
+  const series = SEGMENT_SPECS.map((s) => ({
     label: s.label,
     color: s.color,
-    values: segRows.map((r) => segShare(r, s.key)),
+    values: segRows.map((r) => r[s.key]),
   }));
-  renderLineChart(chartEl, periods, series, { yFormat: (v) => `${Math.round(v)}%`, tooltipFormat: fmtPct1, connectGaps: true });
+  renderLineChart(chartEl, periods, series, { connectGaps: true });
   renderChartLegend(legendEl, series);
+}
+
+// `allRows` (full, unfiltered history) is used only for the prior-month
+// MoM% lookup so a row at the edge of the filtered range still shows a
+// correct MoM% instead of "n/a" -- same pattern as the §1 car table.
+function renderSegmentTable(headEl, bodyEl, filteredRows, allRows) {
+  headEl.innerHTML = `<th class="ta-left">Month</th>` + SEGMENT_SPECS.map((s) => `<th>${escapeHtml(s.label)}</th><th>MoM %</th>`).join("");
+
+  const rowsDesc = [...filteredRows].reverse();
+  bodyEl.innerHTML = rowsDesc.length
+    ? rowsDesc
+        .map((r) => {
+          const priorRow = allRows.find((x) => x.period === shiftPeriod(r.period, -1));
+          const cells = SEGMENT_SPECS.map((s) => {
+            const v = r[s.key];
+            const prev = priorRow ? priorRow[s.key] : null;
+            const pct = pctChange(v, prev);
+            const dir = pct == null ? "flat" : pct >= 0 ? "up" : "down";
+            return `<td>${fmtInt(v)}</td><td class="pct ${dir}">${pct == null ? "n/a" : (pct >= 0 ? "+" : "") + pct.toFixed(1) + "%"}</td>`;
+          }).join("");
+          return `<tr><td class="ta-left">${fmtPeriodLabel(r.period)}</td>${cells}</tr>`;
+        })
+        .join("")
+    : `<tr><td colspan="${1 + SEGMENT_SPECS.length * 2}" class="empty-state">No data in this range.</td></tr>`;
 }
 
 // { sum, months } per brand per calendar year -- `months` (how many of

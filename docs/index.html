@@ -179,13 +179,40 @@
     </div>
 
     <div class="card">
-      <div class="card-head"><h3>Vehicle Segment Trend</h3></div>
-      <p class="muted" style="margin-bottom:14px; font-size:12px;">
-        VAMA's own passenger / commercial / special-purpose classification, from its monthly
-        Summary report (not this tracker's per-brand columns). VAMA members only.
+      <div class="card-head"><h3>Vehicle Segment Trend</h3><span class="right" id="seg-count-label"></span></div>
+      <p class="muted" id="segment-source-note" style="margin-bottom:14px; font-size:12px;">
+        Passenger Cars / Commercial Vehicles / Special-Purpose Vehicles, in units. VAMA members
+        only for now (from its monthly Summary report) -- being re-sourced to VAMA's
+        whole-industry Cover Letter total (same basis as "Total Industry" in &sect;1).
       </p>
+      <div class="filter-bar">
+        <div class="filter-field">
+          <span class="filter-label">From</span>
+          <div class="filter-subrow">
+            <select class="filter-select-native" id="seg-year-from"></select>
+            <select class="filter-select-native" id="seg-month-from"></select>
+          </div>
+        </div>
+        <div class="filter-field">
+          <span class="filter-label">To</span>
+          <div class="filter-subrow">
+            <select class="filter-select-native" id="seg-year-to"></select>
+            <select class="filter-select-native" id="seg-month-to"></select>
+          </div>
+        </div>
+      </div>
       <div class="chart-wrap" id="segment-chart"></div>
       <div class="chart-legend" id="segment-chart-legend"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Vehicle Segment Detail Table &middot; MoM % Change</h3></div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr id="segment-table-head"></tr></thead>
+          <tbody id="segment-table-body"></tbody>
+        </table>
+      </div>
     </div>
 
     <div class="card">
