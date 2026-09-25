@@ -576,28 +576,32 @@ function renderSegmentChart(chartEl, legendEl, segRows, specs) {
   renderChartLegend(legendEl, series);
 }
 
-// `allRows` (full, unfiltered history) is used only for the prior-month
-// MoM% lookup so a row at the edge of the filtered range still shows a
-// correct MoM% instead of "n/a" -- same pattern as the §1 car table.
+// `allRows` (full, unfiltered history) is used for the prior-month/prior-
+// year lookups so a row at the edge of the filtered range still shows a
+// correct MoM%/YoY% instead of "n/a" -- same pattern as the §1 car table.
 function renderSegmentTable(headEl, bodyEl, filteredRows, allRows, specs) {
-  headEl.innerHTML = `<th class="ta-left">Month</th>` + specs.map((s) => `<th>${escapeHtml(s.label)}</th><th>MoM %</th>`).join("");
+  headEl.innerHTML = `<th class="ta-left">Month</th>` + specs.map((s) => `<th>${escapeHtml(s.label)}</th><th>MoM %</th><th>YoY %</th>`).join("");
 
   const rowsDesc = [...filteredRows].reverse();
   bodyEl.innerHTML = rowsDesc.length && specs.length
     ? rowsDesc
         .map((r) => {
           const priorRow = allRows.find((x) => x.period === shiftPeriod(r.period, -1));
+          const yoyRow = allRows.find((x) => x.period === shiftPeriod(r.period, -12));
           const cells = specs.map((s) => {
             const v = r[s.key];
-            const prev = priorRow ? priorRow[s.key] : null;
-            const pct = pctChange(v, prev);
-            const dir = pct == null ? "flat" : pct >= 0 ? "up" : "down";
-            return `<td>${fmtInt(v)}</td><td class="pct ${dir}">${pct == null ? "n/a" : (pct >= 0 ? "+" : "") + pct.toFixed(1) + "%"}</td>`;
+            const mom = pctChange(v, priorRow ? priorRow[s.key] : null);
+            const yoy = pctChange(v, yoyRow ? yoyRow[s.key] : null);
+            const pctCell = (pct) => {
+              const dir = pct == null ? "flat" : pct >= 0 ? "up" : "down";
+              return `<td class="pct ${dir}">${pct == null ? "n/a" : (pct >= 0 ? "+" : "") + pct.toFixed(1) + "%"}</td>`;
+            };
+            return `<td>${fmtInt(v)}</td>${pctCell(mom)}${pctCell(yoy)}`;
           }).join("");
           return `<tr><td class="ta-left">${fmtPeriodLabel(r.period)}</td>${cells}</tr>`;
         })
         .join("")
-    : `<tr><td colspan="${1 + Math.max(specs.length, 1) * 2}" class="empty-state">${specs.length ? "No data in this range." : "Select at least one series."}</td></tr>`;
+    : `<tr><td colspan="${1 + Math.max(specs.length, 1) * 3}" class="empty-state">${specs.length ? "No data in this range." : "Select at least one series."}</td></tr>`;
 }
 
 // { sum, months } per brand per calendar year -- `months` (how many of
