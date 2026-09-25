@@ -1,45 +1,45 @@
-year,month,total,passenger_cars,commercial_vehicles,trucks,buses,special_purpose,bev,hybrid,bus_chassis,source_url
-2023,1,13998,11170,2772,2636,136,56,0,0,0,http://vama.org.vn/Data/upload/files/2023/Cover%20Letter%20Sales%20report%20-%20January%20-%20ENG.pdf
-2023,2,23040,16980,5760,4476,216,300,0,0,24,http://vama.org.vn/Data/upload/files/Cover%20Letter%20Sales%20report%20-%20February%20-%20ENG.pdf
-2023,3,26266,19727,6340,5888,452,199,0,0,0,http://vama.org.vn/Data/upload/files/2023/Cover%20Letter%20Sales%20report%20-%20March%20-%20ENG.pdf
-2023,4,22409,15748,6487,5171,647,174,0,0,24,http://vama.org.vn/Data/upload/files/2023/T4-2023/Cover%20Letter%20Sales%20report%20-%20April%20-%20ENG.pdf
-2023,5,20726,14483,6096,4797,465,147,0,0,0,http://vama.org.vn/Data/upload/files/2023/T5-2023/Cover%20Letter%20Sales%20report%20-%20May%20-%20ENG.pdf
-2023,6,23800,17334,6344,4742,521,122,0,0,36,http://vama.org.vn/Data/upload/files/2023/T6-2023/Cover%20Letter%20Sales%20report%20-%20June%20-%20ENG.pdf
-2023,7,24687,19221,5318,4497,640,148,0,0,24,http://vama.org.vn/Data/upload/files/2023/T7-2023/Cover%20Letter%20Sales%20report%20-%20July%20-%20VIE.pdf
-2023,8,22456,17281,5007,3852,779,168,0,0,48,http://vama.org.vn/Data/upload/files/2023/T9-2023/Cover%20Letter%20Sales%20report%20-%20September%20-%20VIE.pdf
-2023,9,25375,19665,5546,,,164,,,,http://vama.org.vn/Data/upload/files/2023/T9-2023/Cover%20Letter%20Sales%20report%20-%20September%20-%20VIE.pdf
-2023,10,25369,19624,5604,4664,502,141,0,0,26,http://vama.org.vn/Data/upload/files/2023/T10-2023/Cover%20Letter%20Sales%20report%20-%20October%20-%20ENG.pdf
-2023,11,26439,21567,4816,4396,420,56,0,0,12,http://vama.org.vn/Data/upload/files/2023/T11-2023/Cover%20Letter%20Sales%20report%20-%20November%20-%20ENG.pdf
-2023,12,38740,32133,6407,5357,605,200,0,0,0,http://vama.org.vn/Data/upload/files/2023/Th%C3%A1ng%2012/Cover%20Letter%20Sales%20report%20-%20December%20-%20ENG.pdf
-2024,1,19243,14745,4390,3210,482,108,0,576,0,http://vama.org.vn/Data/upload/files/B%C3%A0i%20ph%C3%A1t%20bi%E1%BB%83u/Cover%20Letter%20Sales%20report%20-%20January%20-%20ENG.pdf
-2024,2,11633,8099,3478,2436,309,56,0,205,0,http://vama.org.vn/Data/upload/files/2024/T2/T3/Cover%20Letter%20Sales%20report%20-%20February%20-%20VIE.pdf
-2024,3,27289,19014,8047,,,228,,,,http://vama.org.vn/Data/upload/files/2024/T3/Cover%20Letter%20Sales%20report%20-%20March%20-%20ENG.pdf
-2024,4,24350,17258,6815,4378,786,277,0,959,24,http://vama.org.vn/Data/upload/files/2024/Sales%20data/T4/Cover%20Letter%20Sales%20report%20-%20April%20-%20VIE.pdf
-2024,5,25794,18235,7292,4924,657,267,0,929,12,http://vama.org.vn/Data/upload/files/2024/Sales%20data/T5/Cover%20Letter%20Sales%20report%20-%20May%20-%20ENG.pdf
-2024,6,26575,19944,6419,4612,484,212,0,576,12,http://vama.org.vn/Data/upload/files/2024/T6-2024/Cover%20Letter%20Sales%20report%20-%20June%20-%20ENG.pdf
-2024,7,28920,22848,5857,4555,335,215,0,695,12,http://vama.org.vn/Data/upload/files/2024/T7-2024/Cover%20Letter%20Sales%20report%20-%20July%20-%20ENG.pdf
-2024,8,25196,19129,5901,4197,796,166,0,465,0,http://vama.org.vn/Data/upload/files/2024/T8-2024/Cover%20Letter%20Sales%20report%20-%20August%20-%20ENG.pdf
-2024,9,36585,28973,7367,5318,880,245,0,1044,24,http://vama.org.vn/Data/upload/files/2024/T9-2024/Cover%20Letter%20Sales%20report%20-%20September%20-%20ENG.pdf
-2024,10,38761,30245,8290,6208,922,226,0,1420,0,http://vama.org.vn/Data/upload/files/2024/T10-2024/Cover%20Letter%20Sales%20report%20-%20October%20-%20ENG.pdf
-2024,11,39608,,,6845,833,,0,1240,0,
-2024,12,31598,24575,6461,4928,449,562,0,1479,0,http://vama.org.vn/Data/upload/files/2024/T12-2024/Cover%20Letter%20Sales%20report%20-%20December-%20ENG.pdf
-2025,1,18893,14201,4354,3108,506,338,0,904,24,http://vama.org.vn/Data/upload/files/2025/T1-2025/Cover%20Letter%20Sales%20report%20-%20January%20(ENG).pdf
-2025,2,21606,14549,6775,4270,553,282,0,756,12,http://vama.org.vn/Data/upload/files/2025/T2-2025/Cover%20Letter%20Sales%20report%20-%20February%20(ENG).pdf
-2025,3,31812,22357,9275,6022,986,180,0,902,12,http://vama.org.vn/Data/upload/files/2025/T4-2025/Cover%20Letter%20Sales%20report%20-%20April%20(ENG).pdf
-2025,4,29585,20766,8619,5491,888,200,0,1124,0,http://vama.org.vn/Data/upload/files/2025/T4-2025/Cover%20Letter%20Sales%20report%20-%20April%20(ENG).pdf
-2025,5,29210,20014,8983,5343,840,213,0,1049,11,http://vama.org.vn/Data/upload/files/2025/T5-2025/Cover%20Letter%20Sales%20report%20-%20May%20(ENG).pdf
-2025,6,31977,22934,8782,5724,884,261,0,1191,0,http://vama.org.vn/Data/upload/files/2025/B%C3%A1o%20c%C3%A1o%20b%C3%A1n%20h%C3%A0ng/Th%C3%A1ng%206/Cover%20Letter%20Sales%20report%20-%20Jun%20(ENG).pdf
-2025,7,31739,22292,8805,6098,906,642,0,1186,0,http://vama.org.vn/Data/upload/files/2025/B%C3%A1o%20c%C3%A1o%20b%C3%A1n%20h%C3%A0ng/T7/Cover%20Letter%20Sales%20report%20-%20July%20(ENG).pdf
-2025,8,25973,17304,8367,5865,731,302,0,1302,12,http://vama.org.vn/Data/upload/files/2025/Cover%20Letter%20Sales%20report%20-%20Aug%20(ENG).pdf
-2025,9,30688,20559,9535,6704,552,594,13,1371,12,http://vama.org.vn/Data/upload/files/B%C3%A0i%20ph%C3%A1t%20bi%E1%BB%83u/Cover%20Letter%20Sales%20report%20-%20Sep%20(ENG).pdf
-2025,10,37910,27246,10162,7096,654,502,8,1397,0,http://vama.org.vn/Data/upload/files/2025/T10/Cover%20Letter%20Sales%20report%20-%20Oct%20(ENG).pdf
-2025,11,39338,28577,10273,7071,612,488,0,1340,0,http://vama.org.vn/Data/upload/files/2026/BCBH/Edit/Cover%20Letter%20Sales%20report%20-%20Nov%20(ENG).pdf
-2025,12,47067,35803,10741,,,523,,,,http://vama.org.vn/Data/upload/files/2025/B%C3%A1o%20c%C3%A1o%20b%C3%A1n%20h%C3%A0ng/Cover%20Letter%20Sales%20report%20-%20Dec%20(ENG).pdf
-2026,1,36875,26102,10312,5806,665,461,0,863,12,http://vama.org.vn/Data/upload/files/2026/Ch%E1%BB%89nh%20s%E1%BB%ADa/Cover%20Letter%20Sales%20report%20-%20Jan%20(ENG).pdf
-2026,2,19278,12376,6542,4053,314,360,1,1119,12,http://vama.org.vn/Data/upload/files/2026/Ch%E1%BB%89nh%20s%E1%BB%ADa/Cover%20Letter%20Sales%20report%20-%20Feb%202026%20(ENG).pdf
-2026,3,38704,24858,13323,7629,711,523,0,3143,34,http://vama.org.vn/Data/upload/files/2026/Ch%E1%BB%89nh%20s%E1%BB%ADa/Cover%20Letter%20Sales%20report%20-%20Mar%202026%20(ENG).pdf
-2026,4,31937,21300,9792,5950,464,845,49,1723,13,http://vama.org.vn/Data/upload/files/2026/BCBH/Cover%20Letter%20Sales%20report%20-%20May%202026%20(ENG).pdf
-2026,5,29935,19182,10288,5950,533,465,14,1670,0,http://vama.org.vn/Data/upload/files/2026/BCBH/Cover%20Letter%20Sales%20report%20-%20May%202026%20(ENG).pdf
-2026,6,31104,21007,9526,5964,453,571,6,2347,0,http://vama.org.vn/Data/upload/files/2026/BCBH/Cover%20Letter%20Sales%20report%20-%20June%202026%20(ENG)(2).pdf
-2026,7,33707,25190,7888,5359,462,629,6,1636,12,http://vama.org.vn/Data/upload/files/2026/BCBH/Edit/Cover%20Letter%20Sales%20report%20-%20July%202026%20(ENG).pdf
-2026,8,25395,16738,8258,5392,278,399,3,1388,12,http://vama.org.vn/Data/upload/files/2026/BCBH/Cover%20Letter%20Sales%20report%20-%20August%202026%20(VIE).pdf
+year,month,total,passenger_cars,commercial_vehicles,trucks,buses,special_purpose,bev,hybrid,bus_chassis,source_url,passenger_cars_incl_hyundai
+2023,1,17324,14046,3174,2636,136,104,0,0,0,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),17230
+2023,2,22998,16938,5760,4476,216,300,0,0,24,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),21691
+2023,3,30038,21696,7990,5888,452,352,0,0,0,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),26453
+2023,4,22409,15748,6487,5171,647,174,0,0,24,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),19103
+2023,5,20726,14483,6096,4797,465,147,0,0,0,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),17175
+2023,6,23800,17334,6344,4742,521,122,0,0,36,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),21719
+2023,7,24687,19221,5318,4497,640,148,0,0,24,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),22548
+2023,8,22540,17335,5036,3852,779,169,0,0,48,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),19745
+2023,9,25375,19665,5546,,,164,,,,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),24692
+2023,10,25369,19624,5604,4664,502,141,0,0,26,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),26303
+2023,11,27953,22451,5318,4396,420,184,0,0,12,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),29657
+2023,12,38740,32133,6407,5357,605,200,0,0,0,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),42041
+2024,1,19243,14745,4390,3210,482,108,0,576,0,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),17646
+2024,2,11633,8099,3478,2436,309,56,0,205,0,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),9666
+2024,3,27289,19014,8047,,,228,,,,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),22486
+2024,4,24295,17258,6815,4378,786,222,0,959,24,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),20549
+2024,5,25794,18235,7292,4924,657,267,0,929,12,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),22162
+2024,6,26575,19944,6419,4612,484,212,0,576,12,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),24079
+2024,7,28920,22848,5857,4555,335,215,0,695,12,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),27280
+2024,8,25196,19129,5901,4197,796,166,0,465,0,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),23050
+2024,9,36585,28973,7367,5318,880,245,0,1044,24,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),34714
+2024,10,38761,30245,8290,6208,922,226,0,1420,0,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),37019
+2024,11,44200,34835,9017,6845,833,348,0,1240,0,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),44059
+2024,12,31598,24575,6461,4928,449,562,0,1479,0,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),31970
+2025,1,18893,14201,4354,3108,506,338,0,904,24,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),16543
+2025,2,21606,14549,6775,4270,553,282,0,756,12,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),16842
+2025,3,31750,24680,6890,6022,986,180,0,902,12,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),28890
+2025,4,29585,22731,6654,5491,888,200,0,1124,0,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),26160
+2025,5,29210,21892,7105,5343,840,213,0,1049,11,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),24850
+2025,6,31977,24965,6751,5724,884,261,0,1191,0,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),27887
+2025,7,31739,24594,6503,6098,906,642,0,1186,0,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),27217
+2025,8,25973,19424,6247,5865,731,302,0,1302,12,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),22004
+2025,9,30688,23090,7004,6704,552,594,13,1371,12,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),26430
+2025,10,37910,30168,7240,7096,654,502,8,1397,0,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),34065
+2025,11,39338,31537,7313,7071,612,488,0,1340,0,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),35794
+2025,12,47067,38732,7812,,,523,,,,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),44218
+2026,1,36875,26102,10312,5806,665,461,0,863,12,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),30967
+2026,2,19278,12376,6542,4053,314,360,1,1119,12,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),14634
+2026,3,38704,24858,13323,7629,711,523,0,3143,34,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),27946
+2026,4,31937,21284,9805,5950,464,848,49,1723,13,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),23848
+2026,5,29935,19182,10288,5950,533,465,14,1670,0,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),21686
+2026,6,31104,21007,9526,5964,453,571,6,2347,0,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),23468
+2026,7,33707,25190,7888,5359,462,629,6,1636,12,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),27508
+2026,8,25395,16738,8258,5392,278,399,3,1388,12,Dragon Capital internal auto industry tracker (analyst-compiled; bottom-up per-model PC/CV/SPV classification + Hyundai overlay; xlsx as of Sep 2026),18671

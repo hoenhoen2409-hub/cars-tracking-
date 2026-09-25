@@ -547,18 +547,27 @@ function segShare(row, key) {
   return row.total != null && row[key] != null && row.total > 0 ? (row[key] / row.total) * 100 : null;
 }
 
+// The base 3 are VAMA's own PC/CV/SPV split (always sum to `total`).
+// "Passenger Cars (incl. Hyundai)" is a 4th, opt-in series -- Hyundai
+// Thanh Cong's volume added straight into the PC number (see
+// passenger_cars_incl_hyundai's build note in export_site_data.py), so it
+// intentionally does NOT fit into the PC/CV/SPV split-of-`total` picture.
 const SEGMENT_SPECS = [
   { key: "passenger_cars", label: "Passenger cars", color: "#008478" },
   { key: "commercial_vehicles", label: "Commercial vehicles", color: "#171819" },
   { key: "special_purpose", label: "Special-purpose", color: "#ACAEB0" },
 ];
+const SEGMENT_EXTRA_SPECS = [
+  { key: "passenger_cars_incl_hyundai", label: "Passenger Cars (incl. Hyundai)", color: "#DB2777" },
+];
+const SEGMENT_TOGGLE_SPECS = [...SEGMENT_SPECS, ...SEGMENT_EXTRA_SPECS];
 
 // Absolute units (not % share) so the chart doubles as a growth-rate view,
 // matching §1's chart style -- MoM/YoY reads straight off the detail table
 // below it instead of needing a separate share-vs-growth mental model.
-function renderSegmentChart(chartEl, legendEl, segRows) {
+function renderSegmentChart(chartEl, legendEl, segRows, specs) {
   const periods = segRows.map((r) => r.period);
-  const series = SEGMENT_SPECS.map((s) => ({
+  const series = specs.map((s) => ({
     label: s.label,
     color: s.color,
     values: segRows.map((r) => r[s.key]),
@@ -570,15 +579,15 @@ function renderSegmentChart(chartEl, legendEl, segRows) {
 // `allRows` (full, unfiltered history) is used only for the prior-month
 // MoM% lookup so a row at the edge of the filtered range still shows a
 // correct MoM% instead of "n/a" -- same pattern as the §1 car table.
-function renderSegmentTable(headEl, bodyEl, filteredRows, allRows) {
-  headEl.innerHTML = `<th class="ta-left">Month</th>` + SEGMENT_SPECS.map((s) => `<th>${escapeHtml(s.label)}</th><th>MoM %</th>`).join("");
+function renderSegmentTable(headEl, bodyEl, filteredRows, allRows, specs) {
+  headEl.innerHTML = `<th class="ta-left">Month</th>` + specs.map((s) => `<th>${escapeHtml(s.label)}</th><th>MoM %</th>`).join("");
 
   const rowsDesc = [...filteredRows].reverse();
-  bodyEl.innerHTML = rowsDesc.length
+  bodyEl.innerHTML = rowsDesc.length && specs.length
     ? rowsDesc
         .map((r) => {
           const priorRow = allRows.find((x) => x.period === shiftPeriod(r.period, -1));
-          const cells = SEGMENT_SPECS.map((s) => {
+          const cells = specs.map((s) => {
             const v = r[s.key];
             const prev = priorRow ? priorRow[s.key] : null;
             const pct = pctChange(v, prev);
@@ -588,7 +597,7 @@ function renderSegmentTable(headEl, bodyEl, filteredRows, allRows) {
           return `<tr><td class="ta-left">${fmtPeriodLabel(r.period)}</td>${cells}</tr>`;
         })
         .join("")
-    : `<tr><td colspan="${1 + SEGMENT_SPECS.length * 2}" class="empty-state">No data in this range.</td></tr>`;
+    : `<tr><td colspan="${1 + Math.max(specs.length, 1) * 2}" class="empty-state">${specs.length ? "No data in this range." : "Select at least one series."}</td></tr>`;
 }
 
 // { sum, months } per brand per calendar year -- `months` (how many of

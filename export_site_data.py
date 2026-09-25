@@ -87,17 +87,23 @@ SEGMENT_COLUMNS = [
     "bev",
     "hybrid",
     "bus_chassis",
+    "passenger_cars_incl_hyundai",
 ]
 
 
 def build_segments_json():
     """total/passenger_cars/commercial_vehicles/special_purpose are VAMA's
-    whole-industry figures (from its monthly Cover Letter report -- VAMA
-    members + imported CBU from non-members, same basis as cars.json's
-    vamaIndustryTotal). trucks/buses/bev/hybrid/bus_chassis remain
-    VAMA-members-only (from its Summary report -- no whole-industry
-    equivalent is published for those); VinFast isn't a line item in
-    either report -- see cars.json for VinFast-share-of-market figures."""
+    whole-industry figures (VAMA members + imported CBU from non-members,
+    same basis as cars.json's vamaIndustryTotal), sourced from a Dragon
+    Capital analyst's internal tracker (bottom-up per-model PC/CV/SPV
+    classification), not VAMA's own published PDFs -- see source_url per
+    row. passenger_cars_incl_hyundai adds Hyundai Thanh Cong's volume
+    directly into the PC total without splitting it into PC/CV/SPV itself
+    (no model-level segment tags exist for Hyundai TC in that tracker).
+    trucks/buses/bev/hybrid/bus_chassis remain VAMA-members-only (from
+    VAMA's own Summary report -- no whole-industry equivalent for those);
+    VinFast isn't a line item here -- see cars.json for VinFast-share-of-
+    market figures."""
     df = pd.read_csv(DATA_DIR / "monthly_vama_segments.csv")
     df["period"] = pd.to_datetime(dict(year=df["year"], month=df["month"], day=1))
     df = df.sort_values("period").reset_index(drop=True)

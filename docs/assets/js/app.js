@@ -7,6 +7,7 @@ const CAR_BRANDS = Object.keys(BRAND_COLORS);
 // chart, etc.) where "Total Industry" would double-count.
 const TOGGLE_BRANDS = Object.keys(TOGGLE_COLORS);
 const DEFAULT_BRANDS = ["Toyota", "Honda (car)", "VinFast", "Hyundai (Thanh Cong)", "Total Industry", "Total Industry (excl. VinFast)"];
+const DEFAULT_SEGMENTS = SEGMENT_TOGGLE_SPECS.map((s) => s.key);
 
 const state = {
   cars: [],
@@ -14,6 +15,7 @@ const state = {
   meta: {},
   segments: [],
   selectedBrands: new Set(DEFAULT_BRANDS),
+  selectedSegments: new Set(DEFAULT_SEGMENTS),
   // Cars section is filtered (and its KPI "as of" reference month is set)
   // by month, not just year -- see renderCarsSection(). Year/month are
   // picked via separate selects (carYearFrom/carMonthFrom etc.) and kept in
@@ -216,10 +218,30 @@ function exportMotosCsv() {
 }
 
 // ---------------------------------------------------------- segment tab
+function renderSegmentToggles() {
+  const el = document.getElementById("segment-toggles");
+  el.innerHTML = SEGMENT_TOGGLE_SPECS.map(
+    (s) => `
+    <label class="brand-toggle">
+      <input type="checkbox" value="${escapeHtml(s.key)}" ${state.selectedSegments.has(s.key) ? "checked" : ""} />
+      <span class="dot" style="background:${s.color}"></span>
+      ${escapeHtml(s.label)}
+    </label>`
+  ).join("");
+  el.querySelectorAll("input[type=checkbox]").forEach((cb) => {
+    cb.addEventListener("change", () => {
+      if (cb.checked) state.selectedSegments.add(cb.value);
+      else state.selectedSegments.delete(cb.value);
+      renderSegmentSection();
+    });
+  });
+}
+
 function renderSegmentSection() {
   const filtered = filterByPeriodRange(state.segments, state.segPeriodFrom, state.segPeriodTo);
-  renderSegmentChart(document.getElementById("segment-chart"), document.getElementById("segment-chart-legend"), filtered);
-  renderSegmentTable(document.getElementById("segment-table-head"), document.getElementById("segment-table-body"), filtered, state.segments);
+  const specs = SEGMENT_TOGGLE_SPECS.filter((s) => state.selectedSegments.has(s.key));
+  renderSegmentChart(document.getElementById("segment-chart"), document.getElementById("segment-chart-legend"), filtered, specs);
+  renderSegmentTable(document.getElementById("segment-table-head"), document.getElementById("segment-table-body"), filtered, state.segments, specs);
   document.getElementById("seg-count-label").textContent = `${filtered.length} months shown`;
 }
 
@@ -360,6 +382,7 @@ async function init() {
   // only need rendering once at load. Vehicle Segment Trend has its own
   // Month from/to filter (renderSegmentSection), same pattern as §1.
   renderShareChart(document.getElementById("share-chart"), document.getElementById("share-chart-legend"), cars);
+  renderSegmentToggles();
   renderSegmentSection();
   renderAnnualTable(document.getElementById("annual-table-head"), document.getElementById("annual-table-body"), cars);
   renderDeepDiveSummary(document.getElementById("deep-dive-summary"), cars, segments);

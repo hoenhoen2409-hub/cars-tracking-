@@ -182,9 +182,9 @@
       <div class="card-head"><h3>Vehicle Segment Trend</h3><span class="right" id="seg-count-label"></span></div>
       <p class="muted" id="segment-source-note" style="margin-bottom:14px; font-size:12px;">
         Passenger Cars / Commercial Vehicles / Special-Purpose Vehicles, whole-industry units
-        (VAMA members + imported CBU from non-members, per VAMA's monthly Cover Letter report
-        -- same basis as "Total Industry" in &sect;1, not VAMA-members-only). November 2024 has
-        no accessible Cover Letter; that month shows as a gap, bridged on the chart.
+        (VAMA members + imported CBU from non-members -- same basis as "Total Industry" in
+        &sect;1, not VAMA-members-only). Source: Dragon Capital's internal auto industry
+        tracker (bottom-up, per-model classification), not VAMA's own published PDFs.
       </p>
       <div class="filter-bar">
         <div class="filter-field">
@@ -200,6 +200,15 @@
             <select class="filter-select-native" id="seg-year-to"></select>
             <select class="filter-select-native" id="seg-month-to"></select>
           </div>
+        </div>
+        <div class="filter-field" style="flex:1;">
+          <span class="filter-label">Series</span>
+          <div class="brand-toggles" id="segment-toggles"></div>
+          <p class="muted" style="margin-top:8px; font-size:11px;">
+            "Passenger Cars (incl. Hyundai)" adds Hyundai Thanh Cong's volume straight into
+            the PC total (not split into PC/CV/SPV itself) -- so it doesn't fit into the
+            PC+CV+SPV=Total picture the other three series make up.
+          </p>
         </div>
       </div>
       <div class="chart-wrap" id="segment-chart"></div>
