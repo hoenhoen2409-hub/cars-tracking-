@@ -13,6 +13,12 @@ const BRAND_COLORS = {
   "Hyundai (Thanh Cong)": "#DB2777",
 };
 
+// "Total Industry" isn't a brand VAMA reports per se -- it's the corrected
+// market aggregate (see carTotalIndustry) -- kept out of BRAND_COLORS so it
+// never gets counted inside brand-composition math (carRowKnownTotal,
+// carShareSeries), but still offered as a togglable series in §1.
+const TOGGLE_COLORS = { ...BRAND_COLORS, "Total Industry": "#EA580C" };
+
 function escapeHtml(s) {
   return String(s ?? "")
     .replace(/&/g, "&amp;")
@@ -73,6 +79,27 @@ function carMarketTotal(row) {
   const exVf = carMarketExVinFast(row);
   const vf = row.brands["VinFast"];
   return { value: exVf.value + (vf ?? 0), complete: exVf.complete && vf != null };
+}
+
+// The corrected total: VAMA's own whole-industry figure (row.vamaIndustryTotal,
+// from its Cover Letter report -- VAMA members + imported CBU from non-members)
+// plus Hyundai Thanh Cong and VinFast, neither of which is a VAMA member.
+// Deliberately NOT the same as carMarketTotal, which sums VAMA_MEMBER_BRANDS
+// (a members-only figure) + Hyundai + VinFast and therefore misses the
+// non-member-imported-CBU volume that VAMA's own total includes.
+function carTotalIndustry(row) {
+  const vama = row.vamaIndustryTotal;
+  if (vama == null) return { value: null, complete: false };
+  const vf = row.brands["VinFast"];
+  const htc = row.brands["Hyundai (Thanh Cong)"];
+  return { value: vama + (vf ?? 0) + (htc ?? 0), complete: vf != null && htc != null };
+}
+
+// §1's brand toggles/chart/table read straight off row.brands[label] for
+// real brands, but "Total Industry" is a derived aggregate, not a CSV
+// column -- this is the one seam callers need instead of row.brands[label].
+function seriesValue(row, label) {
+  return label === "Total Industry" ? entryValue(carTotalIndustry(row)) : row.brands[label];
 }
 
 function shiftPeriod(period, deltaMonths) {

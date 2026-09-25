@@ -48,6 +48,11 @@ def build_cars_json():
             "month": int(r["month"]),
             "brands": {label: clean(r[col]) for label, col in CAR_BRAND_COLUMNS.items()},
             "total_market": clean(r["total_market"]),
+            # VAMA's own whole-industry total (members + imported CBU from
+            # non-members), from its Cover Letter report -- NOT the same as
+            # summing the VAMA-member brand columns above (see
+            # carTotalIndustry in render.js).
+            "vamaIndustryTotal": clean(r["vama_industry_total"]),
         }
         rows.append(row)
     return rows

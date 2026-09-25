@@ -1,7 +1,12 @@
 // App state + wiring. Rendering primitives live in render.js (loaded first).
 
 const CAR_BRANDS = Object.keys(BRAND_COLORS);
-const DEFAULT_BRANDS = ["Toyota", "Honda (car)", "VinFast", "Hyundai (Thanh Cong)"];
+// §1's toggle list/chart/table offer "Total Industry" (the corrected
+// aggregate) alongside the real brands; CAR_BRANDS itself stays real-brands-
+// only since it also drives brand-composition logic (missingBrands, share
+// chart, etc.) where "Total Industry" would double-count.
+const TOGGLE_BRANDS = Object.keys(TOGGLE_COLORS);
+const DEFAULT_BRANDS = ["Toyota", "Honda (car)", "VinFast", "Hyundai (Thanh Cong)", "Total Industry"];
 
 const state = {
   cars: [],
@@ -63,11 +68,11 @@ function filterByPeriodRange(rows, from, to) {
 // -------------------------------------------------------------- cars tab
 function renderBrandToggles() {
   const el = document.getElementById("brand-toggles");
-  el.innerHTML = CAR_BRANDS.map(
+  el.innerHTML = TOGGLE_BRANDS.map(
     (label) => `
     <label class="brand-toggle">
       <input type="checkbox" value="${escapeHtml(label)}" ${state.selectedBrands.has(label) ? "checked" : ""} />
-      <span class="dot" style="background:${BRAND_COLORS[label]}"></span>
+      <span class="dot" style="background:${TOGGLE_COLORS[label]}"></span>
       ${escapeHtml(label)}
     </label>`
   ).join("");
@@ -83,7 +88,7 @@ function renderBrandToggles() {
 function renderCarsSection() {
   const filtered = filterByPeriodRange(state.cars, state.carPeriodFrom, state.carPeriodTo);
   const periods = filtered.map((r) => r.period);
-  const brands = CAR_BRANDS.filter((b) => state.selectedBrands.has(b));
+  const brands = TOGGLE_BRANDS.filter((b) => state.selectedBrands.has(b));
 
   // KPI lookups (MoM/YoY/YTD) always resolve against the full, unfiltered
   // series -- a YoY comparison still needs the same month a year earlier
@@ -106,8 +111,8 @@ function renderCarsSection() {
 
   const series = brands.map((label) => ({
     label,
-    color: BRAND_COLORS[label],
-    values: filtered.map((r) => r.brands[label]),
+    color: TOGGLE_COLORS[label],
+    values: filtered.map((r) => seriesValue(r, label)),
   }));
   renderLineChart(document.getElementById("car-chart"), periods, series);
   renderChartLegend(document.getElementById("car-chart-legend"), series);
@@ -123,8 +128,8 @@ function renderCarsSection() {
           const priorRow = state.cars.find((x) => x.period === priorPeriod);
           const cells = brands
             .map((label) => {
-              const v = r.brands[label];
-              const prev = priorRow ? priorRow.brands[label] : null;
+              const v = seriesValue(r, label);
+              const prev = priorRow ? seriesValue(priorRow, label) : null;
               const pct = pctChange(v, prev);
               const dir = pct == null ? "flat" : pct >= 0 ? "up" : "down";
               return `<td>${fmtInt(v)}</td><td class="pct ${dir}">${pct == null ? "n/a" : (pct >= 0 ? "+" : "") + pct.toFixed(1) + "%"}</td>`;
@@ -151,14 +156,14 @@ function renderCarsSection() {
 
 function exportCarsCsv() {
   const filtered = filterByPeriodRange(state.cars, state.carPeriodFrom, state.carPeriodTo);
-  const brands = CAR_BRANDS.filter((b) => state.selectedBrands.has(b));
+  const brands = TOGGLE_BRANDS.filter((b) => state.selectedBrands.has(b));
   const header = ["period", ...brands.flatMap((b) => [b, `${b} MoM%`])];
   const lines = [header.join(",")];
   [...filtered].reverse().forEach((r) => {
     const priorRow = state.cars.find((x) => x.period === shiftPeriod(r.period, -1));
     const cells = brands.flatMap((label) => {
-      const v = r.brands[label];
-      const pct = pctChange(v, priorRow ? priorRow.brands[label] : null);
+      const v = seriesValue(r, label);
+      const pct = pctChange(v, priorRow ? seriesValue(priorRow, label) : null);
       return [v ?? "", pct == null ? "" : pct.toFixed(1)];
     });
     lines.push([r.period, ...cells].join(","));
