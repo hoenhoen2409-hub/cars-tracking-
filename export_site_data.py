@@ -91,10 +91,13 @@ SEGMENT_COLUMNS = [
 
 
 def build_segments_json():
-    """VAMA's own monthly Summary PDF (passenger/commercial/special-purpose
-    segments + VAMA-member BEV/Hybrid/ICE powertrain split). VAMA-member
-    only -- VinFast, not a VAMA member, isn't in this breakdown at all; see
-    the separate VinFast-share-of-market figures in cars.json for that."""
+    """total/passenger_cars/commercial_vehicles/special_purpose are VAMA's
+    whole-industry figures (from its monthly Cover Letter report -- VAMA
+    members + imported CBU from non-members, same basis as cars.json's
+    vamaIndustryTotal). trucks/buses/bev/hybrid/bus_chassis remain
+    VAMA-members-only (from its Summary report -- no whole-industry
+    equivalent is published for those); VinFast isn't a line item in
+    either report -- see cars.json for VinFast-share-of-market figures."""
     df = pd.read_csv(DATA_DIR / "monthly_vama_segments.csv")
     df["period"] = pd.to_datetime(dict(year=df["year"], month=df["month"], day=1))
     df = df.sort_values("period").reset_index(drop=True)

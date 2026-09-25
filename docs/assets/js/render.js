@@ -535,9 +535,13 @@ function evShareByPeriod(rows) {
 // --------------------------------------- VAMA segment/powertrain (segments.json)
 // `segRows` here are flat {period, year, month, total, passenger_cars,
 // commercial_vehicles, trucks, buses, special_purpose, bev, hybrid,
-// bus_chassis} rows from VAMA's own monthly Summary report -- a different
-// shape from cars.json's {brands: {...}} rows, and VAMA-member-only (no
-// VinFast in it at all).
+// bus_chassis} rows -- a different shape from cars.json's {brands: {...}}
+// rows. total/passenger_cars/commercial_vehicles/special_purpose are VAMA's
+// whole-industry figures (from its Cover Letter report -- same basis as
+// carTotalIndustry, includes imported CBU from non-members); VinFast still
+// isn't itself a line item in this breakdown. trucks/buses/bev/hybrid/
+// bus_chassis remain VAMA-members-only (from its Summary report -- no
+// whole-industry equivalent is published) and aren't rendered anywhere.
 
 function segShare(row, key) {
   return row.total != null && row[key] != null && row.total > 0 ? (row[key] / row.total) * 100 : null;
@@ -774,7 +778,7 @@ function renderDeepDiveSummary(containerEl, cars, segments) {
     const firstShare = segShare(firstSeg, "passenger_cars");
     const lastShare = segShare(lastSeg, "passenger_cars");
     items.push({
-      title: "Passenger-car share of VAMA volume",
+      title: "Passenger-car share of total market",
       desc: `${fmtPct1(firstShare)} in ${fmtPeriodLabel(firstSeg.period)} → ${fmtPct1(lastShare)} in ${fmtPeriodLabel(lastSeg.period)}`,
       deltaHtml: ppDeltaSpan(lastShare - firstShare),
       dir: lastShare >= firstShare ? "up" : "down",
