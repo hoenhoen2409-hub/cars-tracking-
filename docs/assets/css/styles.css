@@ -140,6 +140,10 @@ a:hover { color: var(--accent); }
 .ranked-row .rl-bar > i { display: block; height: 100%; border-radius: 5px; }
 .ranked-row .rl-value { text-align: right; font-weight: 700; }
 
+.dd-narrative { background: var(--bg-tint); border-left: 3px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 16px 18px; margin-bottom: 20px; }
+.dd-narrative p { font-size: var(--t-body); color: var(--ink-2); line-height: 1.6; }
+.dd-narrative p + p { margin-top: 12px; }
+
 .ranked-events { display: flex; flex-direction: column; gap: 16px; }
 .ranked-event { display: flex; gap: 12px; align-items: flex-start; }
 .ranked-event .re-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; flex: none; }

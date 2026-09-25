@@ -385,7 +385,7 @@ async function init() {
   renderSegmentToggles();
   renderSegmentSection();
   renderAnnualTable(document.getElementById("annual-table-head"), document.getElementById("annual-table-body"), cars);
-  renderDeepDiveSummary(document.getElementById("deep-dive-summary"), cars, segments, motos);
+  renderDeepDiveSummary(document.getElementById("deep-dive-summary"), cars, segments, motos, document.getElementById("deep-dive-narrative"));
 }
 
 init().catch((err) => {

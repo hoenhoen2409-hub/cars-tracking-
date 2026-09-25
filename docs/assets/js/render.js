@@ -797,65 +797,112 @@ function ytdYoyItem(title, ytd, { worstNote = "" } = {}) {
   };
 }
 
+// "tăng X%" / "giảm -X%" -- toFixed(1) already carries the minus sign for
+// negatives, matching the exact phrasing convention of the reference note
+// this narrative is modeled on (e.g. "giảm -1% YoY", not "giảm 1%").
+function taiGiam(pct) {
+  return `${pct >= 0 ? "tăng" : "giảm"} ${pct.toFixed(1)}%`;
+}
+
+// Free-text version of the same underlying-demand numbers as the bullets
+// below -- a copy-pasteable note in the mixed Vietnamese/English "analyst
+// comment" style the user asked to match, not a UI summary. Both read off
+// the same computed {pcInclVf, pcExVf, cv, moto, worstMonth, worstBrand}
+// inputs so the two presentations can't drift apart.
+function buildDemandNarrative({ pcInclVf, pcExVf, cv, moto, worstMonth, worstBrand }) {
+  const carLines = [];
+  if (pcInclVf) {
+    carLines.push(`So far cả ngành Passenger Car, tính cả VinFast ${taiGiam(pcInclVf.pct)} in ${pcInclVf.months}M`);
+  }
+  if (pcExVf) {
+    const worstText = worstMonth ? `, có tháng ${worstMonth.pct >= 0 ? "tăng" : "âm"} tới ${Math.abs(worstMonth.pct).toFixed(1)}% YoY (${fmtPeriodLabel(worstMonth.period)})` : "";
+    const brandText = worstBrand ? `, giảm mạnh nhất ở ${worstBrand.brand} (${worstBrand.pct.toFixed(1)}%)` : "";
+    carLines.push(`Nhưng nếu bỏ VinFast ra, PC ${taiGiam(pcExVf.pct)} YoY${worstText}${brandText}`);
+  }
+  if (cv) {
+    carLines.push(`Nhóm xe thương mại tốt hơn, cả ngành ${taiGiam(cv.pct)} YoY in ${cv.months}M`);
+  }
+
+  const motoLine = moto ? `Xe máy Honda ${taiGiam(moto.pct)} in ${moto.months}M` : "";
+
+  return { carText: carLines.join("\n"), motoText: motoLine };
+}
+
+function renderDeepDiveNarrative(containerEl, { pcInclVf, pcExVf, cv, moto, worstMonth, worstBrand }) {
+  const { carText, motoText } = buildDemandNarrative({ pcInclVf, pcExVf, cv, moto, worstMonth, worstBrand });
+  if (!carText && !motoText) {
+    containerEl.innerHTML = `<div class="empty-state">Not enough history yet to summarize.</div>`;
+    return;
+  }
+  containerEl.innerHTML = [carText, motoText]
+    .filter(Boolean)
+    .map((block) => `<p>${escapeHtml(block).replace(/\n/g, "<br>")}</p>`)
+    .join("");
+}
+
 // Synthesizes the headline "underlying demand" numbers from cars/segments/
 // motos into a short, scannable list -- computed fresh each load, not
 // hardcoded, so it can't drift out of sync as months are added. Structure
 // mirrors a monthly analyst note: PC industry incl./excl. VinFast, CV
 // industry, Honda Motorbikes, then brand-level color and the EV share
 // shift (VinFast being the reason incl./excl.-VinFast PC diverge so much).
-function renderDeepDiveSummary(containerEl, cars, segments, motos) {
+function renderDeepDiveSummary(containerEl, cars, segments, motos, narrativeEl) {
   const items = [];
   const latestPeriod = segments.length ? segments[segments.length - 1].period : null;
 
+  let pcInclVf = null, pcExVf = null, cv = null, moto = null, worstMonth = null;
   if (latestPeriod) {
     const vfByPeriod = Object.fromEntries(cars.map((r) => [r.period, r.brands["VinFast"]]));
     const pcExVfByPeriod = Object.fromEntries(segments.map((r) => [r.period, r.passenger_cars_incl_hyundai]));
     const pcInclVfByPeriod = Object.fromEntries(
       segments.map((r) => {
         const vf = vfByPeriod[r.period];
-        const pcExVf = r.passenger_cars_incl_hyundai;
-        return [r.period, pcExVf != null && vf != null ? pcExVf + vf : null];
+        const pcExVf2 = r.passenger_cars_incl_hyundai;
+        return [r.period, pcExVf2 != null && vf != null ? pcExVf2 + vf : null];
       })
     );
     const cvByPeriod = Object.fromEntries(segments.map((r) => [r.period, r.commercial_vehicles]));
     const motoByPeriod = Object.fromEntries(motos.map((r) => [r.period, r.sales]));
 
-    const pcInclVf = fairYtdYoy(pcInclVfByPeriod, latestPeriod);
+    pcInclVf = fairYtdYoy(pcInclVfByPeriod, latestPeriod);
     if (pcInclVf) items.push(ytdYoyItem("Passenger Car industry, incl. VinFast", pcInclVf));
 
-    const pcExVf = fairYtdYoy(pcExVfByPeriod, latestPeriod);
+    pcExVf = fairYtdYoy(pcExVfByPeriod, latestPeriod);
     if (pcExVf) {
-      const worst = worstMonthYoy(pcExVfByPeriod, latestPeriod);
-      const worstNote = worst ? `; worst month ${fmtPeriodLabel(worst.period)} ${worst.pct >= 0 ? "+" : ""}${worst.pct.toFixed(1)}%` : "";
+      worstMonth = worstMonthYoy(pcExVfByPeriod, latestPeriod);
+      const worstNote = worstMonth ? `; worst month ${fmtPeriodLabel(worstMonth.period)} ${worstMonth.pct >= 0 ? "+" : ""}${worstMonth.pct.toFixed(1)}%` : "";
       items.push(ytdYoyItem("Passenger Car industry, excl. VinFast", pcExVf, { worstNote }));
     }
 
-    const cv = fairYtdYoy(cvByPeriod, latestPeriod);
+    cv = fairYtdYoy(cvByPeriod, latestPeriod);
     if (cv) items.push(ytdYoyItem("Commercial Vehicle industry", cv));
 
-    const moto = fairYtdYoy(motoByPeriod, latestPeriod);
+    moto = fairYtdYoy(motoByPeriod, latestPeriod);
     if (moto) items.push(ytdYoyItem("Honda Motorbikes", moto));
   }
 
   const { priorYear, latestYear, yoys } = brandAnnualYoy(cars);
+  let worstBrand = null;
   if (yoys.length) {
     const best = yoys.reduce((a, b) => (b.pct > a.pct ? b : a));
-    const worst = yoys.reduce((a, b) => (b.pct < a.pct ? b : a));
+    worstBrand = yoys.reduce((a, b) => (b.pct < a.pct ? b : a));
     items.push({
       title: `Fastest-growing brand (${priorYear}→${latestYear} YoY)`,
       desc: `${best.brand}: ${fmtInt(best.priorSum)} → ${fmtInt(best.sum)} units`,
       deltaHtml: pctSpanHtml(best.pct),
       dir: "up",
     });
-    if (worst.brand !== best.brand) {
+    if (worstBrand.brand !== best.brand) {
       items.push({
         title: `Steepest decline (${priorYear}→${latestYear} YoY)`,
-        desc: `${worst.brand}: ${fmtInt(worst.priorSum)} → ${fmtInt(worst.sum)} units`,
-        deltaHtml: pctSpanHtml(worst.pct),
+        desc: `${worstBrand.brand}: ${fmtInt(worstBrand.priorSum)} → ${fmtInt(worstBrand.sum)} units`,
+        deltaHtml: pctSpanHtml(worstBrand.pct),
         dir: "down",
       });
     }
   }
+
+  if (narrativeEl) renderDeepDiveNarrative(narrativeEl, { pcInclVf, pcExVf, cv, moto, worstMonth, worstBrand });
 
   const evByPeriod = evShareByPeriod(cars);
   const firstVfRow = cars.find((r) => r.brands["VinFast"] != null);
