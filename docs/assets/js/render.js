@@ -17,7 +17,11 @@ const BRAND_COLORS = {
 // market aggregate (see carTotalIndustry) -- kept out of BRAND_COLORS so it
 // never gets counted inside brand-composition math (carRowKnownTotal,
 // carShareSeries), but still offered as a togglable series in §1.
-const TOGGLE_COLORS = { ...BRAND_COLORS, "Total Industry": "#EA580C" };
+const TOGGLE_COLORS = {
+  ...BRAND_COLORS,
+  "Total Industry": "#EA580C",
+  "Total Industry (excl. VinFast)": "#9A3412",
+};
 
 function escapeHtml(s) {
   return String(s ?? "")
@@ -51,42 +55,13 @@ function fmtPeriodShort(period) {
   return `${m}/${y.slice(2)}`;
 }
 
-// VAMA members only (excludes VinFast and Hyundai Thanh Cong, neither of
-// which is a VAMA member). Sums whatever brands are confirmed for the month
-// rather than requiring all of them -- `complete` says whether any were
-// missing, so callers can show a running total plus a "partial" flag
-// instead of hiding the number entirely until every brand is in.
-const VAMA_MEMBER_BRANDS = ["Toyota", "Ford", "Mitsubishi", "Honda (car)", "Peugeot", "Thaco (total)", "Others (VAMA)"];
-
-function carVamaPartial(row) {
-  let sum = 0;
-  let complete = true;
-  for (const label of VAMA_MEMBER_BRANDS) {
-    const v = row.brands[label];
-    if (v == null) complete = false;
-    else sum += v;
-  }
-  return { value: sum, complete };
-}
-
-function carMarketExVinFast(row) {
-  const vama = carVamaPartial(row);
-  const htc = row.brands["Hyundai (Thanh Cong)"];
-  return { value: vama.value + (htc ?? 0), complete: vama.complete && htc != null };
-}
-
-function carMarketTotal(row) {
-  const exVf = carMarketExVinFast(row);
-  const vf = row.brands["VinFast"];
-  return { value: exVf.value + (vf ?? 0), complete: exVf.complete && vf != null };
-}
-
-// The corrected total: VAMA's own whole-industry figure (row.vamaIndustryTotal,
-// from its Cover Letter report -- VAMA members + imported CBU from non-members)
-// plus Hyundai Thanh Cong and VinFast, neither of which is a VAMA member.
-// Deliberately NOT the same as carMarketTotal, which sums VAMA_MEMBER_BRANDS
-// (a members-only figure) + Hyundai + VinFast and therefore misses the
-// non-member-imported-CBU volume that VAMA's own total includes.
+// The corrected market total: VAMA's own whole-industry figure
+// (row.vamaIndustryTotal, from its Cover Letter report -- VAMA members +
+// imported CBU from non-members) plus Hyundai Thanh Cong and VinFast,
+// neither of which is a VAMA member. NOT the same as summing VAMA's
+// per-brand columns (Toyota, Thaco, etc.) + Hyundai + VinFast -- that
+// members-only sum misses the non-member-imported-CBU volume that VAMA's
+// own whole-industry total includes.
 function carTotalIndustryExVf(row) {
   const vama = row.vamaIndustryTotal;
   if (vama == null) return { value: null, complete: false };
@@ -102,10 +77,12 @@ function carTotalIndustry(row) {
 }
 
 // §1's brand toggles/chart/table read straight off row.brands[label] for
-// real brands, but "Total Industry" is a derived aggregate, not a CSV
-// column -- this is the one seam callers need instead of row.brands[label].
+// real brands, but the Total Industry series are derived aggregates, not
+// CSV columns -- this is the one seam callers need instead of row.brands[label].
 function seriesValue(row, label) {
-  return label === "Total Industry" ? entryValue(carTotalIndustry(row)) : row.brands[label];
+  if (label === "Total Industry") return entryValue(carTotalIndustry(row));
+  if (label === "Total Industry (excl. VinFast)") return entryValue(carTotalIndustryExVf(row));
+  return row.brands[label];
 }
 
 function shiftPeriod(period, deltaMonths) {
@@ -130,7 +107,7 @@ function pctSpanHtml(pct, { arrows = true } = {}) {
 
 // A rowsByPeriod entry is either a plain number (the simple case used by
 // the top-summary and moto KPIs) or a {value, complete} pair (the cars
-// KPIs, from carMarketTotal/carMarketExVinFast) -- either way, only the
+// KPIs, from carTotalIndustry/carTotalIndustryExVf) -- either way, only the
 // value is needed here.
 function entryValue(v) {
   if (v == null) return null;
@@ -407,7 +384,7 @@ function fmtPct1(v) {
 // Sum of every tracked brand column that's confirmed for the month -- the
 // denominator for "share of tracked brands" below. Not a claim about the
 // true total market: recent months are still missing "Others" (Suzuki,
-// Isuzu, Mercedes-Benz, ...), same caveat as carVamaPartial elsewhere.
+// Isuzu, Mercedes-Benz, ...) -- see Total Industry for the corrected total.
 function carRowKnownTotal(row) {
   let sum = 0;
   for (const label of Object.keys(BRAND_COLORS)) {

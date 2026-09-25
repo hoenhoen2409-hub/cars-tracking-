@@ -6,7 +6,7 @@ const CAR_BRANDS = Object.keys(BRAND_COLORS);
 // only since it also drives brand-composition logic (missingBrands, share
 // chart, etc.) where "Total Industry" would double-count.
 const TOGGLE_BRANDS = Object.keys(TOGGLE_COLORS);
-const DEFAULT_BRANDS = ["Toyota", "Honda (car)", "VinFast", "Hyundai (Thanh Cong)", "Total Industry"];
+const DEFAULT_BRANDS = ["Toyota", "Honda (car)", "VinFast", "Hyundai (Thanh Cong)", "Total Industry", "Total Industry (excl. VinFast)"];
 
 const state = {
   cars: [],
@@ -96,26 +96,18 @@ function renderCarsSection() {
   // itself is always exactly carPeriodTo (the selected "Month to"), not a
   // search for the closest earlier month with data.
   //
-  // Both totals are summed from whatever brands are confirmed that month
-  // (carMarketTotal / carMarketExVinFast return {value, complete}) rather
-  // than requiring every single VAMA member to be in -- a running total
-  // that's mostly there is more useful than a blank "-", as long as it's
-  // clearly marked "partial" (via renderKpis4) when something's missing.
-  const marketByPeriod = Object.fromEntries(state.cars.map((r) => [r.period, carMarketTotal(r)]));
-  const kpis = computeKpisAt(marketByPeriod, state.carPeriodTo, "Total Market");
+  // Both totals are summed from whatever's confirmed that month
+  // (carTotalIndustry / carTotalIndustryExVf return {value, complete})
+  // rather than requiring every input to be in -- a running total that's
+  // mostly there is more useful than a blank "-", as long as it's clearly
+  // marked "partial" (via renderKpis4) when something's missing.
+  const marketByPeriod = Object.fromEntries(state.cars.map((r) => [r.period, carTotalIndustry(r)]));
+  const kpis = computeKpisAt(marketByPeriod, state.carPeriodTo, "Total Industry");
   renderKpis4(document.getElementById("car-kpis"), kpis);
 
-  const marketExVfByPeriod = Object.fromEntries(state.cars.map((r) => [r.period, carMarketExVinFast(r)]));
-  const kpisExVf = computeKpisAt(marketExVfByPeriod, state.carPeriodTo, "Total Market (ex. VinFast)");
+  const marketExVfByPeriod = Object.fromEntries(state.cars.map((r) => [r.period, carTotalIndustryExVf(r)]));
+  const kpisExVf = computeKpisAt(marketExVfByPeriod, state.carPeriodTo, "Total Industry (ex. VinFast)");
   renderKpis4(document.getElementById("car-kpis-exvf"), kpisExVf);
-
-  const industryByPeriod = Object.fromEntries(state.cars.map((r) => [r.period, carTotalIndustry(r)]));
-  const kpisIndustry = computeKpisAt(industryByPeriod, state.carPeriodTo, "Total Industry");
-  renderKpis4(document.getElementById("car-kpis-industry"), kpisIndustry);
-
-  const industryExVfByPeriod = Object.fromEntries(state.cars.map((r) => [r.period, carTotalIndustryExVf(r)]));
-  const kpisIndustryExVf = computeKpisAt(industryExVfByPeriod, state.carPeriodTo, "Total Industry (ex. VinFast)");
-  renderKpis4(document.getElementById("car-kpis-industry-exvf"), kpisIndustryExVf);
 
   const series = brands.map((label) => ({
     label,
