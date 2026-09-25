@@ -748,40 +748,93 @@ function summaryRowHtml({ title, desc, deltaHtml, dir }) {
     </div>`;
 }
 
-// Synthesizes the headline numbers from every chart/table above into a
-// short, scannable list -- computed fresh from cars/segments each load, not
-// hardcoded, so it can't drift out of sync with the data as months are added.
-function renderDeepDiveSummary(containerEl, cars, segments) {
-  const items = [];
-
-  const { years, grandTotal, monthsPerYear } = carAnnualTotals(cars);
-  const fullYears = years.filter((y) => monthsPerYear[y] === 12);
-  if (fullYears.length >= 2) {
-    const fy = fullYears[0];
-    const ly = fullYears[fullYears.length - 1];
-    items.push({
-      title: `Total market size, ${fy} → ${ly}`,
-      desc: `${fmtInt(grandTotal[fy])} → ${fmtInt(grandTotal[ly])} units/yr across all tracked brands`,
-      deltaHtml: pctSpanHtml(pctChange(grandTotal[ly], grandTotal[fy])),
-      dir: grandTotal[ly] >= grandTotal[fy] ? "up" : "down",
-    });
+// Sums a {period: number|null} lookup over whatever calendar months
+// (1..latestMonth) are non-null in BOTH the latest period's year and the
+// prior year, using that same month-set on both sides -- a partial current
+// year (e.g. Honda Motorbikes missing Jun/Jul 2026) is compared fairly
+// against the matching prior-year months instead of a full prior year,
+// which would understate growth (an 8-of-8-month current sum vs. a
+// 6-of-8-month one reads as a much bigger drop than actually happened).
+// Mirrors brandAnnualYoy's logic but for a flat period->value map.
+function fairYtdYoy(rowsByPeriod, latestPeriod) {
+  const [latestYear, latestMonth] = latestPeriod.split("-").map(Number);
+  const priorYear = latestYear - 1;
+  let curSum = 0;
+  let priorSum = 0;
+  let months = 0;
+  for (let m = 1; m <= latestMonth; m++) {
+    const v = rowsByPeriod[`${latestYear}-${String(m).padStart(2, "0")}`];
+    const pv = rowsByPeriod[`${priorYear}-${String(m).padStart(2, "0")}`];
+    if (v == null || pv == null) continue;
+    curSum += v;
+    priorSum += pv;
+    months++;
   }
+  if (!months) return null;
+  return { months, curSum, priorSum, pct: pctChange(curSum, priorSum) };
+}
 
-  const evByPeriod = evShareByPeriod(cars);
-  const firstVfRow = cars.find((r) => r.brands["VinFast"] != null);
-  const latestCarRow = cars[cars.length - 1];
-  if (firstVfRow) {
-    const startShare = evByPeriod[firstVfRow.period];
-    const latestShare = evByPeriod[latestCarRow.period];
-    const momShare = evByPeriod[shiftPeriod(latestCarRow.period, -1)] ?? null;
-    const momDelta = momShare != null ? latestShare - momShare : null;
-    const momNote = momDelta != null ? `; ${momDelta >= 0 ? "+" : ""}${momDelta.toFixed(1)}pp vs. last month` : "";
-    items.push({
-      title: "EV (VinFast) share of market",
-      desc: `${fmtPct1(startShare)} in ${fmtPeriodLabel(firstVfRow.period)} → ${fmtPct1(latestShare)} in ${fmtPeriodLabel(latestCarRow.period)}${momNote}`,
-      deltaHtml: ppDeltaSpan(latestShare - startShare),
-      dir: latestShare >= startShare ? "up" : "down",
-    });
+// The worst single month's YoY within the same YTD window -- flags "some
+// months down double digits" even when the YTD total itself is only
+// mildly negative.
+function worstMonthYoy(rowsByPeriod, latestPeriod) {
+  const [latestYear, latestMonth] = latestPeriod.split("-").map(Number);
+  let worst = null;
+  for (let m = 1; m <= latestMonth; m++) {
+    const p = `${latestYear}-${String(m).padStart(2, "0")}`;
+    const pct = pctChange(rowsByPeriod[p], rowsByPeriod[`${latestYear - 1}-${String(m).padStart(2, "0")}`]);
+    if (pct != null && (worst == null || pct < worst.pct)) worst = { period: p, pct };
+  }
+  return worst;
+}
+
+function ytdYoyItem(title, ytd, { worstNote = "" } = {}) {
+  return {
+    title: `${title} (${ytd.months}mo YTD YoY)`,
+    desc: `${fmtInt(ytd.priorSum)} → ${fmtInt(ytd.curSum)} units${worstNote}`,
+    deltaHtml: pctSpanHtml(ytd.pct),
+    dir: ytd.pct >= 0 ? "up" : "down",
+  };
+}
+
+// Synthesizes the headline "underlying demand" numbers from cars/segments/
+// motos into a short, scannable list -- computed fresh each load, not
+// hardcoded, so it can't drift out of sync as months are added. Structure
+// mirrors a monthly analyst note: PC industry incl./excl. VinFast, CV
+// industry, Honda Motorbikes, then brand-level color and the EV share
+// shift (VinFast being the reason incl./excl.-VinFast PC diverge so much).
+function renderDeepDiveSummary(containerEl, cars, segments, motos) {
+  const items = [];
+  const latestPeriod = segments.length ? segments[segments.length - 1].period : null;
+
+  if (latestPeriod) {
+    const vfByPeriod = Object.fromEntries(cars.map((r) => [r.period, r.brands["VinFast"]]));
+    const pcExVfByPeriod = Object.fromEntries(segments.map((r) => [r.period, r.passenger_cars_incl_hyundai]));
+    const pcInclVfByPeriod = Object.fromEntries(
+      segments.map((r) => {
+        const vf = vfByPeriod[r.period];
+        const pcExVf = r.passenger_cars_incl_hyundai;
+        return [r.period, pcExVf != null && vf != null ? pcExVf + vf : null];
+      })
+    );
+    const cvByPeriod = Object.fromEntries(segments.map((r) => [r.period, r.commercial_vehicles]));
+    const motoByPeriod = Object.fromEntries(motos.map((r) => [r.period, r.sales]));
+
+    const pcInclVf = fairYtdYoy(pcInclVfByPeriod, latestPeriod);
+    if (pcInclVf) items.push(ytdYoyItem("Passenger Car industry, incl. VinFast", pcInclVf));
+
+    const pcExVf = fairYtdYoy(pcExVfByPeriod, latestPeriod);
+    if (pcExVf) {
+      const worst = worstMonthYoy(pcExVfByPeriod, latestPeriod);
+      const worstNote = worst ? `; worst month ${fmtPeriodLabel(worst.period)} ${worst.pct >= 0 ? "+" : ""}${worst.pct.toFixed(1)}%` : "";
+      items.push(ytdYoyItem("Passenger Car industry, excl. VinFast", pcExVf, { worstNote }));
+    }
+
+    const cv = fairYtdYoy(cvByPeriod, latestPeriod);
+    if (cv) items.push(ytdYoyItem("Commercial Vehicle industry", cv));
+
+    const moto = fairYtdYoy(motoByPeriod, latestPeriod);
+    if (moto) items.push(ytdYoyItem("Honda Motorbikes", moto));
   }
 
   const { priorYear, latestYear, yoys } = brandAnnualYoy(cars);
@@ -804,17 +857,20 @@ function renderDeepDiveSummary(containerEl, cars, segments) {
     }
   }
 
-  const segValid = segments.filter((s) => s.total != null);
-  if (segValid.length >= 2) {
-    const firstSeg = segValid[0];
-    const lastSeg = segValid[segValid.length - 1];
-    const firstShare = segShare(firstSeg, "passenger_cars");
-    const lastShare = segShare(lastSeg, "passenger_cars");
+  const evByPeriod = evShareByPeriod(cars);
+  const firstVfRow = cars.find((r) => r.brands["VinFast"] != null);
+  const latestCarRow = cars[cars.length - 1];
+  if (firstVfRow) {
+    const startShare = evByPeriod[firstVfRow.period];
+    const latestShare = evByPeriod[latestCarRow.period];
+    const momShare = evByPeriod[shiftPeriod(latestCarRow.period, -1)] ?? null;
+    const momDelta = momShare != null ? latestShare - momShare : null;
+    const momNote = momDelta != null ? `; ${momDelta >= 0 ? "+" : ""}${momDelta.toFixed(1)}pp vs. last month` : "";
     items.push({
-      title: "Passenger-car share of total market",
-      desc: `${fmtPct1(firstShare)} in ${fmtPeriodLabel(firstSeg.period)} → ${fmtPct1(lastShare)} in ${fmtPeriodLabel(lastSeg.period)}`,
-      deltaHtml: ppDeltaSpan(lastShare - firstShare),
-      dir: lastShare >= firstShare ? "up" : "down",
+      title: "EV (VinFast) share of market",
+      desc: `${fmtPct1(startShare)} in ${fmtPeriodLabel(firstVfRow.period)} → ${fmtPct1(latestShare)} in ${fmtPeriodLabel(latestCarRow.period)}${momNote}`,
+      deltaHtml: ppDeltaSpan(latestShare - startShare),
+      dir: latestShare >= startShare ? "up" : "down",
     });
   }
 
