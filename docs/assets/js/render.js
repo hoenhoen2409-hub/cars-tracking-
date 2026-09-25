@@ -455,6 +455,50 @@ function renderShareChart(chartEl, legendEl, rows) {
   renderChartLegend(legendEl, ordered);
 }
 
+// Analyst-style read of the share chart above: computed off the ungrouped
+// per-brand series (not the chart's TopK+"Other tracked brands" display
+// grouping), comparing each brand's share at the first tracked period
+// against the latest one.
+function buildShareNarrative(cars) {
+  if (cars.length < 2) return "";
+  const periods = cars.map((r) => r.period);
+  const series = carShareSeries(cars);
+  const firstIdx = 0;
+  const lastIdx = periods.length - 1;
+
+  const vf = series.find((s) => s.label === "VinFast");
+  const vfFirstIdx = vf ? vf.values.findIndex((v) => v != null) : -1;
+  if (vfFirstIdx === -1) return "";
+  const vfStart = vf.values[vfFirstIdx] ?? 0;
+  const vfEnd = vf.values[lastIdx];
+  if (vfEnd == null) return "";
+
+  const others = series
+    .filter((s) => s.label !== "VinFast")
+    .map((s) => ({ label: s.label, start: s.values[firstIdx] ?? 0, end: s.values[lastIdx] ?? 0 }))
+    .map((s) => ({ ...s, delta: s.end - s.start }));
+  if (!others.length) return "";
+  const largestNow = others.reduce((a, b) => (b.end > a.end ? b : a));
+  const biggestLoser = others.reduce((a, b) => (b.delta < a.delta ? b : a));
+
+  const overtookText = vfEnd > largestNow.end
+    ? `, overtaking ${largestNow.label} (${fmtPct1(largestNow.end)}) to become the largest single brand by share`
+    : `, still behind ${largestNow.label} at ${fmtPct1(largestNow.end)}`;
+
+  return (
+    `VinFast has expanded from ${fmtPct1(vfStart)} of tracked-brand volume in ${fmtPeriodLabel(periods[vfFirstIdx])} ` +
+    `to ${fmtPct1(vfEnd)} in ${fmtPeriodLabel(periods[lastIdx])}${overtookText}. ` +
+    `${biggestLoser.label} has given up the most share over the same window, down ${abs1(biggestLoser.delta)}pp to ${fmtPct1(biggestLoser.end)}.`
+  );
+}
+
+function renderShareNarrative(containerEl, cars) {
+  const text = buildShareNarrative(cars);
+  containerEl.innerHTML = text
+    ? `<p>${escapeHtml(text)}</p>`
+    : `<div class="empty-state">Not enough history yet to summarize.</div>`;
+}
+
 // Cumulative stack per period (series[0] at the bottom); each brand's
 // nulls are treated as a 0% contribution that month so the stack stays a
 // continuous 0-100% band even where a brand isn't confirmed yet.

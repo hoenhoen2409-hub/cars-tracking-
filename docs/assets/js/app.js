@@ -382,6 +382,7 @@ async function init() {
   // only need rendering once at load. Vehicle Segment Trend has its own
   // Month from/to filter (renderSegmentSection), same pattern as §1.
   renderShareChart(document.getElementById("share-chart"), document.getElementById("share-chart-legend"), cars);
+  renderShareNarrative(document.getElementById("share-narrative"), cars);
   renderSegmentToggles();
   renderSegmentSection();
   renderAnnualTable(document.getElementById("annual-table-head"), document.getElementById("annual-table-body"), cars);
