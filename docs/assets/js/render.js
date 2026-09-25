@@ -314,7 +314,16 @@ function renderLineChart(containerEl, periods, series, { yFormat = fmtCompact, t
     }
     known.forEach(([i, v]) => {
       const p = periods[i];
-      marks += `<circle class="chart-dot" cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="3" style="stroke:${s.color}"><title>${escapeHtml(s.label)} · ${fmtPeriodLabel(p)}: ${tooltipFormat(v)}</title></circle>`;
+      // s.moms/s.yoys (parallel to s.values) are optional -- callers with
+      // access to full unfiltered history (e.g. renderSegmentChart) can
+      // supply them so the tooltip reads like the detail table's MoM/YoY
+      // columns; callers that don't just get the plain value, as before.
+      const mom = s.moms ? s.moms[i] : undefined;
+      const yoy = s.yoys ? s.yoys[i] : undefined;
+      const momYoyText = mom !== undefined || yoy !== undefined
+        ? ` (MoM ${mom == null ? "n/a" : (mom >= 0 ? "+" : "") + mom.toFixed(1) + "%"}, YoY ${yoy == null ? "n/a" : (yoy >= 0 ? "+" : "") + yoy.toFixed(1) + "%"})`
+        : "";
+      marks += `<circle class="chart-dot" cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="3" style="stroke:${s.color}"><title>${escapeHtml(s.label)} · ${fmtPeriodLabel(p)}: ${tooltipFormat(v)}${momYoyText}</title></circle>`;
     });
   });
 
@@ -564,13 +573,24 @@ const SEGMENT_TOGGLE_SPECS = [...SEGMENT_SPECS, ...SEGMENT_EXTRA_SPECS];
 
 // Absolute units (not % share) so the chart doubles as a growth-rate view,
 // matching §1's chart style -- MoM/YoY reads straight off the detail table
-// below it instead of needing a separate share-vs-growth mental model.
-function renderSegmentChart(chartEl, legendEl, segRows, specs) {
+// below it (and now the hover tooltip too) instead of needing a separate
+// share-vs-growth mental model. `allRows` (full, unfiltered history) is
+// used for the MoM/YoY lookups so a point at the edge of the filtered
+// range still shows correct deltas -- same pattern as renderSegmentTable.
+function renderSegmentChart(chartEl, legendEl, segRows, specs, allRows) {
   const periods = segRows.map((r) => r.period);
   const series = specs.map((s) => ({
     label: s.label,
     color: s.color,
     values: segRows.map((r) => r[s.key]),
+    moms: segRows.map((r) => {
+      const prior = allRows.find((x) => x.period === shiftPeriod(r.period, -1));
+      return pctChange(r[s.key], prior ? prior[s.key] : null);
+    }),
+    yoys: segRows.map((r) => {
+      const prior = allRows.find((x) => x.period === shiftPeriod(r.period, -12));
+      return pctChange(r[s.key], prior ? prior[s.key] : null);
+    }),
   }));
   renderLineChart(chartEl, periods, series, { connectGaps: true });
   renderChartLegend(legendEl, series);

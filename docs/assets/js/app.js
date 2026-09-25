@@ -240,7 +240,7 @@ function renderSegmentToggles() {
 function renderSegmentSection() {
   const filtered = filterByPeriodRange(state.segments, state.segPeriodFrom, state.segPeriodTo);
   const specs = SEGMENT_TOGGLE_SPECS.filter((s) => state.selectedSegments.has(s.key));
-  renderSegmentChart(document.getElementById("segment-chart"), document.getElementById("segment-chart-legend"), filtered, specs);
+  renderSegmentChart(document.getElementById("segment-chart"), document.getElementById("segment-chart-legend"), filtered, specs, state.segments);
   renderSegmentTable(document.getElementById("segment-table-head"), document.getElementById("segment-table-body"), filtered, state.segments, specs);
   document.getElementById("seg-count-label").textContent = `${filtered.length} months shown`;
 }
