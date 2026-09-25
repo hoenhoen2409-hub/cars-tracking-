@@ -87,12 +87,18 @@ function carMarketTotal(row) {
 // Deliberately NOT the same as carMarketTotal, which sums VAMA_MEMBER_BRANDS
 // (a members-only figure) + Hyundai + VinFast and therefore misses the
 // non-member-imported-CBU volume that VAMA's own total includes.
-function carTotalIndustry(row) {
+function carTotalIndustryExVf(row) {
   const vama = row.vamaIndustryTotal;
   if (vama == null) return { value: null, complete: false };
-  const vf = row.brands["VinFast"];
   const htc = row.brands["Hyundai (Thanh Cong)"];
-  return { value: vama + (vf ?? 0) + (htc ?? 0), complete: vf != null && htc != null };
+  return { value: vama + (htc ?? 0), complete: htc != null };
+}
+
+function carTotalIndustry(row) {
+  const exVf = carTotalIndustryExVf(row);
+  if (exVf.value == null) return { value: null, complete: false };
+  const vf = row.brands["VinFast"];
+  return { value: exVf.value + (vf ?? 0), complete: exVf.complete && vf != null };
 }
 
 // §1's brand toggles/chart/table read straight off row.brands[label] for

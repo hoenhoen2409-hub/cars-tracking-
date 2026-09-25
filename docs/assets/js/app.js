@@ -109,6 +109,14 @@ function renderCarsSection() {
   const kpisExVf = computeKpisAt(marketExVfByPeriod, state.carPeriodTo, "Total Market (ex. VinFast)");
   renderKpis4(document.getElementById("car-kpis-exvf"), kpisExVf);
 
+  const industryByPeriod = Object.fromEntries(state.cars.map((r) => [r.period, carTotalIndustry(r)]));
+  const kpisIndustry = computeKpisAt(industryByPeriod, state.carPeriodTo, "Total Industry");
+  renderKpis4(document.getElementById("car-kpis-industry"), kpisIndustry);
+
+  const industryExVfByPeriod = Object.fromEntries(state.cars.map((r) => [r.period, carTotalIndustryExVf(r)]));
+  const kpisIndustryExVf = computeKpisAt(industryExVfByPeriod, state.carPeriodTo, "Total Industry (ex. VinFast)");
+  renderKpis4(document.getElementById("car-kpis-industry-exvf"), kpisIndustryExVf);
+
   const series = brands.map((label) => ({
     label,
     color: TOGGLE_COLORS[label],
