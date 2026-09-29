@@ -38,6 +38,7 @@ const state = {
   trucks: [],
   truckYearFrom: null,
   truckYearTo: null,
+  truckView: "month",
 };
 
 async function loadJson(path) {
@@ -249,9 +250,11 @@ function renderSegmentSection() {
 }
 
 // ------------------------------------------------------ truck imports tab
-const TRUCK_SERIES = [
-  { key: "china", estKey: "chinaEstimated", label: "Trucks from China", color: "#DC2626" },
-  { key: "total", estKey: "totalEstimated", label: "Trucks, all origins", color: "#171819" },
+// Stacked: China + other origins = all origins. "Other origins" is derived
+// (total - china), so it's only drawn when both are known.
+const TRUCK_STACKS = [
+  { key: "china", label: "From China", color: "#DC2626" },
+  { key: "other", label: "Other origins", color: "#ACAEB0" },
 ];
 
 function fmtPctCell(pct) {
@@ -259,35 +262,90 @@ function fmtPctCell(pct) {
   return `<td class="pct ${dir}">${pct == null ? "n/a" : (pct >= 0 ? "+" : "") + pct.toFixed(1) + "%"}</td>`;
 }
 
+function sumOrNull(values) {
+  return values.some((v) => v == null) ? null : values.reduce((a, v) => a + v, 0);
+}
+
+// Rolls monthly rows up into calendar quarters. A quarter with fewer than 3
+// months in the data is kept but flagged partial (e.g. the current quarter);
+// its YoY is computed like-for-like against the same months a year earlier.
+function truckQuarterRows(monthRows) {
+  const groups = new Map();
+  monthRows.forEach((r) => {
+    const q = Math.ceil(r.month / 3);
+    const key = `${r.year}-Q${q}`;
+    if (!groups.has(key)) groups.set(key, { key, year: r.year, quarter: q, rows: [] });
+    groups.get(key).rows.push(r);
+  });
+  return [...groups.values()].map((g) => ({
+    key: g.key,
+    year: g.year,
+    quarter: g.quarter,
+    months: g.rows.map((r) => r.month),
+    partial: g.rows.length < 3,
+    china: sumOrNull(g.rows.map((r) => r.china)),
+    total: sumOrNull(g.rows.map((r) => r.total)),
+    totalValueUsd: sumOrNull(g.rows.map((r) => r.totalValueUsd)),
+    chinaEstimated: g.rows.some((r) => r.chinaEstimated),
+    totalEstimated: g.rows.some((r) => r.totalEstimated),
+  }));
+}
+
+function renderTruckViewToggle() {
+  document.querySelectorAll("#truck-view-toggle button").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.view === state.truckView);
+  });
+}
+
 function renderTruckSection() {
   const filtered = filterByYear(state.trucks, state.truckYearFrom, state.truckYearTo);
-  const periods = filtered.map((r) => r.period);
 
-  // Same as the moto KPIs: anchored on the latest month in the selected
-  // range, with MoM/YoY/YTD resolved against the full unfiltered series.
+  // KPIs stay monthly (latest month in range), resolved against the full
+  // unfiltered series -- same as the moto KPIs.
   const chinaByPeriod = Object.fromEntries(state.trucks.map((r) => [r.period, r.china]));
-  const kpis = computeKpis(chinaByPeriod, periods, "Trucks from China");
+  const kpis = computeKpis(chinaByPeriod, filtered.map((r) => r.period), "Trucks from China");
   renderKpis4(document.getElementById("truck-kpis"), kpis);
 
-  const series = TRUCK_SERIES.map((s) => ({ label: s.label, color: s.color, values: filtered.map((r) => r[s.key]) }));
-  renderLineChart(document.getElementById("truck-chart"), periods, series, { connectGaps: true });
+  renderTruckViewToggle();
+  if (state.truckView === "quarter") renderTruckQuarterly(filtered);
+  else renderTruckMonthly(filtered);
+}
+
+function truckBarSeries(rows) {
+  return TRUCK_STACKS.map((s) => ({
+    label: s.label,
+    color: s.color,
+    values: rows.map((r) => (s.key === "other" ? (r.china != null && r.total != null ? r.total - r.china : null) : r[s.key])),
+  }));
+}
+
+function truckSourceCell(r) {
+  if (!(r.source_url && r.source_url.startsWith("https://"))) return "—";
+  const derived = r.chinaEstimated || r.totalEstimated;
+  return `<a href="${escapeHtml(r.source_url)}" target="_blank" rel="noopener" title="${escapeHtml(r.note || "")}">Customs${derived ? " (next-month report)" : ""}</a>`;
+}
+
+function renderTruckMonthly(filtered) {
+  const labels = filtered.map((r) => fmtPeriodShort(r.period));
+  const series = truckBarSeries(filtered);
+  renderStackedBarChart(document.getElementById("truck-chart"), labels, series, {
+    tooltipLabels: filtered.map((r) => fmtPeriodLabel(r.period)),
+    maxTicks: 8,
+  });
   renderChartLegend(document.getElementById("truck-chart-legend"), series);
 
   document.getElementById("truck-table-head").innerHTML =
     `<th class="ta-left">Month</th><th>From China</th><th>MoM %</th><th>YoY %</th><th>All origins</th><th>China share</th><th>Value, all origins (USD mn)</th><th class="ta-left">Source</th>`;
 
   const byPeriod = Object.fromEntries(state.trucks.map((r) => [r.period, r]));
+  const est = (flag) => (flag ? "*" : "");
   const rowsDesc = [...filtered].reverse();
   document.getElementById("truck-table-body").innerHTML = rowsDesc.length
     ? rowsDesc
         .map((r) => {
           const prev = byPeriod[shiftPeriod(r.period, -1)];
           const yearAgo = byPeriod[shiftPeriod(r.period, -12)];
-          const est = (flag) => (flag ? "*" : "");
           const share = r.china != null && r.total ? (r.china / r.total) * 100 : null;
-          const source = r.source_url && r.source_url.startsWith("https://")
-            ? `<a href="${escapeHtml(r.source_url)}" target="_blank" rel="noopener" title="${escapeHtml(r.note || "")}">Customs${r.chinaEstimated || r.totalEstimated ? " (next-month report)" : ""}</a>`
-            : "—";
           return `<tr>
             <td class="ta-left">${fmtPeriodLabel(r.period)}</td>
             <td>${fmtInt(r.china)}${est(r.chinaEstimated)}</td>
@@ -296,13 +354,58 @@ function renderTruckSection() {
             <td>${fmtInt(r.total)}${est(r.totalEstimated)}</td>
             <td>${fmtPct1(share)}</td>
             <td>${r.totalValueUsd == null ? "—" : (r.totalValueUsd / 1e6).toFixed(1)}</td>
-            <td class="ta-left">${source}</td>
+            <td class="ta-left">${truckSourceCell(r)}</td>
           </tr>`;
         })
         .join("")
     : `<tr><td colspan="8" class="empty-state">No data in this range.</td></tr>`;
 
   document.getElementById("truck-count-label").textContent = `${filtered.length} months shown`;
+}
+
+function renderTruckQuarterly(filtered) {
+  const quarters = truckQuarterRows(filtered);
+  const qLabel = (q) => `Q${q.quarter} ${q.year}${q.partial ? ` (${q.months.length}M)` : ""}`;
+  const series = truckBarSeries(quarters);
+  renderStackedBarChart(
+    document.getElementById("truck-chart"),
+    quarters.map((q) => `Q${q.quarter}/${String(q.year).slice(2)}${q.partial ? "*" : ""}`),
+    series,
+    { tooltipLabels: quarters.map(qLabel), maxTicks: 99 }
+  );
+  renderChartLegend(document.getElementById("truck-chart-legend"), series);
+
+  document.getElementById("truck-table-head").innerHTML =
+    `<th class="ta-left">Quarter</th><th>From China</th><th>QoQ %</th><th>YoY %</th><th>All origins</th><th>China share</th><th>Value, all origins (USD mn)</th>`;
+
+  // YoY is like-for-like: the same months a year earlier (matters for a
+  // partial current quarter). QoQ only between two complete quarters.
+  const byPeriod = Object.fromEntries(state.trucks.map((r) => [r.period, r]));
+  const byKey = Object.fromEntries(truckQuarterRows(state.trucks).map((q) => [q.key, q]));
+  const est = (flag) => (flag ? "*" : "");
+  const rowsDesc = [...quarters].reverse();
+  document.getElementById("truck-table-body").innerHTML = rowsDesc.length
+    ? rowsDesc
+        .map((q) => {
+          const prev = byKey[q.quarter === 1 ? `${q.year - 1}-Q4` : `${q.year}-Q${q.quarter - 1}`];
+          const qoq = !q.partial && prev && !prev.partial ? pctChange(q.china, prev.china) : null;
+          const priorMonths = q.months.map((m) => byPeriod[`${q.year - 1}-${pad2(m)}`]);
+          const priorChina = priorMonths.some((r) => !r) ? null : sumOrNull(priorMonths.map((r) => r.china));
+          const share = q.china != null && q.total ? (q.china / q.total) * 100 : null;
+          return `<tr>
+            <td class="ta-left">${qLabel(q)}</td>
+            <td>${fmtInt(q.china)}${est(q.chinaEstimated)}</td>
+            ${fmtPctCell(qoq)}
+            ${fmtPctCell(pctChange(q.china, priorChina))}
+            <td>${fmtInt(q.total)}${est(q.totalEstimated)}</td>
+            <td>${fmtPct1(share)}</td>
+            <td>${q.totalValueUsd == null ? "—" : (q.totalValueUsd / 1e6).toFixed(1)}</td>
+          </tr>`;
+        })
+        .join("")
+    : `<tr><td colspan="7" class="empty-state">No data in this range.</td></tr>`;
+
+  document.getElementById("truck-count-label").textContent = `${quarters.length} quarters shown`;
 }
 
 function downloadCsv(csvText, filename) {
@@ -382,6 +485,12 @@ async function init() {
   document.getElementById("truck-year-to").addEventListener("change", (e) => {
     state.truckYearTo = Number(e.target.value);
     renderTruckSection();
+  });
+  document.querySelectorAll("#truck-view-toggle button").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.truckView = btn.dataset.view;
+      renderTruckSection();
+    });
   });
   fillYearSelect(document.getElementById("seg-year-from"), segYears, state.segYearFrom);
   fillYearSelect(document.getElementById("seg-year-to"), segYears, state.segYearTo);

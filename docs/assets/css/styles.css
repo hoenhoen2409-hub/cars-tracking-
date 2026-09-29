@@ -276,3 +276,11 @@ select.filter-select-native:focus { outline: none; border-color: var(--accent); 
   .ts-col { border-right: none; border-bottom: 1px solid var(--rule-1); }
   .kpis-4 { grid-template-columns: repeat(2, 1fr); }
 }
+
+.view-toggle { display: inline-flex; border: 1px solid var(--rule-3); border-radius: var(--radius-sm); overflow: hidden; }
+.view-toggle button { font: inherit; font-size: 12px; font-weight: 600; padding: 7px 14px; border: 0; background: var(--bg-paper); color: var(--ink-2); cursor: pointer; }
+.view-toggle button + button { border-left: 1px solid var(--rule-3); }
+.view-toggle button:hover { color: var(--accent); }
+.view-toggle button.active { background: var(--ink-1); color: #fff; }
+.chart-stacked .chart-bar-value { fill: var(--ink-3); font-size: 10px; }
+.chart-stacked rect:hover { opacity: 0.85; }

@@ -377,6 +377,57 @@ function renderBarChart(containerEl, periods, values) {
   containerEl.innerHTML = `<svg class="chart-svg" viewBox="0 0 ${W} ${H}" width="100%" height="${H}"><g class="chart-bar">${grid}${bars}</g>${xLabels}</svg>`;
 }
 
+// ----------------------------------------------------- stacked bar chart
+// series: [{label, color, values}] stacked bottom-up in array order; a null
+// value just skips that segment. labels are the x-axis category labels;
+// tooltipLabels (optional, parallel) give a longer name for hover text. Bar
+// totals are printed above each bar when there's room (few categories).
+function renderStackedBarChart(containerEl, labels, series, { tooltipLabels = labels, maxTicks = 8 } = {}) {
+  if (!labels.length || !series.length) {
+    containerEl.innerHTML = `<div class="empty-state">No data yet.</div>`;
+    return;
+  }
+  const W = 960, H = 320, padL = 44, padR = 16, padT = 22, padB = 26;
+  const n = labels.length;
+  const totals = labels.map((_, i) => series.reduce((sum, s) => sum + (s.values[i] ?? 0), 0));
+  const maxV = Math.max(1, ...totals);
+  const slot = (W - padL - padR) / n;
+  const barW = Math.max(2, slot * 0.62);
+  const x = (i) => padL + i * slot + (slot - barW) / 2;
+  const y = (v) => H - padB - (v / maxV) * (H - padT - padB);
+
+  const grid = [0, maxV / 2, maxV]
+    .map((v) => `<line class="chart-grid" x1="${padL}" x2="${W - padR}" y1="${y(v)}" y2="${y(v)}"/><text x="4" y="${(y(v) + 4).toFixed(1)}">${fmtCompact(v)}</text>`)
+    .join("");
+
+  const showTotals = n <= 16;
+  let bars = "";
+  labels.forEach((_, i) => {
+    let base = 0;
+    series.forEach((s) => {
+      const v = s.values[i];
+      if (v == null || v <= 0) return;
+      const top = y(base + v);
+      const h = y(base) - top;
+      const share = totals[i] ? ` (${((v / totals[i]) * 100).toFixed(1)}%)` : "";
+      bars += `<rect x="${x(i).toFixed(1)}" y="${top.toFixed(1)}" width="${barW.toFixed(1)}" height="${h.toFixed(1)}" style="fill:${s.color}"><title>${escapeHtml(tooltipLabels[i])} · ${escapeHtml(s.label)}: ${fmtInt(v)}${share}</title></rect>`;
+      base += v;
+    });
+    // Only label a bar whose every segment is known -- otherwise the sum
+    // would pass off a partial stack as the full total.
+    if (showTotals && totals[i] > 0 && series.every((s) => s.values[i] != null)) {
+      bars += `<text class="chart-bar-value" x="${(x(i) + barW / 2).toFixed(1)}" y="${(y(totals[i]) - 5).toFixed(1)}" text-anchor="middle">${fmtInt(totals[i])}</text>`;
+    }
+  });
+
+  const step = Math.max(1, Math.ceil(n / maxTicks));
+  const xLabels = labels
+    .map((lbl, i) => (i % step === 0 || i === n - 1 ? `<text x="${(x(i) + barW / 2).toFixed(1)}" y="${H - 8}" text-anchor="middle">${escapeHtml(lbl)}</text>` : ""))
+    .join("");
+
+  containerEl.innerHTML = `<svg class="chart-svg chart-stacked" viewBox="0 0 ${W} ${H}" width="100%" height="${H}">${grid}${bars}${xLabels}</svg>`;
+}
+
 // ------------------------------------------------- market structure (§3)
 // Everything below works from the brand-level monthly units already in
 // cars.json -- no per-model or per-powertrain data is scraped, so these

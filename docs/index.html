@@ -264,7 +264,7 @@
         import, per Vietnam Customs' monthly CBU import reports (preliminary figures; later cumulative
         releases may be revised slightly). Excludes "other vehicles" (special-purpose), which are
         reported separately and are ~98% China-origin. Months marked * have no report of their own and
-        are back-derived from the next month's MoM % change.
+        are back-derived from the next month's MoM % change; a quarter marked * contains such a month, and a partial quarter (e.g. "2M") has YoY compared like-for-like against the same months a year earlier.
       </p>
       <div class="filter-bar">
         <div class="filter-field">
@@ -275,12 +275,19 @@
           <span class="filter-label">Year to</span>
           <select class="filter-select-native" id="truck-year-to"></select>
         </div>
+        <div class="filter-field">
+          <span class="filter-label">View</span>
+          <div class="view-toggle" id="truck-view-toggle">
+            <button type="button" data-view="month">By month</button>
+            <button type="button" data-view="quarter">By quarter</button>
+          </div>
+        </div>
       </div>
       <div id="truck-kpis" class="kpis kpis-4"></div>
     </div>
 
     <div class="card">
-      <div class="card-head"><h3>Monthly Truck Imports: China vs All Origins</h3></div>
+      <div class="card-head"><h3>Truck Imports: China vs Other Origins</h3></div>
       <div class="chart-wrap" id="truck-chart"></div>
       <div class="chart-legend" id="truck-chart-legend"></div>
     </div>
