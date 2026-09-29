@@ -1,0 +1,33 @@
+year,month,china_units,total_units,total_value_usd,china_estimated,total_estimated,source_url,note
+2024,1,260,377,17581493,0,0,https://www.customs.gov.vn/index.jsp?pageId=442&tkId=7303,
+2024,2,186,585,24802769,0,0,https://www.customs.gov.vn/index.jsp?pageId=442&tkId=7403,
+2024,3,726,1209,42034571,0,0,https://www.customs.gov.vn/index.jsp?pageId=442&tkId=7485,
+2024,4,726,1174,43939047,0,0,https://www.customs.gov.vn/index.jsp?pageId=442&tkId=7563,source text says same as prior month (726) - verify
+2024,5,549,1046,38338022,0,0,https://www.customs.gov.vn/index.jsp?pageId=442&tkId=7663,
+2024,6,504,1192,,1,1,https://www.customs.gov.vn/index.jsp?pageId=442&tkId=7864,DERIVED from MoM % in Jul-2024 report (7864); no Jun-2024 report found
+2024,7,572,2245,61236826,0,0,https://www.customs.gov.vn/index.jsp?pageId=442&tkId=7864,
+2024,8,369,1351,36700000,0,0,https://www.customs.gov.vn/index.jsp?pageId=442&tkId=7985,value rounded in text
+2024,9,384,1752,51903281,0,0,https://www.customs.gov.vn/index.jsp?pageId=442&tkId=8105,
+2024,10,658,1675,60127974,0,0,https://www.customs.gov.vn/index.jsp?pageId=442&tkId=8165,
+2024,11,591,1498,56152420,0,0,https://www.customs.gov.vn/index.jsp?pageId=442&tkId=8245,
+2024,12,,1045,,0,1,https://www.customs.gov.vn/index.jsp?pageId=442&tkId=8366,total DERIVED from -48.9% MoM in Jan-2025 report; China Dec-2024 not derivable
+2025,1,431,534,21682380,0,0,https://www.customs.gov.vn/index.jsp?pageId=442&tkId=8366,
+2025,2,694,2404,61934435,0,0,https://www.customs.gov.vn/index.jsp?pageId=442&tkId=8486,
+2025,3,1391,2376,67705045,0,0,https://www.customs.gov.vn/index.jsp?pageId=442&tkId=8545,
+2025,4,1306,2512,73953226,0,0,https://www.customs.gov.vn/index.jsp?pageId=442&tkId=8626,
+2025,5,877,1951,59887847,0,0,https://www.customs.gov.vn/index.jsp?pageId=442&tkId=8686,
+2025,6,1582,2732,81000000,0,0,https://www.customs.gov.vn/index.jsp?pageId=442&tkId=8728,value rounded in text (81 mn USD)
+2025,7,1519,2796,,1,1,https://www.customs.gov.vn/index.jsp?pageId=442&tkId=8945,DERIVED from MoM % in Aug-2025 report (8945); no Jul-2025 report found
+2025,8,992,2648,77484217,0,0,https://www.customs.gov.vn/index.jsp?pageId=442&tkId=8945,
+2025,9,1426,2282,65998126,0,0,https://www.customs.gov.vn/index.jsp?pageId=442&tkId=9005,
+2025,10,1656,2427,81600000,0,0,https://www.customs.gov.vn/index.jsp?pageId=442&tkId=9145,value rounded in text
+2025,11,1785,2916,88020985,0,0,https://www.customs.gov.vn/index.jsp?pageId=442&tkId=9247,
+2025,12,1708,2895,111165797,0,0,https://www.customs.gov.vn/index.jsp?pageId=442&tkId=9372,
+2026,1,2138,3669,96043111,0,0,https://www.customs.gov.vn/index.jsp?pageId=442&tkId=9428,
+2026,2,1392,3005,82524090,0,0,https://www.customs.gov.vn/index.jsp?pageId=442&tkId=9568,
+2026,3,2908,4699,141000000,0,0,https://www.customs.gov.vn/index.jsp?pageId=442&tkId=9670,value rounded in text
+2026,4,2610,3262,107132634,0,0,https://www.customs.gov.vn/index.jsp?pageId=442&tkId=9769,
+2026,5,1944,4017,113000000,0,0,https://www.customs.gov.vn/index.jsp?pageId=442&tkId=9828,value rounded in text
+2026,6,2025,4789,142383572,0,0,https://www.customs.gov.vn/index.jsp?pageId=442&tkId=10009,
+2026,7,1809,5559,,0,1,https://www.customs.gov.vn/index.jsp?pageId=442&tkId=10149,China = Aug figure +182 (exact); total DERIVED from -51.3% MoM; no Jul-2026 report found
+2026,8,1627,2707,88278801,0,0,https://www.customs.gov.vn/index.jsp?pageId=442&tkId=10149,

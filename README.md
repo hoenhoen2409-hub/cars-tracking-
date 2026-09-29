@@ -4,7 +4,7 @@ Monthly unit sales tracker for Vietnam's car market (VAMA members, VinFast, Hyun
 and Honda Vietnam motorbikes.
 
 Sources: VAMA association reports, VinFast SEC 6-K filings, Hyundai Thanh Cong press releases,
-Honda Vietnam press releases.
+Honda Vietnam press releases, Vietnam Customs (truck imports by origin).
 
 ## Public dashboard (GitHub Pages)
 
@@ -19,7 +19,8 @@ loads instantly.
 
 ### Updating the data
 
-1. Edit `data/monthly_summary.csv` / `data/monthly_honda_motorbike_sales.csv`.
+1. Edit `data/monthly_summary.csv` / `data/monthly_honda_motorbike_sales.csv` / `data/monthly_customs_truck_imports.csv`
+   (Vietnam Customs monthly CBU import reports, customs.gov.vn pageId=442).
 2. Regenerate the site data:
    ```
    pip install -r requirements.txt

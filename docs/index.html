@@ -251,8 +251,53 @@
     </div>
   </section>
 
+  <section class="section" id="truck-imports-section">
+    <div class="section-head">
+      <span class="num">&sect;4</span>
+      <h2>Truck Imports from China (Customs)</h2>
+      <span class="right" id="truck-count-label"></span>
+    </div>
+
+    <div class="card">
+      <p class="muted" style="margin-bottom:14px; font-size:12px;">
+        Complete-built transport trucks ("&ocirc; t&ocirc; v&#7853;n t&#7843;i", HS 8704) registered for
+        import, per Vietnam Customs' monthly CBU import reports (preliminary figures; later cumulative
+        releases may be revised slightly). Excludes "other vehicles" (special-purpose), which are
+        reported separately and are ~98% China-origin. Months marked * have no report of their own and
+        are back-derived from the next month's MoM % change.
+      </p>
+      <div class="filter-bar">
+        <div class="filter-field">
+          <span class="filter-label">Year from</span>
+          <select class="filter-select-native" id="truck-year-from"></select>
+        </div>
+        <div class="filter-field">
+          <span class="filter-label">Year to</span>
+          <select class="filter-select-native" id="truck-year-to"></select>
+        </div>
+      </div>
+      <div id="truck-kpis" class="kpis kpis-4"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Monthly Truck Imports: China vs All Origins</h3></div>
+      <div class="chart-wrap" id="truck-chart"></div>
+      <div class="chart-legend" id="truck-chart-legend"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Detail Table</h3></div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr id="truck-table-head"></tr></thead>
+          <tbody id="truck-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
   <footer class="footer">
-    <div>Sources: VAMA, VinFast (SEC 6-K), Hyundai Thanh Cong, Honda Vietnam. Rebuilt from data/*.csv via export_site_data.py.</div>
+    <div>Sources: VAMA, VinFast (SEC 6-K), Hyundai Thanh Cong, Honda Vietnam, Vietnam Customs. Rebuilt from data/*.csv via export_site_data.py.</div>
     <div id="footer-generated"></div>
   </footer>
 </div>

@@ -121,15 +121,47 @@ def build_segments_json():
     return rows
 
 
+def build_truck_imports_json():
+    """Complete-built transport trucks ("ô tô vận tải", HS 8704) cleared for
+    import, from Vietnam Customs' monthly CBU import reports
+    (customs.gov.vn pageId=442). *_estimated flags months with no report of
+    their own, back-derived from the next month's MoM % -- source_url then
+    points at that next-month report. total_value_usd is all origins; Customs
+    doesn't publish a per-origin truck value."""
+    df = pd.read_csv(DATA_DIR / "monthly_customs_truck_imports.csv")
+    df["period"] = pd.to_datetime(dict(year=df["year"], month=df["month"], day=1))
+    df = df.sort_values("period").reset_index(drop=True)
+
+    rows = []
+    for _, r in df.iterrows():
+        rows.append(
+            {
+                "period": r["period"].strftime("%Y-%m"),
+                "year": int(r["year"]),
+                "month": int(r["month"]),
+                "china": clean(r["china_units"]),
+                "total": clean(r["total_units"]),
+                "totalValueUsd": clean(r["total_value_usd"]),
+                "chinaEstimated": bool(clean(r["china_estimated"]) or 0),
+                "totalEstimated": bool(clean(r["total_estimated"]) or 0),
+                "source_url": clean(r["source_url"]),
+                "note": clean(r["note"]),
+            }
+        )
+    return rows
+
+
 def main():
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     cars = build_cars_json()
     motos = build_motos_json()
     segments = build_segments_json()
+    trucks = build_truck_imports_json()
 
     (OUT_DIR / "cars.json").write_text(json.dumps(cars, indent=2), encoding="utf-8")
     (OUT_DIR / "motos.json").write_text(json.dumps(motos, indent=2), encoding="utf-8")
     (OUT_DIR / "segments.json").write_text(json.dumps(segments, indent=2), encoding="utf-8")
+    (OUT_DIR / "truck_imports.json").write_text(json.dumps(trucks, indent=2, ensure_ascii=False), encoding="utf-8")
     (OUT_DIR / "meta.json").write_text(
         json.dumps(
             {
@@ -141,7 +173,7 @@ def main():
         ),
         encoding="utf-8",
     )
-    print(f"Wrote {len(cars)} car rows, {len(motos)} moto rows, {len(segments)} segment rows to {OUT_DIR}")
+    print(f"Wrote {len(cars)} car rows, {len(motos)} moto rows, {len(segments)} segment rows, {len(trucks)} truck-import rows to {OUT_DIR}")
 
 
 if __name__ == "__main__":

@@ -35,6 +35,9 @@ const state = {
   segMonthTo: null,
   segPeriodFrom: null,
   segPeriodTo: null,
+  trucks: [],
+  truckYearFrom: null,
+  truckYearTo: null,
 };
 
 async function loadJson(path) {
@@ -245,6 +248,63 @@ function renderSegmentSection() {
   document.getElementById("seg-count-label").textContent = `${filtered.length} months shown`;
 }
 
+// ------------------------------------------------------ truck imports tab
+const TRUCK_SERIES = [
+  { key: "china", estKey: "chinaEstimated", label: "Trucks from China", color: "#DC2626" },
+  { key: "total", estKey: "totalEstimated", label: "Trucks, all origins", color: "#171819" },
+];
+
+function fmtPctCell(pct) {
+  const dir = pct == null ? "flat" : pct >= 0 ? "up" : "down";
+  return `<td class="pct ${dir}">${pct == null ? "n/a" : (pct >= 0 ? "+" : "") + pct.toFixed(1) + "%"}</td>`;
+}
+
+function renderTruckSection() {
+  const filtered = filterByYear(state.trucks, state.truckYearFrom, state.truckYearTo);
+  const periods = filtered.map((r) => r.period);
+
+  // Same as the moto KPIs: anchored on the latest month in the selected
+  // range, with MoM/YoY/YTD resolved against the full unfiltered series.
+  const chinaByPeriod = Object.fromEntries(state.trucks.map((r) => [r.period, r.china]));
+  const kpis = computeKpis(chinaByPeriod, periods, "Trucks from China");
+  renderKpis4(document.getElementById("truck-kpis"), kpis);
+
+  const series = TRUCK_SERIES.map((s) => ({ label: s.label, color: s.color, values: filtered.map((r) => r[s.key]) }));
+  renderLineChart(document.getElementById("truck-chart"), periods, series, { connectGaps: true });
+  renderChartLegend(document.getElementById("truck-chart-legend"), series);
+
+  document.getElementById("truck-table-head").innerHTML =
+    `<th class="ta-left">Month</th><th>From China</th><th>MoM %</th><th>YoY %</th><th>All origins</th><th>China share</th><th>Value, all origins (USD mn)</th><th class="ta-left">Source</th>`;
+
+  const byPeriod = Object.fromEntries(state.trucks.map((r) => [r.period, r]));
+  const rowsDesc = [...filtered].reverse();
+  document.getElementById("truck-table-body").innerHTML = rowsDesc.length
+    ? rowsDesc
+        .map((r) => {
+          const prev = byPeriod[shiftPeriod(r.period, -1)];
+          const yearAgo = byPeriod[shiftPeriod(r.period, -12)];
+          const est = (flag) => (flag ? "*" : "");
+          const share = r.china != null && r.total ? (r.china / r.total) * 100 : null;
+          const source = r.source_url && r.source_url.startsWith("https://")
+            ? `<a href="${escapeHtml(r.source_url)}" target="_blank" rel="noopener" title="${escapeHtml(r.note || "")}">Customs${r.chinaEstimated || r.totalEstimated ? " (next-month report)" : ""}</a>`
+            : "—";
+          return `<tr>
+            <td class="ta-left">${fmtPeriodLabel(r.period)}</td>
+            <td>${fmtInt(r.china)}${est(r.chinaEstimated)}</td>
+            ${fmtPctCell(pctChange(r.china, prev ? prev.china : null))}
+            ${fmtPctCell(pctChange(r.china, yearAgo ? yearAgo.china : null))}
+            <td>${fmtInt(r.total)}${est(r.totalEstimated)}</td>
+            <td>${fmtPct1(share)}</td>
+            <td>${r.totalValueUsd == null ? "—" : (r.totalValueUsd / 1e6).toFixed(1)}</td>
+            <td class="ta-left">${source}</td>
+          </tr>`;
+        })
+        .join("")
+    : `<tr><td colspan="8" class="empty-state">No data in this range.</td></tr>`;
+
+  document.getElementById("truck-count-label").textContent = `${filtered.length} months shown`;
+}
+
 function downloadCsv(csvText, filename) {
   const blob = new Blob([csvText], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
@@ -259,16 +319,22 @@ function downloadCsv(csvText, filename) {
 
 // -------------------------------------------------------------------- init
 async function init() {
-  const [cars, motos, meta, segments] = await Promise.all([
+  const [cars, motos, meta, segments, trucks] = await Promise.all([
     loadJson("./data/cars.json"),
     loadJson("./data/motos.json"),
     loadJson("./data/meta.json"),
     loadJson("./data/segments.json"),
+    // Optional: a missing/broken truck file shouldn't take down §1-§3.
+    loadJson("./data/truck_imports.json").catch((err) => {
+      console.error(err);
+      return [];
+    }),
   ]);
   state.cars = cars;
   state.motos = motos;
   state.meta = meta;
   state.segments = segments;
+  state.trucks = trucks;
 
   const carYears = yearsFromRows(cars);
   const motoYears = yearsFromRows(motos);
@@ -304,6 +370,19 @@ async function init() {
   fillMonthSelect(document.getElementById("car-month-to"), toMonths, state.carMonthTo);
   fillYearSelect(document.getElementById("moto-year-from"), motoYears, state.motoYearFrom);
   fillYearSelect(document.getElementById("moto-year-to"), motoYears, state.motoYearTo);
+  const truckYears = yearsFromRows(trucks);
+  state.truckYearFrom = truckYears[0];
+  state.truckYearTo = truckYears[truckYears.length - 1];
+  fillYearSelect(document.getElementById("truck-year-from"), truckYears, state.truckYearFrom);
+  fillYearSelect(document.getElementById("truck-year-to"), truckYears, state.truckYearTo);
+  document.getElementById("truck-year-from").addEventListener("change", (e) => {
+    state.truckYearFrom = Number(e.target.value);
+    renderTruckSection();
+  });
+  document.getElementById("truck-year-to").addEventListener("change", (e) => {
+    state.truckYearTo = Number(e.target.value);
+    renderTruckSection();
+  });
   fillYearSelect(document.getElementById("seg-year-from"), segYears, state.segYearFrom);
   fillYearSelect(document.getElementById("seg-year-to"), segYears, state.segYearTo);
   fillMonthSelect(document.getElementById("seg-month-from"), segFromMonths, state.segMonthFrom);
@@ -376,6 +455,7 @@ async function init() {
   renderBrandToggles();
   renderCarsSection();
   renderMotoSection();
+  renderTruckSection();
 
   // §3 Market Structure -- Brand Market Share Trend/Annual table/Deep Dive
   // Summary are a fixed full-history view, not tied to any filter, so they
