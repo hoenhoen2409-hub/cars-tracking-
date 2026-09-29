@@ -29,6 +29,15 @@ loads instantly.
 3. Commit both the CSV change and the regenerated `docs/data/*.json`, then push to `main` —
    GitHub Pages redeploys automatically within a minute or two.
 
+### Automated monthly update
+
+A scheduled Claude Code cloud routine runs on the 15th of each month: it runs
+`python scripts/scrape_customs_trucks.py` (appends any new Customs truck-import
+months, back-deriving a skipped month from the next report), fills new VAMA /
+VinFast / Hyundai TC / Honda months from their published sources, regenerates
+`docs/data/*.json`, and pushes to `main`. `data/monthly_vama_segments.csv` is
+sourced from an internal tracker and is still updated by hand.
+
 ## Local interactive app (Streamlit)
 
 For ad-hoc exploration (brand multiselect, year-range slider) rather than the fixed dashboard:
