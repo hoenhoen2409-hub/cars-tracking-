@@ -285,11 +285,26 @@ select.filter-select-native:focus { outline: none; border-color: var(--accent); 
 .chart-stacked .chart-bar-value { fill: var(--ink-3); font-size: 10px; }
 .chart-stacked rect:hover { opacity: 0.85; }
 
-/* Detail tables: collapsed by default, chevron toggles */
+/* Detail tables: collapsed by default; the whole header toggles, with an
+   explicit "Show table / Hide table" pill so it reads as clickable. */
 .card-collapsible > summary { cursor: pointer; list-style: none; margin-bottom: 0; user-select: none; }
 .card-collapsible > summary::-webkit-details-marker { display: none; }
-.card-collapsible > summary::after { content: ""; width: 8px; height: 8px; margin-right: 4px; border-right: 2px solid var(--ink-3); border-bottom: 2px solid var(--ink-3); transform: rotate(-45deg); transition: transform 0.15s; }
+.card-collapsible > summary::after {
+  content: "Show table \25BE";
+  flex-shrink: 0;
+  padding: 6px 14px;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  background: var(--accent-tint);
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
 .card-collapsible[open] > summary { margin-bottom: 18px; }
-.card-collapsible[open] > summary::after { transform: rotate(45deg); }
+.card-collapsible[open] > summary::after { content: "Hide table \25B4"; background: var(--bg-paper); }
 .card-collapsible > summary:hover h3 { color: var(--accent); }
-.card-collapsible > summary:hover::after { border-color: var(--accent); }
+.card-collapsible > summary:hover::after { background: var(--accent); color: #fff; }
+.card-collapsible > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: var(--radius-sm); }
