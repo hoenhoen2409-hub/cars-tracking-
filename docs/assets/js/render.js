@@ -999,10 +999,10 @@ function buildMonthComment({ totIn, totEx, pvIn, pvEx, cv, brands, exGainers, se
   const withIncl = (ex, inc) => `(${sgn(ex.yoy)} YoY, ${sgn(ex.mom)} MoM${inc.yoy != null ? `; incl. VinFast: ${sgn(inc.yoy)} YoY, ${sgn(inc.mom)} MoM` : ""})`;
   // 1) Passenger vehicles = household consumption.
   if (pvEx.yoy != null) {
-    out.push(`Excluding VinFast, passenger vehicles (household consumption) ${dirVerb(pvEx.yoy)} ${withIncl(pvEx, pvIn)}.`);
+    out.push(`Excluding VinFast, passenger vehicles ${dirVerb(pvEx.yoy)} ${withIncl(pvEx, pvIn)}.`);
   }
   // 2) Commercial vehicles = industrial consumption (VinFast sells no CVs).
-  if (cv.yoy != null) out.push(`Commercial vehicles (industrial consumption) ${dirVerb(cv.yoy)} ${pair(cv.yoy, cv.mom, "MoM")}.`);
+  if (cv.yoy != null) out.push(`Commercial vehicles ${dirVerb(cv.yoy)} ${pair(cv.yoy, cv.mom, "MoM")}.`);
   // 3) Total auto = PC + CV.
   if (totEx.yoy != null) {
     out.push(`Excluding VinFast, total auto ${dirVerb(totEx.yoy)} ${withIncl(totEx, totIn)}.`);
