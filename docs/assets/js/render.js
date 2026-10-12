@@ -950,23 +950,21 @@ function sumOver(byPeriod, periods) {
 // Calendar-month context for the seasonality clause (VN auto market).
 const SEASON_NOTE = { 1: "pre-Tet", 2: "Tet", 3: "post-Tet", 8: "Ghost Month", 9: "Ghost Month", 12: "year-end" };
 
-function verb(p) {
-  return p >= 0 ? "rose" : "fell";
+// Signed, rounded % for the "(±x% YoY, ±y% MoM)" pairs; "flat" when it rounds to 0.
+function sgn(p) {
+  if (p == null) return "n/a";
+  return Math.round(p) === 0 ? "flat" : pctR(p);
 }
 
-// "rose 28% YoY and 29% MoM" / "fell 1% YoY but rose 45% MoM" / "were flat YoY ...".
-function movePhrase(yoy, chg, chgLabel, be = "was") {
-  const flat = (p) => p != null && Math.round(p) === 0;
-  const one = (p, lbl) => (flat(p) ? `${be} flat ${lbl}` : `${verb(p)} ${pctAbs(p)} ${lbl}`);
-  if (yoy == null && chg == null) return "had no comparable data";
-  if (chg == null) return one(yoy, "YoY");
-  if (yoy == null) return one(chg, chgLabel);
-  if (flat(yoy) && flat(chg)) return `${be} flat YoY and ${chgLabel}`;
-  if (flat(yoy)) return `${be} flat YoY but ${one(chg, chgLabel)}`;
-  if (flat(chg)) return `${one(yoy, "YoY")} and ${be} flat ${chgLabel}`;
-  return (yoy >= 0) === (chg >= 0)
-    ? `${verb(yoy)} ${pctAbs(yoy)} YoY and ${pctAbs(chg)} ${chgLabel}`
-    : `${verb(yoy)} ${pctAbs(yoy)} YoY but ${verb(chg)} ${pctAbs(chg)} ${chgLabel}`;
+// "(+28% YoY, +29% MoM)"
+function pair(yoy, chg, chgLabel) {
+  return `(${sgn(yoy)} YoY, ${sgn(chg)} ${chgLabel})`;
+}
+
+// Direction verb, read off YoY (the headline comparison).
+function dirVerb(yoy, plural = true) {
+  if (yoy == null || Math.round(yoy) === 0) return plural ? "were broadly flat" : "was broadly flat";
+  return yoy > 0 ? "rose" : "fell";
 }
 
 // "healthy" / "subdued" / "weak", read off ex-VinFast passenger-car YoY.
@@ -993,63 +991,62 @@ function joinAnd(items) {
   return items.length > 1 ? `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}` : items[0] || "";
 }
 
-function buildMonthComment({ P, totIn, totEx, pvIn, pvEx, cv, brands, season }) {
+function buildMonthComment({ totIn, totEx, pvEx, cv, brands, importers, season }) {
   const out = [];
   // 1) Total incl. VinFast, 2) then excl. VinFast.
-  out.push(`Including VinFast, total market sales ${movePhrase(totIn.yoy, totIn.mom, "MoM", "were")}.`);
-  if (totEx.yoy != null) out.push(`Excluding VinFast, sales ${movePhrase(totEx.yoy, totEx.mom, "MoM", "were")}.`);
+  out.push(`Including VinFast, total market sales ${dirVerb(totIn.yoy)} ${pair(totIn.yoy, totIn.mom, "MoM")}.`);
+  if (totEx.yoy != null) out.push(`Excluding VinFast, sales ${dirVerb(totEx.yoy)} ${pair(totEx.yoy, totEx.mom, "MoM")}.`);
   // 3) PV on an ex-VinFast basis, and the CV it implies (VinFast sells no CVs).
   if (pvEx.yoy != null) {
-    out.push(
-      `Within this, ex-VinFast passenger vehicles ${movePhrase(pvEx.yoy, pvEx.mom, "MoM", "were")}, ` +
-        `implying commercial vehicles ${movePhrase(cv.yoy, cv.mom, "MoM", "were")}.`
-    );
+    out.push(`Within this, ex-VinFast passenger vehicles ${dirVerb(pvEx.yoy)} ${pair(pvEx.yoy, pvEx.mom, "MoM")}, implying commercial vehicles ${pair(cv.yoy, cv.mom, "MoM")}.`);
   }
-  // 4) Key PV brands: VinFast vs the legacy names.
-  const vf = brands.find((b) => b.name === "VinFast");
+  // 4) Brands -- say explicitly what offsets what, so a rising total with
+  // falling legacy brands reads as consistent.
+  const fmtB = (b) => `${b.name} ${pair(b.yoy, b.chg, "MoM")}`;
+  const vf = brands.find((b) => b.name === "VinFast" && b.yoy != null);
   const legacy = brands.filter((b) => b.name !== "VinFast" && b.yoy != null);
   const down = legacy.filter((b) => b.yoy < 0);
   const up = legacy.filter((b) => b.yoy >= 0);
-  const fmtB = (b) => `${b.name} (${pctR(b.yoy)})`;
-  let s3 = vf && vf.yoy != null ? `VinFast ${verb(vf.yoy)} ${pctAbs(vf.yoy)} YoY to a ${vf.share.toFixed(1)}% market share` : "";
-  const legacyParts = [];
-  if (down.length) legacyParts.push(`${joinAnd(down.map(fmtB))} ${down.length === legacy.length && down.length > 1 ? "all " : ""}fell YoY`);
-  if (up.length) legacyParts.push(`${joinAnd(up.map(fmtB))} grew`);
-  if (legacyParts.length) {
-    const rebound = down.length && down.every((b) => b.chg != null && b.chg >= 10);
-    s3 += `${s3 ? ", while " : ""}${legacyParts.join(" and ")}${rebound ? " despite double-digit MoM rebounds" : ""}`;
+  const gainers = [];
+  if (vf) gainers.push(`VinFast (${sgn(vf.yoy)} YoY, ${sgn(vf.chg)} MoM; ${vf.share.toFixed(1)}% share)`);
+  // Non-VAMA CBU importers only when they move the market (>= 2pp of the prior-year total).
+  if (importers && importers.yoyPp != null && importers.yoyPp >= 2) gainers.push(`non-VAMA CBU importers ${pair(importers.yoy, importers.mom, "MoM")}`);
+  if (totIn.yoy != null && totIn.yoy > 0 && down.length && gainers.length) {
+    out.push(`${joinAnd(gainers)} more than offset declines at ${joinAnd(down.map(fmtB))}${up.length ? `, while ${joinAnd(up.map(fmtB))} grew` : ""}.`);
+  } else {
+    const all = [...(vf ? [`VinFast ${pair(vf.yoy, vf.chg, "MoM")}`] : []), ...legacy.map(fmtB)];
+    if (all.length) out.push(`By brand: ${joinAnd(all)}.`);
   }
-  if (s3) out.push(`${s3[0].toUpperCase()}${s3.slice(1)}.`);
   // 5) Demand read (ex-VinFast PV) with seasonality.
   const verdict = demandVerdict(pvEx.yoy);
   if (verdict) {
-    let s4 = `Ex-VinFast passenger demand remains ${verdict}`;
+    let s5 = `Ex-VinFast passenger demand remains ${verdict}`;
     const { chg, norm, prevChg, prevNorm, twoChg, twoNorm, month, prevMonth, prevNote } = season;
     if (chg != null && norm != null) {
       const diff = chg - norm;
       const prevDiff = prevChg != null && prevNorm != null ? prevChg - prevNorm : null;
       if (Math.abs(diff) >= 8 && prevDiff != null && prevDiff * diff < 0 && Math.abs(prevDiff) >= 8 && twoChg != null && twoNorm != null) {
         const vs = twoChg < twoNorm - 3 ? "below" : twoChg > twoNorm + 3 ? "above" : "in line with";
-        s4 += `: the ${month} ${diff > 0 ? "rebound" : "pullback"} largely ${diff > 0 ? "offsets an unusually weak" : "reverses an unusually strong"} ${prevMonth}${prevNote ? ` (${prevNote})` : ""}, leaving two-month volume ${vs} seasonal norms (${pctR(twoChg)} vs a typical ${pctR(twoNorm)})`;
+        s5 += `: the ${month} ${diff > 0 ? "rebound" : "pullback"} largely ${diff > 0 ? "offsets an unusually weak" : "reverses an unusually strong"} ${prevMonth}${prevNote ? ` (${prevNote})` : ""}, leaving two-month volume ${vs} seasonal norms (${sgn(twoChg)} vs a typical ${sgn(twoNorm)})`;
       } else if (Math.abs(diff) < 8) {
-        s4 += `, with the ${pctR(chg)} MoM move in line with the usual ${month} pattern (3-yr avg ${pctR(norm)})`;
+        s5 += `, with the MoM move (${sgn(chg)}) in line with the usual ${month} pattern (3-yr avg ${sgn(norm)})`;
       } else {
-        s4 += `, though the ${pctR(chg)} MoM move was ${diff > 0 ? "stronger" : "weaker"} than the usual ${month} pattern (3-yr avg ${pctR(norm)})`;
+        s5 += `, though the MoM move (${sgn(chg)}) was ${diff > 0 ? "stronger" : "weaker"} than the usual ${month} pattern (3-yr avg ${sgn(norm)})`;
       }
     }
-    out.push(`${s4}.`);
+    out.push(`${s5}.`);
   }
   return out.join(" ");
 }
 
-// One sentence on the quarter's total market (incl. and excl. VinFast, with QoQ seasonality).
+// One sentence on the quarter's total market (incl. then excl. VinFast, with QoQ seasonality).
 function buildQuarterComment({ qLabel, q, vfShareOfGrowth, qoqNorm }) {
   if (q.totIn.yoy == null) return null;
-  let s = `Including VinFast, total market sales ${movePhrase(q.totIn.yoy, q.totIn.qoq, "QoQ", "were")}`;
+  let s = `Including VinFast, total market sales ${dirVerb(q.totIn.yoy)} ${pair(q.totIn.yoy, q.totIn.qoq, "QoQ")}`;
   if (q.totIn.yoy > 0 && vfShareOfGrowth != null && vfShareOfGrowth >= 0.5) s += `, largely VinFast-driven`;
   if (q.totEx.yoy != null) {
-    s += `; excluding VinFast, sales ${movePhrase(q.totEx.yoy, q.totEx.qoq, "QoQ", "were")}`;
-    if (qoqNorm != null) s += ` (vs a typical ${pctR(qoqNorm)} QoQ for ${qLabel})`;
+    s += `; excluding VinFast, sales ${dirVerb(q.totEx.yoy)} ${pair(q.totEx.yoy, q.totEx.qoq, "QoQ")}`;
+    if (qoqNorm != null) s += `, vs a typical ${sgn(qoqNorm)} QoQ for ${qLabel}`;
   }
   return `${s}.`;
 }
@@ -1086,8 +1083,19 @@ function buildMonthlyBrief(cars, segments) {
   const P1 = shiftPeriod(P, -1);
   const P2 = shiftPeriod(P, -2);
   const P12 = shiftPeriod(P, -12);
+  // Non-VAMA CBU importers = VAMA whole-market total minus the VAMA member brands.
+  const impBy = Object.fromEntries(
+    cars.map((r) => {
+      const members = ["Toyota", "Honda (car)", "Thaco (total)", "Others"].map((k) => r.brands[k]);
+      return [r.period, r.vamaIndustryTotal != null && members.every((v) => v != null) ? r.vamaIndustryTotal - members.reduce((a, v) => a + v, 0) : null];
+    })
+  );
+  const importers = {
+    ...momYoy(impBy, P),
+    yoyPp: impBy[P] != null && impBy[P12] != null && totalInclBy[P12] ? ((impBy[P] - impBy[P12]) / totalInclBy[P12]) * 100 : null,
+  };
   const monthText = buildMonthComment({
-    P, totIn, totEx, pvIn, pvEx, cv, brands,
+    totIn, totEx, pvEx, cv, brands, importers,
     season: {
       chg: totEx.mom,
       norm: seasonalNorm(getEx, P, 1),
