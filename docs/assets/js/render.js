@@ -991,31 +991,32 @@ function joinAnd(items) {
   return items.length > 1 ? `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}` : items[0] || "";
 }
 
-function buildMonthComment({ totIn, totEx, pvEx, cv, brands, importers, season }) {
+// All commentary is on an ex-VinFast basis; the incl.-VinFast total only
+// appears as context in the opening sentence.
+function buildMonthComment({ totIn, totEx, pvEx, cv, brands, exGainers, season }) {
   const out = [];
-  // 1) Total incl. VinFast, 2) then excl. VinFast.
-  out.push(`Including VinFast, total market sales ${dirVerb(totIn.yoy)} ${pair(totIn.yoy, totIn.mom, "MoM")}.`);
-  if (totEx.yoy != null) out.push(`Excluding VinFast, sales ${dirVerb(totEx.yoy)} ${pair(totEx.yoy, totEx.mom, "MoM")}.`);
+  // 1) Total: incl. VinFast as context, then excl. VinFast.
+  out.push(
+    `Including VinFast, total market sales ${dirVerb(totIn.yoy)} ${pair(totIn.yoy, totIn.mom, "MoM")}` +
+      (totEx.yoy != null ? `; excluding VinFast, sales ${dirVerb(totEx.yoy)} ${pair(totEx.yoy, totEx.mom, "MoM")}.` : ".")
+  );
   // 3) PV on an ex-VinFast basis, and the CV it implies (VinFast sells no CVs).
   if (pvEx.yoy != null) {
-    out.push(`Within this, ex-VinFast passenger vehicles ${dirVerb(pvEx.yoy)} ${pair(pvEx.yoy, pvEx.mom, "MoM")}, implying commercial vehicles ${pair(cv.yoy, cv.mom, "MoM")}.`);
+    out.push(`Ex-VinFast passenger vehicles ${dirVerb(pvEx.yoy)} ${pair(pvEx.yoy, pvEx.mom, "MoM")}, implying commercial vehicles ${pair(cv.yoy, cv.mom, "MoM")}.`);
   }
-  // 4) Brands -- say explicitly what offsets what, so a rising total with
-  // falling legacy brands reads as consistent.
+  // 4) Brands within the ex-VinFast market: which gainers offset which
+  // decliners, so a rising total with falling legacy brands reads as consistent.
   const fmtB = (b) => `${b.name} ${pair(b.yoy, b.chg, "MoM")}`;
-  const vf = brands.find((b) => b.name === "VinFast" && b.yoy != null);
   const legacy = brands.filter((b) => b.name !== "VinFast" && b.yoy != null);
   const down = legacy.filter((b) => b.yoy < 0);
   const up = legacy.filter((b) => b.yoy >= 0);
-  const gainers = [];
-  if (vf) gainers.push(`VinFast (${sgn(vf.yoy)} YoY, ${sgn(vf.chg)} MoM; ${vf.share.toFixed(1)}% share)`);
-  // Non-VAMA CBU importers only when they move the market (>= 2pp of the prior-year total).
-  if (importers && importers.yoyPp != null && importers.yoyPp >= 2) gainers.push(`non-VAMA CBU importers ${pair(importers.yoy, importers.mom, "MoM")}`);
-  if (totIn.yoy != null && totIn.yoy > 0 && down.length && gainers.length) {
-    out.push(`${joinAnd(gainers)} more than offset declines at ${joinAnd(down.map(fmtB))}${up.length ? `, while ${joinAnd(up.map(fmtB))} grew` : ""}.`);
-  } else {
-    const all = [...(vf ? [`VinFast ${pair(vf.yoy, vf.chg, "MoM")}`] : []), ...legacy.map(fmtB)];
-    if (all.length) out.push(`By brand: ${joinAnd(all)}.`);
+  const gainers = exGainers.filter((g) => g.yoyPp != null && g.yoyPp >= 2);
+  if (totEx.yoy != null && totEx.yoy > 0 && down.length && gainers.length) {
+    out.push(`Within ex-VinFast sales, gains at ${joinAnd(gainers.map(fmtB))} more than offset declines at ${joinAnd(down.map(fmtB))}${up.length ? `, while ${joinAnd(up.map(fmtB))} also grew` : ""}.`);
+  } else if (totEx.yoy != null && totEx.yoy < 0 && down.length) {
+    out.push(`The ex-VinFast decline was led by ${joinAnd(down.map(fmtB))}${up.length ? `, partly offset by ${joinAnd(up.map(fmtB))}` : ""}.`);
+  } else if (legacy.length) {
+    out.push(`By brand: ${joinAnd(legacy.map(fmtB))}.`);
   }
   // 5) Demand read (ex-VinFast PV) with seasonality.
   const verdict = demandVerdict(pvEx.yoy);
@@ -1027,7 +1028,7 @@ function buildMonthComment({ totIn, totEx, pvEx, cv, brands, importers, season }
       const prevDiff = prevChg != null && prevNorm != null ? prevChg - prevNorm : null;
       if (Math.abs(diff) >= 8 && prevDiff != null && prevDiff * diff < 0 && Math.abs(prevDiff) >= 8 && twoChg != null && twoNorm != null) {
         const vs = twoChg < twoNorm - 3 ? "below" : twoChg > twoNorm + 3 ? "above" : "in line with";
-        s5 += `: the ${month} ${diff > 0 ? "rebound" : "pullback"} largely ${diff > 0 ? "offsets an unusually weak" : "reverses an unusually strong"} ${prevMonth}${prevNote ? ` (${prevNote})` : ""}, leaving two-month volume ${vs} seasonal norms (${sgn(twoChg)} vs a typical ${sgn(twoNorm)})`;
+        s5 += `: the ${month} ${diff > 0 ? "rebound" : "pullback"} largely ${diff > 0 ? "offsets an unusually weak" : "reverses an unusually strong"} ${prevMonth}${prevNote ? ` (${prevNote})` : ""}, leaving two-month volume ${vs} seasonal norms (${sgn(twoChg)} vs the 3-yr average of ${sgn(twoNorm)})`;
       } else if (Math.abs(diff) < 8) {
         s5 += `, with the MoM move (${sgn(chg)}) in line with the usual ${month} pattern (3-yr avg ${sgn(norm)})`;
       } else {
@@ -1039,15 +1040,17 @@ function buildMonthComment({ totIn, totEx, pvEx, cv, brands, importers, season }
   return out.join(" ");
 }
 
-// One sentence on the quarter's total market (incl. then excl. VinFast, with QoQ seasonality).
-function buildQuarterComment({ qLabel, q, vfShareOfGrowth, qoqNorm }) {
-  if (q.totIn.yoy == null) return null;
-  let s = `Including VinFast, total market sales ${dirVerb(q.totIn.yoy)} ${pair(q.totIn.yoy, q.totIn.qoq, "QoQ")}`;
-  if (q.totIn.yoy > 0 && vfShareOfGrowth != null && vfShareOfGrowth >= 0.5) s += `, largely VinFast-driven`;
-  if (q.totEx.yoy != null) {
-    s += `; excluding VinFast, sales ${dirVerb(q.totEx.yoy)} ${pair(q.totEx.yoy, q.totEx.qoq, "QoQ")}`;
-    if (qoqNorm != null) s += `, vs a typical ${sgn(qoqNorm)} QoQ for ${qLabel}`;
+// One sentence on the quarter's total market, ex-VinFast first; QoQ is
+// compared with the 3-year average change for the same quarter.
+function buildQuarterComment({ qLabel, prevQLabel, q, qoqNorm }) {
+  if (q.totEx.yoy == null) return null;
+  let s = `Excluding VinFast, sales ${dirVerb(q.totEx.yoy)} ${pair(q.totEx.yoy, q.totEx.qoq, "QoQ")}`;
+  if (qoqNorm != null && q.totEx.qoq != null) {
+    const d = q.totEx.qoq - qoqNorm;
+    const vs = d <= -3 ? "below" : d >= 3 ? "above" : "in line with";
+    s += `, ${vs} the 3-year average ${prevQLabel}→${qLabel} seasonal change of ${sgn(qoqNorm)}`;
   }
+  if (q.totIn.yoy != null) s += ` (incl. VinFast: ${sgn(q.totIn.yoy)} YoY, ${sgn(q.totIn.qoq)} QoQ)`;
   return `${s}.`;
 }
 
@@ -1090,12 +1093,17 @@ function buildMonthlyBrief(cars, segments) {
       return [r.period, r.vamaIndustryTotal != null && members.every((v) => v != null) ? r.vamaIndustryTotal - members.reduce((a, v) => a + v, 0) : null];
     })
   );
-  const importers = {
-    ...momYoy(impBy, P),
-    yoyPp: impBy[P] != null && impBy[P12] != null && totalInclBy[P12] ? ((impBy[P] - impBy[P12]) / totalInclBy[P12]) * 100 : null,
-  };
+  const thacoBy = Object.fromEntries(cars.map((r) => [r.period, r.brands["Thaco (total)"]]));
+  // Gainer candidates in the ex-VinFast market; pp = YoY change / prior-year ex-VinFast total.
+  const exGainers = [
+    ["non-VAMA CBU importers", impBy],
+    ["Thaco", thacoBy],
+  ].map(([name, by]) => {
+    const m = momYoy(by, P);
+    return { name, yoy: m.yoy, chg: m.mom, yoyPp: by[P] != null && by[P12] != null && totalExBy[P12] ? ((by[P] - by[P12]) / totalExBy[P12]) * 100 : null };
+  });
   const monthText = buildMonthComment({
-    totIn, totEx, pvEx, cv, brands, importers,
+    totIn, totEx, pvEx, cv, brands, exGainers,
     season: {
       chg: totEx.mom,
       norm: seasonalNorm(getEx, P, 1),
@@ -1120,8 +1128,6 @@ function buildMonthlyBrief(cars, segments) {
       return { value: v, qoq: pctChange(v, get(shiftPeriod(P, -3))), yoy: pctChange(v, get(P12)) };
     };
     const q = { totIn: qm(totalInclBy), totEx: qm(totalExBy), pvIn: qm(pvInclBy), pvEx: qm(pvExBy), cv: qm(cvBy) };
-    const vfDelta = (qSum(vfBy)(P) ?? 0) - (qSum(vfBy)(P12) ?? 0);
-    const totDelta = q.totIn.value != null && qSum(totalInclBy)(P12) != null ? q.totIn.value - qSum(totalInclBy)(P12) : null;
     const qLabel = `Q${pm / 3}`;
     quarter = {
       label: `${qLabel} ${py}`,
@@ -1129,8 +1135,8 @@ function buildMonthlyBrief(cars, segments) {
       yoy: { totIn: q.totIn.yoy, totEx: q.totEx.yoy, pvIn: q.pvIn.yoy, pvEx: q.pvEx.yoy, cv: q.cv.yoy },
       text: buildQuarterComment({
         qLabel,
+        prevQLabel: `Q${pm / 3 === 1 ? 4 : pm / 3 - 1}`,
         q,
-        vfShareOfGrowth: totDelta ? vfDelta / totDelta : null,
         qoqNorm: seasonalNorm(qSum(totalExBy), P, 3),
       }),
     };
