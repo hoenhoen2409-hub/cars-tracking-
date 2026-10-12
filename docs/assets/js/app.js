@@ -42,7 +42,7 @@ const state = {
 };
 
 async function loadJson(path) {
-  const res = await fetch(path);
+  const res = await fetch(path, { cache: "no-cache" });
   if (!res.ok) throw new Error(`Failed to load ${path}: ${res.status}`);
   return res.json();
 }

@@ -6,7 +6,9 @@ regenerated docs/data/*.json alongside the CSV change.
     python export_site_data.py
 """
 
+import hashlib
 import json
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -163,6 +165,25 @@ def build_truck_imports_json():
     return rows
 
 
+def stamp_asset_versions():
+    """Append ?v=<content hash> to the CSS/JS links in docs/index.html.
+
+    GitHub Pages serves assets with max-age=600, so without this a browser
+    keeps running the previous render.js for up to 10 minutes after a deploy
+    (and mixes old JS with new JSON). The hash only changes when the file
+    does, so unchanged assets stay cached."""
+    index = OUT_DIR.parent / "index.html"
+    html = index.read_text(encoding="utf-8")
+
+    def versioned(m):
+        path = m.group(2)
+        digest = hashlib.md5((index.parent / path).read_bytes()).hexdigest()[:10]
+        return f'{m.group(1)}./{path}?v={digest}"'
+
+    html = re.sub(r'((?:href|src)=")\./(assets/[^"?]+\.(?:css|js))(?:\?v=[0-9a-f]+)?"', versioned, html)
+    index.write_text(html, encoding="utf-8", newline="\n")  # repo is LF
+
+
 def main():
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     cars = build_cars_json()
@@ -185,6 +206,7 @@ def main():
         ),
         encoding="utf-8",
     )
+    stamp_asset_versions()
     print(f"Wrote {len(cars)} car rows, {len(motos)} moto rows, {len(segments)} segment rows, {len(trucks)} truck-import rows to {OUT_DIR}")
 
 
