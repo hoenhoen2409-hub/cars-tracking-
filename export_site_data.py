@@ -17,15 +17,17 @@ OUT_DIR = Path(__file__).parent / "docs" / "data"
 
 CAR_BRAND_COLUMNS = {
     "Toyota": "toyota",
-    "Ford": "ford",
-    "Mitsubishi": "mitsubishi",
     "Honda (car)": "honda",
-    "Peugeot": "peugeot",
     "Thaco (total)": "thaco_total",
-    "Others (VAMA)": "others",
     "VinFast": "vinfast",
     "Hyundai (Thanh Cong)": "hyundai_tc",
 }
+
+# Brands the dashboard doesn't show on their own: folded into "Others"
+# together with VAMA's own "others" column. The CSV keeps every column, so
+# a brand can be broken back out by moving it to CAR_BRAND_COLUMNS.
+OTHERS_LABEL = "Others"
+OTHERS_COLUMNS = ["ford", "mitsubishi", "peugeot", "others"]
 
 
 def clean(value):
@@ -46,7 +48,11 @@ def build_cars_json():
             "period": r["period"].strftime("%Y-%m"),
             "year": int(r["year"]),
             "month": int(r["month"]),
-            "brands": {label: clean(r[col]) for label, col in CAR_BRAND_COLUMNS.items()},
+            "brands": {
+                **{label: clean(r[col]) for label, col in CAR_BRAND_COLUMNS.items()},
+                # Unknown if any part is missing, rather than an understated sum.
+                OTHERS_LABEL: None if r[OTHERS_COLUMNS].isna().any() else clean(r[OTHERS_COLUMNS].sum()),
+            },
             "total_market": clean(r["total_market"]),
             # VAMA's own whole-industry total (members + imported CBU from
             # non-members), from its Cover Letter report -- NOT the same as

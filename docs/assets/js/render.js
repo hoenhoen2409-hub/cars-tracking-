@@ -1,16 +1,15 @@
 // Pure rendering helpers: plain data in, HTML/SVG strings or DOM writes out.
 // No framework -- at this scale (tens of rows) it isn't needed.
 
+// "Others" = Ford + Mitsubishi + Peugeot + VAMA's remaining members (folded
+// together in export_site_data.py; the source CSV keeps each column).
 const BRAND_COLORS = {
   "Toyota": "#0051CC",
-  "Ford": "#DC2626",
-  "Mitsubishi": "#F59E0B",
   "Honda (car)": "#008478",
-  "Peugeot": "#7C3AED",
   "Thaco (total)": "#171819",
-  "Others (VAMA)": "#ACAEB0",
   "VinFast": "#0AA630",
   "Hyundai (Thanh Cong)": "#DB2777",
+  "Others": "#ACAEB0",
 };
 
 // "Total Industry" isn't a brand VAMA reports per se -- it's the corrected
@@ -226,18 +225,20 @@ function renderTopSummary(carRows, brandLabels) {
     .filter((b) => b.value != null && b.value > 0)
     .sort((a, b) => b.value - a.value);
   const total = shares.reduce((s, b) => s + b.value, 0) || 1;
-  const top5 = shares.slice(0, 5);
-  const rest = shares.slice(5).reduce((s, b) => s + b.value, 0);
+  // Minor brands are already folded into "Others" upstream, so every
+  // remaining series is shown -- no second, client-side "Others" bucket.
+  const shown = shares;
+  const rest = 0;
 
   document.getElementById("bm-track").innerHTML =
-    top5.map((b) => `<i style="width:${(b.value / total) * 100}%; background:${BRAND_COLORS[b.label]}"></i>`).join("") +
+    shown.map((b) => `<i style="width:${(b.value / total) * 100}%; background:${BRAND_COLORS[b.label]}"></i>`).join("") +
     (rest > 0 ? `<i style="width:${(rest / total) * 100}%; background:var(--rule-3)"></i>` : "");
   document.getElementById("bm-legend").innerHTML =
-    top5.map((b) => `<span><i style="background:${BRAND_COLORS[b.label]}"></i>${escapeHtml(b.label)} ${((b.value / total) * 100).toFixed(0)}%</span>`).join("") +
+    shown.map((b) => `<span><i style="background:${BRAND_COLORS[b.label]}"></i>${escapeHtml(b.label)} ${((b.value / total) * 100).toFixed(0)}%</span>`).join("") +
     (rest > 0 ? `<span><i style="background:var(--rule-3)"></i>Others ${((rest / total) * 100).toFixed(0)}%</span>` : "");
 
-  const maxShare = Math.max(1, ...top5.map((b) => b.value));
-  document.getElementById("contrib-rows").innerHTML = top5
+  const maxShare = Math.max(1, ...shown.map((b) => b.value));
+  document.getElementById("contrib-rows").innerHTML = shown
     .map(
       (b) => `
       <div class="ranked-row">
@@ -443,8 +444,9 @@ function fmtPct1(v) {
 
 // Sum of every tracked brand column that's confirmed for the month -- the
 // denominator for "share of tracked brands" below. Not a claim about the
-// true total market: recent months are still missing "Others" (Suzuki,
-// Isuzu, Mercedes-Benz, ...) -- see Total Industry for the corrected total.
+// true total market: a series that's null for the month (e.g. "Others"
+// before VAMA's full table is in) simply drops out of the sum, and non-VAMA
+// importers aren't tracked at all -- see Total Industry for the corrected total.
 function carRowKnownTotal(row) {
   let sum = 0;
   for (const label of Object.keys(BRAND_COLORS)) {
@@ -496,7 +498,9 @@ function carShareSeriesGrouped(rows, topK) {
 // to read a composition-over-time story from than a spaghetti line chart.
 function renderShareChart(chartEl, legendEl, rows) {
   const periods = rows.map((r) => r.period);
-  const grouped = carShareSeriesGrouped(rows, 5);
+  // Every tracked series gets its own band now that minor brands are
+  // already folded into "Others" upstream (export_site_data.py).
+  const grouped = carShareSeriesGrouped(rows, Object.keys(BRAND_COLORS).length);
   // Largest-average band at the bottom of the stack (a stable visual
   // anchor); smaller/more volatile bands stacked above it. The legend
   // follows the same order so color position in the stack matches the
@@ -525,7 +529,8 @@ function buildShareNarrative(cars) {
   if (vfEnd == null) return "";
 
   const others = series
-    .filter((s) => s.label !== "VinFast")
+    // "Others" is a bucket, not a brand -- keep it out of brand comparisons.
+    .filter((s) => s.label !== "VinFast" && s.label !== "Others")
     .map((s) => ({ label: s.label, start: s.values[firstIdx] ?? 0, end: s.values[lastIdx] ?? 0 }))
     .map((s) => ({ ...s, delta: s.end - s.start }));
   if (!others.length) return "";
@@ -986,7 +991,9 @@ function renderDeepDiveSummary(containerEl, cars, segments, motos, narrativeEl) 
     if (moto) items.push(ytdYoyItem("Honda Motorbikes", moto));
   }
 
-  const { priorYear, latestYear, yoys } = brandAnnualYoy(cars);
+  const { priorYear, latestYear, yoys: allYoys } = brandAnnualYoy(cars);
+  // "Others" is a bucket, not a brand -- never call it fastest/steepest.
+  const yoys = allYoys.filter((c) => c.brand !== "Others");
   let worstBrand = null;
   if (yoys.length) {
     const best = yoys.reduce((a, b) => (b.pct > a.pct ? b : a));

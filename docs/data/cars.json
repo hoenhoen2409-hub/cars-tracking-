@@ -5,14 +5,11 @@
     "month": 1,
     "brands": {
       "Toyota": 3023,
-      "Ford": 2360,
-      "Mitsubishi": 1145,
       "Honda (car)": 1494,
-      "Peugeot": 220,
       "Thaco (total)": 4476,
-      "Others (VAMA)": 1280,
       "VinFast": null,
-      "Hyundai (Thanh Cong)": 3496
+      "Hyundai (Thanh Cong)": 3496,
+      "Others": 5005
     },
     "total_market": null,
     "vamaIndustryTotal": 13998
@@ -23,14 +20,11 @@
     "month": 2,
     "brands": {
       "Toyota": 4887,
-      "Ford": 2632,
-      "Mitsubishi": 2279,
       "Honda (car)": 1385,
-      "Peugeot": 237,
       "Thaco (total)": 6971,
-      "Others (VAMA)": 2145,
       "VinFast": null,
-      "Hyundai (Thanh Cong)": 5467
+      "Hyundai (Thanh Cong)": 5467,
+      "Others": 7293
     },
     "total_market": null,
     "vamaIndustryTotal": 23040
@@ -41,14 +35,11 @@
     "month": 3,
     "brands": {
       "Toyota": 5656,
-      "Ford": 3676,
-      "Mitsubishi": 3656,
       "Honda (car)": 1489,
-      "Peugeot": 250,
       "Thaco (total)": 8445,
-      "Others (VAMA)": 3094,
       "VinFast": null,
-      "Hyundai (Thanh Cong)": 5773
+      "Hyundai (Thanh Cong)": 5773,
+      "Others": 10676
     },
     "total_market": null,
     "vamaIndustryTotal": 26266
@@ -59,14 +50,11 @@
     "month": 4,
     "brands": {
       "Toyota": 4247,
-      "Ford": 3298,
-      "Mitsubishi": 1700,
       "Honda (car)": 1944,
-      "Peugeot": 170,
       "Thaco (total)": 6658,
-      "Others (VAMA)": 2650,
       "VinFast": null,
-      "Hyundai (Thanh Cong)": 4592
+      "Hyundai (Thanh Cong)": 4592,
+      "Others": 7818
     },
     "total_market": null,
     "vamaIndustryTotal": 22409
@@ -77,14 +65,11 @@
     "month": 5,
     "brands": {
       "Toyota": 3734,
-      "Ford": 2336,
-      "Mitsubishi": 1803,
       "Honda (car)": 1757,
-      "Peugeot": 170,
       "Thaco (total)": 6459,
-      "Others (VAMA)": 3007,
       "VinFast": null,
-      "Hyundai (Thanh Cong)": 3575
+      "Hyundai (Thanh Cong)": 3575,
+      "Others": 7316
     },
     "total_market": null,
     "vamaIndustryTotal": 20726
@@ -95,14 +80,11 @@
     "month": 6,
     "brands": {
       "Toyota": 5090,
-      "Ford": 3121,
-      "Mitsubishi": 2264,
       "Honda (car)": 1419,
-      "Peugeot": 185,
       "Thaco (total)": 7366,
-      "Others (VAMA)": 2448,
       "VinFast": null,
-      "Hyundai (Thanh Cong)": 5108
+      "Hyundai (Thanh Cong)": 5108,
+      "Others": 8018
     },
     "total_market": null,
     "vamaIndustryTotal": 23800
@@ -113,14 +95,11 @@
     "month": 7,
     "brands": {
       "Toyota": 3813,
-      "Ford": 3150,
-      "Mitsubishi": 3518,
       "Honda (car)": 1597,
-      "Peugeot": 191,
       "Thaco (total)": 8237,
-      "Others (VAMA)": 2364,
       "VinFast": null,
-      "Hyundai (Thanh Cong)": 4035
+      "Hyundai (Thanh Cong)": 4035,
+      "Others": 9223
     },
     "total_market": null,
     "vamaIndustryTotal": 24687
@@ -131,14 +110,11 @@
     "month": 8,
     "brands": {
       "Toyota": 3922,
-      "Ford": 2795,
-      "Mitsubishi": 2418,
       "Honda (car)": 1431,
-      "Peugeot": 193,
       "Thaco (total)": 7814,
-      "Others (VAMA)": 2070,
       "VinFast": null,
-      "Hyundai (Thanh Cong)": 3145
+      "Hyundai (Thanh Cong)": 3145,
+      "Others": 7476
     },
     "total_market": null,
     "vamaIndustryTotal": 22456
@@ -149,14 +125,11 @@
     "month": 9,
     "brands": {
       "Toyota": 4118,
-      "Ford": 3118,
-      "Mitsubishi": 2863,
       "Honda (car)": 2554,
-      "Peugeot": 226,
       "Thaco (total)": 8960,
-      "Others (VAMA)": 2154,
       "VinFast": null,
-      "Hyundai (Thanh Cong)": 5977
+      "Hyundai (Thanh Cong)": 5977,
+      "Others": 8361
     },
     "total_market": null,
     "vamaIndustryTotal": 25375
@@ -167,14 +140,11 @@
     "month": 10,
     "brands": {
       "Toyota": 4041,
-      "Ford": 3062,
-      "Mitsubishi": 2457,
       "Honda (car)": 2148,
-      "Peugeot": 235,
       "Thaco (total)": 9471,
-      "Others (VAMA)": 2044,
       "VinFast": null,
-      "Hyundai (Thanh Cong)": 7458
+      "Hyundai (Thanh Cong)": 7458,
+      "Others": 7798
     },
     "total_market": null,
     "vamaIndustryTotal": 25369
@@ -185,14 +155,11 @@
     "month": 11,
     "brands": {
       "Toyota": 5833,
-      "Ford": 3922,
-      "Mitsubishi": 2517,
       "Honda (car)": 2525,
-      "Peugeot": 408,
       "Thaco (total)": 9140,
-      "Others (VAMA)": 2094,
       "VinFast": null,
-      "Hyundai (Thanh Cong)": 7980
+      "Hyundai (Thanh Cong)": 7980,
+      "Others": 8941
     },
     "total_market": null,
     "vamaIndustryTotal": 26439
@@ -203,14 +170,11 @@
     "month": 12,
     "brands": {
       "Toyota": 9050,
-      "Ford": 4854,
-      "Mitsubishi": 4274,
       "Honda (car)": 4059,
-      "Peugeot": 553,
       "Thaco (total)": 10683,
-      "Others (VAMA)": 2877,
       "VinFast": null,
-      "Hyundai (Thanh Cong)": 10884
+      "Hyundai (Thanh Cong)": 10884,
+      "Others": 12558
     },
     "total_market": null,
     "vamaIndustryTotal": 38740
@@ -221,14 +185,11 @@
     "month": 1,
     "brands": {
       "Toyota": 2208,
-      "Ford": 2671,
-      "Mitsubishi": 1793,
       "Honda (car)": 2023,
-      "Peugeot": 224,
       "Thaco (total)": 5219,
-      "Others (VAMA)": 2559,
       "VinFast": null,
-      "Hyundai (Thanh Cong)": 3569
+      "Hyundai (Thanh Cong)": 3569,
+      "Others": 7247
     },
     "total_market": null,
     "vamaIndustryTotal": 19243
@@ -239,14 +200,11 @@
     "month": 2,
     "brands": {
       "Toyota": 1248,
-      "Ford": 1664,
-      "Mitsubishi": 818,
       "Honda (car)": 1264,
-      "Peugeot": 167,
       "Thaco (total)": 3643,
-      "Others (VAMA)": 1213,
       "VinFast": null,
-      "Hyundai (Thanh Cong)": 2033
+      "Hyundai (Thanh Cong)": 2033,
+      "Others": 3862
     },
     "total_market": null,
     "vamaIndustryTotal": 11633
@@ -257,14 +215,11 @@
     "month": 3,
     "brands": {
       "Toyota": 3865,
-      "Ford": 3686,
-      "Mitsubishi": 3439,
       "Honda (car)": 2832,
-      "Peugeot": 231,
       "Thaco (total)": 6851,
-      "Others (VAMA)": 3229,
       "VinFast": null,
-      "Hyundai (Thanh Cong)": 4542
+      "Hyundai (Thanh Cong)": 4542,
+      "Others": 10585
     },
     "total_market": null,
     "vamaIndustryTotal": 27289
@@ -275,14 +230,11 @@
     "month": 4,
     "brands": {
       "Toyota": 4483,
-      "Ford": 3053,
-      "Mitsubishi": 2508,
       "Honda (car)": 1802,
-      "Peugeot": 210,
       "Thaco (total)": 6512,
-      "Others (VAMA)": 2471,
       "VinFast": null,
-      "Hyundai (Thanh Cong)": 4276
+      "Hyundai (Thanh Cong)": 4276,
+      "Others": 8242
     },
     "total_market": null,
     "vamaIndustryTotal": 24350
@@ -293,14 +245,11 @@
     "month": 5,
     "brands": {
       "Toyota": 5356,
-      "Ford": 3270,
-      "Mitsubishi": 3151,
       "Honda (car)": 1179,
-      "Peugeot": 234,
       "Thaco (total)": 6465,
-      "Others (VAMA)": 2114,
       "VinFast": null,
-      "Hyundai (Thanh Cong)": 4914
+      "Hyundai (Thanh Cong)": 4914,
+      "Others": 8769
     },
     "total_market": null,
     "vamaIndustryTotal": 25794
@@ -311,14 +260,11 @@
     "month": 6,
     "brands": {
       "Toyota": 5178,
-      "Ford": 3307,
-      "Mitsubishi": 2913,
       "Honda (car)": 1381,
-      "Peugeot": 287,
       "Thaco (total)": 7169,
-      "Others (VAMA)": 1761,
       "VinFast": null,
-      "Hyundai (Thanh Cong)": 5047
+      "Hyundai (Thanh Cong)": 5047,
+      "Others": 8268
     },
     "total_market": null,
     "vamaIndustryTotal": 26575
@@ -329,14 +275,11 @@
     "month": 7,
     "brands": {
       "Toyota": 6479,
-      "Ford": 3150,
-      "Mitsubishi": 3835,
       "Honda (car)": 2406,
-      "Peugeot": 261,
       "Thaco (total)": 6764,
-      "Others (VAMA)": 1879,
       "VinFast": null,
-      "Hyundai (Thanh Cong)": 5329
+      "Hyundai (Thanh Cong)": 5329,
+      "Others": 9125
     },
     "total_market": null,
     "vamaIndustryTotal": 28920
@@ -347,14 +290,11 @@
     "month": 8,
     "brands": {
       "Toyota": 4700,
-      "Ford": 3270,
-      "Mitsubishi": 4091,
       "Honda (car)": 1160,
-      "Peugeot": 257,
       "Thaco (total)": 6366,
-      "Others (VAMA)": 1564,
       "VinFast": null,
-      "Hyundai (Thanh Cong)": 4679
+      "Hyundai (Thanh Cong)": 4679,
+      "Others": 9182
     },
     "total_market": null,
     "vamaIndustryTotal": 25196
@@ -365,14 +305,11 @@
     "month": 9,
     "brands": {
       "Toyota": 6986,
-      "Ford": 3967,
-      "Mitsubishi": 5385,
       "Honda (car)": 3607,
-      "Peugeot": 261,
       "Thaco (total)": 9425,
-      "Others (VAMA)": 2392,
       "VinFast": null,
-      "Hyundai (Thanh Cong)": 6518
+      "Hyundai (Thanh Cong)": 6518,
+      "Others": 12005
     },
     "total_market": null,
     "vamaIndustryTotal": 36585
@@ -383,14 +320,11 @@
     "month": 10,
     "brands": {
       "Toyota": 8736,
-      "Ford": 5052,
-      "Mitsubishi": 4401,
       "Honda (car)": 3606,
-      "Peugeot": 401,
       "Thaco (total)": 10304,
-      "Others (VAMA)": 2614,
       "VinFast": null,
-      "Hyundai (Thanh Cong)": 7639
+      "Hyundai (Thanh Cong)": 7639,
+      "Others": 12468
     },
     "total_market": null,
     "vamaIndustryTotal": 38761
@@ -401,14 +335,11 @@
     "month": 11,
     "brands": {
       "Toyota": 8695,
-      "Ford": 5593,
-      "Mitsubishi": 5056,
       "Honda (car)": 4633,
-      "Peugeot": 494,
       "Thaco (total)": 12286,
-      "Others (VAMA)": 2851,
       "VinFast": null,
-      "Hyundai (Thanh Cong)": 10303
+      "Hyundai (Thanh Cong)": 10303,
+      "Others": 13994
     },
     "total_market": null,
     "vamaIndustryTotal": 39608
@@ -419,14 +350,11 @@
     "month": 12,
     "brands": {
       "Toyota": 8642,
-      "Ford": 3492,
-      "Mitsubishi": 3808,
       "Honda (car)": 2374,
-      "Peugeot": 463,
       "Thaco (total)": 6495,
-      "Others (VAMA)": 2129,
       "VinFast": 20000.0,
-      "Hyundai (Thanh Cong)": 8316
+      "Hyundai (Thanh Cong)": 8316,
+      "Others": 9892
     },
     "total_market": 55719.0,
     "vamaIndustryTotal": 31598
@@ -437,14 +365,11 @@
     "month": 1,
     "brands": {
       "Toyota": 3346,
-      "Ford": 2452,
-      "Mitsubishi": 1716,
       "Honda (car)": 1826,
-      "Peugeot": 193,
       "Thaco (total)": 5003,
-      "Others (VAMA)": 1140,
       "VinFast": 10503.0,
-      "Hyundai (Thanh Cong)": 3074
+      "Hyundai (Thanh Cong)": 3074,
+      "Others": 5501
     },
     "total_market": 29253.0,
     "vamaIndustryTotal": 18893
@@ -455,14 +380,11 @@
     "month": 2,
     "brands": {
       "Toyota": 3114,
-      "Ford": 2758,
-      "Mitsubishi": 1792,
       "Honda (car)": 1808,
-      "Peugeot": 239,
       "Thaco (total)": 6096,
-      "Others (VAMA)": 1374,
       "VinFast": 12500.0,
-      "Hyundai (Thanh Cong)": 3022
+      "Hyundai (Thanh Cong)": 3022,
+      "Others": 6163
     },
     "total_market": 32703.0,
     "vamaIndustryTotal": 21606
@@ -473,14 +395,11 @@
     "month": 3,
     "brands": {
       "Toyota": 5370,
-      "Ford": 4272,
-      "Mitsubishi": 4412,
       "Honda (car)": 2450,
-      "Peugeot": 259,
       "Thaco (total)": 7304,
-      "Others (VAMA)": 2012,
       "VinFast": 12100.0,
-      "Hyundai (Thanh Cong)": 5368
+      "Hyundai (Thanh Cong)": 5368,
+      "Others": 10955
     },
     "total_market": 43547.0,
     "vamaIndustryTotal": 31812
@@ -491,14 +410,11 @@
     "month": 4,
     "brands": {
       "Toyota": 5566,
-      "Ford": 3997,
-      "Mitsubishi": 2038,
       "Honda (car)": 2142,
-      "Peugeot": 213,
       "Thaco (total)": 7346,
-      "Others (VAMA)": 1884,
       "VinFast": 9588.0,
-      "Hyundai (Thanh Cong)": 4470
+      "Hyundai (Thanh Cong)": 4470,
+      "Others": 8132
     },
     "total_market": 37244.0,
     "vamaIndustryTotal": 29585
@@ -509,14 +425,11 @@
     "month": 5,
     "brands": {
       "Toyota": 5665,
-      "Ford": 4054,
-      "Mitsubishi": 2172,
       "Honda (car)": 1484,
-      "Peugeot": 192,
       "Thaco (total)": 6961,
-      "Others (VAMA)": 2130,
       "VinFast": 11496.0,
-      "Hyundai (Thanh Cong)": 4063
+      "Hyundai (Thanh Cong)": 4063,
+      "Others": 8548
     },
     "total_market": 38217.0,
     "vamaIndustryTotal": 29210
@@ -527,14 +440,11 @@
     "month": 6,
     "brands": {
       "Toyota": 6213,
-      "Ford": 4167,
-      "Mitsubishi": 3663,
       "Honda (car)": 1523,
-      "Peugeot": 228,
       "Thaco (total)": 7894,
-      "Others (VAMA)": 2105,
       "VinFast": 11382.0,
-      "Hyundai (Thanh Cong)": 4197
+      "Hyundai (Thanh Cong)": 4197,
+      "Others": 10163
     },
     "total_market": 41372.0,
     "vamaIndustryTotal": 31977
@@ -545,14 +455,11 @@
     "month": 7,
     "brands": {
       "Toyota": 6668,
-      "Ford": 4139,
-      "Mitsubishi": 3231,
       "Honda (car)": 2617,
-      "Peugeot": 222,
       "Thaco (total)": 7550,
-      "Others (VAMA)": 2146,
       "VinFast": 11479.0,
-      "Hyundai (Thanh Cong)": 3601
+      "Hyundai (Thanh Cong)": 3601,
+      "Others": 9738
     },
     "total_market": 41653.0,
     "vamaIndustryTotal": 31739
@@ -563,14 +470,11 @@
     "month": 8,
     "brands": {
       "Toyota": 5171,
-      "Ford": 3546,
-      "Mitsubishi": 2180,
       "Honda (car)": 2275,
-      "Peugeot": 153,
       "Thaco (total)": 5949,
-      "Others (VAMA)": 2414,
       "VinFast": 10922.0,
-      "Hyundai (Thanh Cong)": 3701
+      "Hyundai (Thanh Cong)": 3701,
+      "Others": 8293
     },
     "total_market": 36311.0,
     "vamaIndustryTotal": 25973
@@ -581,14 +485,11 @@
     "month": 9,
     "brands": {
       "Toyota": 7013,
-      "Ford": 4270,
-      "Mitsubishi": 3805,
       "Honda (car)": 1704,
-      "Peugeot": 143,
       "Thaco (total)": 6581,
-      "Others (VAMA)": 2775,
       "VinFast": 13914.0,
-      "Hyundai (Thanh Cong)": 4296
+      "Hyundai (Thanh Cong)": 4296,
+      "Others": 10993
     },
     "total_market": 44501.0,
     "vamaIndustryTotal": 30688
@@ -599,14 +500,11 @@
     "month": 10,
     "brands": {
       "Toyota": 7768,
-      "Ford": 5206,
-      "Mitsubishi": 5082,
       "Honda (car)": 3314,
-      "Peugeot": 183,
       "Thaco (total)": 7581,
-      "Others (VAMA)": 2710,
       "VinFast": 20380.0,
-      "Hyundai (Thanh Cong)": 5260
+      "Hyundai (Thanh Cong)": 5260,
+      "Others": 13181
     },
     "total_market": 57484.0,
     "vamaIndustryTotal": 37910
@@ -617,14 +515,11 @@
     "month": 11,
     "brands": {
       "Toyota": 7731,
-      "Ford": 5446,
-      "Mitsubishi": 5056,
       "Honda (car)": 3986,
-      "Peugeot": 178,
       "Thaco (total)": 8612,
-      "Others (VAMA)": 2680,
       "VinFast": 23186.0,
-      "Hyundai (Thanh Cong)": 5463
+      "Hyundai (Thanh Cong)": 5463,
+      "Others": 13360
     },
     "total_market": 62338.0,
     "vamaIndustryTotal": 39338
@@ -635,14 +530,11 @@
     "month": 12,
     "brands": {
       "Toyota": 8329,
-      "Ford": 6143,
-      "Mitsubishi": 8960,
       "Honda (car)": 3590,
-      "Peugeot": 232,
       "Thaco (total)": 12065,
-      "Others (VAMA)": 3382,
       "VinFast": 27649.0,
-      "Hyundai (Thanh Cong)": 6704
+      "Hyundai (Thanh Cong)": 6704,
+      "Others": 18717
     },
     "total_market": 77054.0,
     "vamaIndustryTotal": 47067
@@ -653,14 +545,11 @@
     "month": 1,
     "brands": {
       "Toyota": 4852,
-      "Ford": 5121,
-      "Mitsubishi": 5039,
       "Honda (car)": 2712,
-      "Peugeot": 191,
       "Thaco (total)": 9267,
-      "Others (VAMA)": 2592,
       "VinFast": 16172.0,
-      "Hyundai (Thanh Cong)": 5872
+      "Hyundai (Thanh Cong)": 5872,
+      "Others": 12943
     },
     "total_market": 51818.0,
     "vamaIndustryTotal": 36875
@@ -671,14 +560,11 @@
     "month": 2,
     "brands": {
       "Toyota": 3890,
-      "Ford": 2473,
-      "Mitsubishi": 1784,
       "Honda (car)": 1052,
-      "Peugeot": 98,
       "Thaco (total)": 5037,
-      "Others (VAMA)": 1331,
       "VinFast": 9903.0,
-      "Hyundai (Thanh Cong)": 3080
+      "Hyundai (Thanh Cong)": 3080,
+      "Others": 5686
     },
     "total_market": 28648.0,
     "vamaIndustryTotal": 19278
@@ -689,14 +575,11 @@
     "month": 3,
     "brands": {
       "Toyota": 8143,
-      "Ford": 4538,
-      "Mitsubishi": 5086,
       "Honda (car)": 1839,
-      "Peugeot": 103,
       "Thaco (total)": 8787,
-      "Others (VAMA)": 2855,
       "VinFast": 27609.0,
-      "Hyundai (Thanh Cong)": 4546
+      "Hyundai (Thanh Cong)": 4546,
+      "Others": 12582
     },
     "total_market": 63506.0,
     "vamaIndustryTotal": 38704
@@ -707,14 +590,11 @@
     "month": 4,
     "brands": {
       "Toyota": 6378,
-      "Ford": 2866,
-      "Mitsubishi": 3439,
       "Honda (car)": 1830,
-      "Peugeot": 72,
       "Thaco (total)": 7756,
-      "Others (VAMA)": 2138,
       "VinFast": 24774.0,
-      "Hyundai (Thanh Cong)": 3904
+      "Hyundai (Thanh Cong)": 3904,
+      "Others": 8515
     },
     "total_market": 53157.0,
     "vamaIndustryTotal": 31937
@@ -725,14 +605,11 @@
     "month": 5,
     "brands": {
       "Toyota": 5653,
-      "Ford": 3493,
-      "Mitsubishi": 3111,
       "Honda (car)": 1870,
-      "Peugeot": 84,
       "Thaco (total)": 7341,
-      "Others (VAMA)": 2584,
       "VinFast": 19503.0,
-      "Hyundai (Thanh Cong)": 3921
+      "Hyundai (Thanh Cong)": 3921,
+      "Others": 9272
     },
     "total_market": 47560.0,
     "vamaIndustryTotal": 29935
@@ -743,14 +620,11 @@
     "month": 6,
     "brands": {
       "Toyota": 6494,
-      "Ford": 2741,
-      "Mitsubishi": 3158,
       "Honda (car)": 2002,
-      "Peugeot": 122,
       "Thaco (total)": 7365,
-      "Others (VAMA)": 2474,
       "VinFast": 17955.0,
-      "Hyundai (Thanh Cong)": 3746
+      "Hyundai (Thanh Cong)": 3746,
+      "Others": 8495
     },
     "total_market": 46057.0,
     "vamaIndustryTotal": 31104
@@ -761,14 +635,11 @@
     "month": 7,
     "brands": {
       "Toyota": 6866,
-      "Ford": 3129,
-      "Mitsubishi": 3216,
       "Honda (car)": 2129,
-      "Peugeot": 131,
       "Thaco (total)": 7505,
-      "Others (VAMA)": 2270,
       "VinFast": 21781.0,
-      "Hyundai (Thanh Cong)": 3543
+      "Hyundai (Thanh Cong)": 3543,
+      "Others": 8746
     },
     "total_market": 50570.0,
     "vamaIndustryTotal": 33707
@@ -779,14 +650,11 @@
     "month": 8,
     "brands": {
       "Toyota": 4767,
-      "Ford": 2242,
-      "Mitsubishi": 3209,
       "Honda (car)": 1001,
-      "Peugeot": 82,
       "Thaco (total)": 5983,
-      "Others (VAMA)": 1607,
       "VinFast": 20161.0,
-      "Hyundai (Thanh Cong)": 2928
+      "Hyundai (Thanh Cong)": 2928,
+      "Others": 7140
     },
     "total_market": 41980.0,
     "vamaIndustryTotal": 25395
