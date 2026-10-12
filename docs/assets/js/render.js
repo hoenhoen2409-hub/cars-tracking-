@@ -1158,12 +1158,29 @@ function buildMonthlyBrief(cars, segments) {
   };
 }
 
-function renderMonthlyBrief(containerEl, cars, segments) {
+// One line on Honda Vietnam motorbikes for the brief's month, plus the
+// quarter on quarter-end months.
+function buildMotoComment(motos, P) {
+  const by = Object.fromEntries(motos.map((r) => [r.period, r.sales]));
+  const m = momYoy(by, P);
+  if (m.value == null) return null;
+  let s = `Honda Vietnam motorbike sales ${dirVerb(m.yoy)} ${pair(m.yoy, m.mom, "MoM")}`;
+  const pm = Number(P.split("-")[1]);
+  if (pm % 3 === 0) {
+    const qs = (end) => sumOver(by, [shiftPeriod(end, -2), shiftPeriod(end, -1), end]);
+    const q = qs(P);
+    if (q != null) s += `, taking Q${pm / 3} to (${sgn(pctChange(q, qs(shiftPeriod(P, -12))))} YoY, ${sgn(pctChange(q, qs(shiftPeriod(P, -3))))} QoQ)`;
+  }
+  return `${s}.`;
+}
+
+function renderMonthlyBrief(containerEl, cars, segments, motos = []) {
   const brief = buildMonthlyBrief(cars, segments);
   if (!brief) {
     containerEl.innerHTML = `<p class="muted">Not enough data for the latest month yet.</p>`;
     return;
   }
+  const motoText = buildMotoComment(motos, brief.period);
   const withQ = brief.quarter != null;
   const cols = withQ ? 4 : 3;
   const pctCell = (pct) => {
@@ -1192,6 +1209,7 @@ function renderMonthlyBrief(containerEl, cars, segments) {
     <div class="dd-narrative brief-body">
       <p><strong>${escapeHtml(fmtPeriodLabel(brief.period))}.</strong> ${escapeHtml(brief.monthText)}</p>
       ${brief.quarter && brief.quarter.text ? `<p><strong>${escapeHtml(brief.quarter.label)}.</strong> ${escapeHtml(brief.quarter.text)}</p>` : ""}
+      ${motoText ? `<p><strong>Motorbikes.</strong> ${escapeHtml(motoText)}</p>` : ""}
     </div>
     <p class="muted brief-note">PC (household consumption) = VAMA whole-market passenger cars (members + CBU importers) + Hyundai TC passenger cars (+ VinFast where included). CV (industrial consumption) = VAMA whole-market commercial vehicles. Total auto = PC + CV + special-purpose vehicles (small). Demand read is rule-based (ex-VinFast PC YoY ≥ +5% healthy, ±5% subdued, ≤ −5% weak); seasonal norm = 3-year average change for the same month/quarter.</p>`;
 }
