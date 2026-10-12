@@ -907,7 +907,8 @@ function ytdYoyItem(title, ytd, { worstNote = "" } = {}) {
 // TC passenger cars (segments.passenger_cars_incl_hyundai); CV = VAMA
 // whole-market commercial vehicles; Total = carTotalIndustry. Anchored on
 // the latest month present in BOTH cars and segments.
-const LEGACY_BRANDS = ["Toyota", "Honda (car)", "Hyundai (Thanh Cong)"];
+// Key PV brands commented on, in this order.
+const BRIEF_PV_BRANDS = ["Toyota", "Hyundai (Thanh Cong)", "Honda (car)", "VinFast"];
 
 function shortBrand(label) {
   return label.replace(" (car)", "").replace(" (Thanh Cong)", "").replace(" (total)", "");
@@ -941,13 +942,6 @@ function momYoy(byPeriod, period) {
   };
 }
 
-function demandWord(pct) {
-  if (pct == null) return null;
-  if (pct >= 5) return "firm";
-  if (pct > -5) return "flat";
-  return "soft";
-}
-
 // Total industry split into additive components, so a month's change can be
 // attributed: every component's delta sums to the total's delta.
 function industryComponents(row) {
@@ -970,14 +964,8 @@ function industryComponents(row) {
   return Object.values(comps).some((v) => v == null) ? null : comps;
 }
 
-// [{name, pp}] sorted by contribution, pp = component delta / prior total.
-function contributions(curRow, priorRow) {
-  if (!curRow || !priorRow) return null;
-  return contributionsFrom(industryComponents(curRow), industryComponents(priorRow));
-}
-
-// Components sum to total industry incl. VinFast, so the prior total is
-// just the sum of the prior components.
+// [{name, pp}] sorted by contribution. Components sum to the total, so the
+// prior total is just the sum of the prior components.
 function contributionsFrom(cur, prior) {
   if (!cur || !prior) return null;
   const priorTotal = Object.values(prior).reduce((a, v) => a + v, 0);
@@ -1002,112 +990,141 @@ function sumOver(byPeriod, periods) {
   return vals.some((v) => v == null) ? null : vals.reduce((a, v) => a + v, 0);
 }
 
-function listNames(items) {
-  const parts = items.map((c) => `${c.name} (${c.pp >= 0 ? "+" : "−"}${ppR(c.pp)})`);
-  return parts.length > 1 ? `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}` : parts[0];
+// Brief comment, one line per topic in a fixed order:
+// Total market -> Excl. VinFast -> PV (implying CV) -> key PV brands ->
+// demand view (ex-VinFast, with seasonality). Each line is one sentence
+// carrying both YoY and the period change (MoM, or QoQ for quarters).
+
+// Calendar-month context for the seasonality sentence (VN auto market).
+const SEASON_NOTE = {
+  1: "ahead of Tet",
+  2: "around the Tet holiday",
+  3: "after Tet",
+  8: "around Ghost Month",
+  9: "around Ghost Month",
+  12: "at the year-end push",
+};
+
+function verb(p) {
+  return p >= 0 ? "rose" : "fell";
 }
 
-// PV vs CV clause for a period whose two segments diverge by >= 10pp.
-function segmentSplitClause(pv, cv) {
-  if (cv > pv) {
-    return cv > 0
-      ? `, but this was carried by CV (${pctR(cv)}) while passenger demand stayed ${demandWord(pv)} (${pctR(pv)})`
-      : `, with CV (${pctR(cv)}) holding up better than passenger cars (${pctR(pv)})`;
-  }
-  return pv > 0
-    ? `, led by passenger cars (${pctR(pv)}) while CV lagged (${pctR(cv)})`
-    : `, with passenger cars (${pctR(pv)}) holding up better than CV (${pctR(cv)})`;
+// "rose 28% YoY and 29% MoM" / "fell 1% YoY but rose 45% MoM" / "was flat YoY and ...".
+// `be` is "was" for a brand subject, "were" for plural ones ("sales").
+function movePhrase(yoy, chg, chgLabel, be = "was") {
+  const flat = (p) => p != null && Math.round(p) === 0;
+  const one = (p, lbl) => (flat(p) ? `${be} flat ${lbl}` : `${verb(p)} ${pctAbs(p)} ${lbl}`);
+  if (yoy == null && chg == null) return "had no comparable data";
+  if (chg == null) return one(yoy, "YoY");
+  if (yoy == null) return one(chg, chgLabel);
+  if (flat(yoy) && flat(chg)) return `${be} flat YoY and ${chgLabel}`;
+  if (flat(yoy)) return `${be} flat YoY but ${one(chg, chgLabel)}`;
+  if (flat(chg)) return `${one(yoy, "YoY")} and ${be} flat ${chgLabel}`;
+  return (yoy >= 0) === (chg >= 0)
+    ? `${verb(yoy)} ${pctAbs(yoy)} YoY and ${pctAbs(chg)} ${chgLabel}`
+    : `${verb(yoy)} ${pctAbs(yoy)} YoY but ${verb(chg)} ${pctAbs(chg)} ${chgLabel}`;
 }
 
-// Quarter-end months (Mar/Jun/Sep/Dec) also get a quarter paragraph:
-// quarter YoY and QoQ, incl./excl. VinFast, PV vs CV, and the drivers.
-function buildQuarterComment({ q, legacy }) {
-  const out = [];
-  const { totIn, totEx, pvEx, cv, yoyC, qoqC } = q;
-  if (totIn.yoy != null) {
-    const vf = yoyC && yoyC.find((c) => c.name === "VinFast");
-    let s = `Total sales ${totIn.yoy >= 0 ? "rose" : "fell"} ${pctAbs(totIn.yoy)} YoY`;
-    if (totIn.qoq != null) s += ` (${pctR(totIn.qoq)} QoQ)`;
-    if (totIn.yoy > 0 && vf && vf.pp >= totIn.yoy * 0.5) {
-      s += `, with VinFast contributing ${ppR(vf.pp)} of the growth`;
-    } else if (yoyC) {
-      const movers = totIn.yoy >= 0 ? yoyC.filter((c) => c.pp > 0).slice(0, 2) : [...yoyC].reverse().filter((c) => c.pp < 0).slice(0, 2);
-      if (movers.length) s += `, ${totIn.yoy >= 0 ? "led" : "dragged"} by ${listNames(movers)}`;
-    }
-    out.push(`${s}.`);
-  }
-  if (totEx.yoy != null) {
-    let s = `Ex-VinFast, the quarter was ${totEx.yoy >= 0 ? "up" : "down"} ${pctAbs(totEx.yoy)} YoY`;
-    if (cv.yoy != null && pvEx.yoy != null && Math.abs(cv.yoy - pvEx.yoy) >= 10) s += segmentSplitClause(pvEx.yoy, cv.yoy);
-    else if (pvEx.yoy != null) s += `, with passenger demand ${demandWord(pvEx.yoy)} (${pctR(pvEx.yoy)})`;
-    if (qoqC && totIn.qoq != null) {
-      const movers = totIn.qoq >= 0 ? qoqC.filter((c) => c.pp > 0).slice(0, 2) : [...qoqC].reverse().filter((c) => c.pp < 0).slice(0, 2);
-      if (movers.length) s += `; QoQ ${totIn.qoq >= 0 ? "gains" : "declines"} came mainly from ${listNames(movers)}`;
-    }
-    out.push(`${s}.`);
-  }
-  const ranked = legacy.filter((b) => b.yoy != null).sort((a, b) => b.yoy - a.yoy);
-  if (ranked.length) out.push(`Legacy brands for the quarter: ${ranked.map((b) => `${b.name} ${pctR(b.yoy)}`).join(", ")} YoY.`);
-  return out.join(" ");
+// "healthy" / "subdued" / "weak", read off ex-VinFast passenger-car YoY.
+function demandVerdict(pct) {
+  if (pct == null) return null;
+  if (pct >= 5) return "healthy";
+  if (pct > -5) return "subdued";
+  return "weak";
 }
 
-function buildBriefComment({ P, totIn, totEx, pvEx, cv, yoyC, momC, brandYoy }) {
-  const out = [];
-  const prevLabel = MONTH_LONG[Number(shiftPeriod(P, -1).split("-")[1]) - 1];
+// Average change over `lag` months for the same calendar slot in the prior
+// `years` years (needs >= 2 years), from a period -> value getter.
+function seasonalNorm(get, period, lag, years = 3) {
+  const pcts = [];
+  for (let k = 1; k <= years; k++) {
+    const p = shiftPeriod(period, -12 * k);
+    const pct = pctChange(get(p), get(shiftPeriod(p, -lag)));
+    if (pct != null) pcts.push(pct);
+  }
+  return pcts.length >= 2 ? { avg: pcts.reduce((a, v) => a + v, 0) / pcts.length, n: pcts.length } : null;
+}
 
-  // 1) Headline YoY and who drove it.
-  if (totIn.yoy != null && yoyC) {
-    const vf = yoyC.find((c) => c.name === "VinFast");
-    const dir = totIn.yoy >= 0 ? "rose" : "fell";
-    if (totIn.yoy > 0 && vf && vf.pp >= totIn.yoy * 0.5) {
-      out.push(`Growth remains VinFast-led: total sales ${dir} ${pctAbs(totIn.yoy)} YoY, of which VinFast alone contributed ${ppR(vf.pp)}.`);
-    } else {
-      const movers = totIn.yoy >= 0 ? yoyC.filter((c) => c.pp > 0).slice(0, 2) : [...yoyC].reverse().filter((c) => c.pp < 0).slice(0, 2);
-      out.push(`Total sales ${dir} ${pctAbs(totIn.yoy)} YoY${movers.length ? `, ${totIn.yoy >= 0 ? "led" : "dragged"} by ${listNames(movers)}` : ""}.`);
+// Contributions with VinFast taken out, so pp are of the ex-VinFast total.
+function exVfContributions(cur, prior) {
+  if (!cur || !prior) return null;
+  const strip = (c) => Object.fromEntries(Object.entries(c).filter(([k]) => k !== "VinFast"));
+  return contributionsFrom(strip(cur), strip(prior));
+}
+
+function joinAnd(items) {
+  return items.length > 1 ? `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}` : items[0] || "";
+}
+
+function brandLine(b, chgLabel) {
+  const share = b.share != null ? `${b.share.toFixed(1)}%` : null;
+  const chg = b.shareChg != null ? `${b.shareChg >= 0 ? "+" : "−"}${Math.abs(b.shareChg).toFixed(1)}pp YoY` : null;
+  const move = movePhrase(b.yoy, b.chg, chgLabel);
+  if (b.name === "VinFast") return `VinFast ${move}${share ? `, taking its market share to ${share}${chg ? ` (${chg})` : ""}` : ""}.`;
+  return `${b.name} ${move}${share ? ` (share ${share}${chg ? `, ${chg}` : ""})` : ""}.`;
+}
+
+// Shared demand sentence: verdict on ex-VF PV, why (legacy brands, CV, top
+// ex-VF contributors), then how the period change compares with seasonality.
+function demandLine({ periodWord, pvExYoy, ytdPct, legacy, cvYoy, exC, season }) {
+  const verdict = demandVerdict(pvExYoy);
+  if (!verdict) return null;
+  let s = `Ex-VinFast passenger demand ${periodWord === "quarter" ? "was" : "remains"} ${verdict}: ${pctR(pvExYoy)} YoY${ytdPct == null ? "" : Math.round(ytdPct) === 0 ? " (flat YTD)" : ` (${pctR(ytdPct)} YTD)`}`;
+  const down = legacy.filter((b) => b.yoy != null && b.yoy < 0).map((b) => b.name);
+  const why = [];
+  if (down.length) why.push(`${joinAnd(down)} ${down.length === legacy.length ? "all " : ""}down YoY`);
+  const up = (exC || []).filter((c) => c.pp >= 1).slice(0, 2);
+  const cvLed = cvYoy != null && cvYoy - pvExYoy >= 10;
+  if (up.length || cvLed) {
+    const src = [...up.map((c) => `${c.name} (+${ppR(c.pp)})`), ...(cvLed ? [`CV (${pctR(cvYoy)} YoY)`] : [])];
+    why.push(`growth coming mainly from ${joinAnd(src)}`);
+  }
+  if (why.length) s += `, with ${why.join(" and ")}`;
+  s += ".";
+
+  if (season) {
+    const { chg, norm, label, chgLabel, note, prev, two } = season;
+    if (chg != null && norm) {
+      const diff = chg - norm.avg;
+      const normTxt = `${norm.n}-yr avg ${pctR(norm.avg)}`;
+      const ctx = note ? ` ${note}` : "";
+      const lead = ` Ex-VinFast sales ${Math.round(chg) === 0 ? "were flat" : `${verb(chg)} ${pctAbs(chg)}`} ${chgLabel}`;
+      if (Math.abs(diff) < 8) {
+        s += `${lead}, in line with the usual ${label} pattern${ctx} (${normTxt}).`;
+      } else {
+        s += `${lead}, ${diff > 0 ? "stronger" : "weaker"} than the usual ${label} pattern${ctx} (${normTxt})`;
+        // A strong rebound after an unusually weak prior period (or vice versa) is mostly catch-up.
+        if (prev && prev.norm && prev.chg != null && (prev.chg - prev.norm.avg) * diff < 0 && Math.abs(prev.chg - prev.norm.avg) >= 8) {
+          s += `, but this largely ${diff > 0 ? "offsets an unusually weak" : "gives back an unusually strong"} ${prev.label} (${pctR(prev.chg)} vs avg ${pctR(prev.norm.avg)})`;
+          if (two && two.norm && two.chg != null) {
+            const tag = two.chg < two.norm.avg - 3 ? "still below" : two.chg > two.norm.avg + 3 ? "above" : "in line with";
+            s += `; across both ${chgLabel === "MoM" ? "months" : "quarters"} ex-VinFast volume is ${pctR(two.chg)} vs a typical ${pctR(two.norm.avg)}, ${tag} seasonal norms`;
+          }
+        }
+        s += ".";
+      }
     }
   }
+  return s;
+}
 
-  // 2) Underlying (ex-VinFast) demand: PV vs CV, and where ex-VF growth came from.
-  if (totEx.yoy != null) {
-    let s = `Excluding VinFast, the market ${totEx.yoy >= 0 ? "grew" : "declined"} ${pctAbs(totEx.yoy)} YoY`;
-    if (cv.yoy != null && pvEx.yoy != null && Math.abs(cv.yoy - pvEx.yoy) >= 10) {
-      s += segmentSplitClause(pvEx.yoy, cv.yoy);
-    } else if (pvEx.yoy != null) {
-      s += `, with passenger demand ${demandWord(pvEx.yoy)} (${pctR(pvEx.yoy)})`;
-    }
-    const exVf = yoyC ? yoyC.filter((c) => c.name !== "VinFast") : [];
-    const topExVf = exVf[0];
-    if (topExVf && topExVf.pp > 0 && topExVf.name === "non-VAMA CBU importers") {
-      s += `; non-VAMA CBU importers were the largest ex-VinFast contributor (+${ppR(topExVf.pp)}), outgrowing VAMA members`;
-    }
-    out.push(`${s}.`);
-  }
-
-  // 3) Legacy brands: who held up, who lost share.
-  const ranked = brandYoy.filter((b) => b.yoy != null).sort((a, b) => b.yoy - a.yoy);
-  if (ranked.length >= 2) {
-    const best = ranked[0];
-    const losers = ranked.slice(1).filter((b) => b.shareChg != null && b.shareChg <= -0.5);
-    const bestTxt = `${best.name} (${pctR(best.yoy)} YoY) held up best among legacy brands`;
-    out.push(
-      losers.length
-        ? `${bestTxt}, while ${losers.map((b) => `${b.name} (${pctR(b.yoy)})`).join(" and ")} lost share.`
-        : `${bestTxt}.`
-    );
-  }
-
-  // 4) MoM: what moved the month, and whether it means anything for demand.
-  if (totIn.mom != null && momC) {
-    const movers = totIn.mom >= 0 ? momC.filter((c) => c.pp > 0).slice(0, 3) : [...momC].reverse().filter((c) => c.pp < 0).slice(0, 3);
-    let s = `MoM, sales ${totIn.mom >= 0 ? "rose" : "declined"} ${pctAbs(totIn.mom)}${movers.length ? `, driven by ${listNames(movers)}` : ""}`;
-    if (Math.abs(totIn.mom) >= 15 && pvEx.yoy != null && Math.abs(pvEx.yoy) < 5) {
-      s += totIn.mom > 0
-        ? ` — a recovery from a weak ${prevLabel} rather than a demand inflection, given flat ex-VinFast passenger demand YoY`
-        : ` — likely timing rather than a demand break, given ex-VinFast passenger demand is flat YoY`;
-    }
-    out.push(`${s}.`);
-  }
-  return out.join(" ");
+function buildBriefLines({ chgLabel, periodWord, totIn, totEx, pvIn, pvEx, cv, brands, demand }) {
+  const k = chgLabel === "MoM" ? "mom" : "qoq";
+  const lines = [];
+  lines.push({ label: "Total market", text: `Total market sales ${movePhrase(totIn.yoy, totIn[k], chgLabel, "were")}.` });
+  lines.push({ label: "Excl. VinFast", text: `Excluding VinFast, sales ${movePhrase(totEx.yoy, totEx[k], chgLabel, "were")}.` });
+  lines.push({
+    label: "PV / CV",
+    text:
+      `Passenger vehicles ${movePhrase(pvIn.yoy, pvIn[k], chgLabel, "were")}` +
+      (pvEx.yoy != null ? ` (excl. VinFast: ${pctR(pvEx.yoy)} YoY, ${pctR(pvEx[k])} ${chgLabel})` : "") +
+      `, implying commercial vehicles ${movePhrase(cv.yoy, cv[k], chgLabel, "were")}.`,
+  });
+  const brandTxt = brands.filter((b) => b.yoy != null || b.chg != null).map((b) => brandLine(b, chgLabel));
+  if (brandTxt.length) lines.push({ label: "Key PV brands", text: brandTxt.join(" ") });
+  const d = demandLine(demand);
+  if (d) lines.push({ label: "Demand view", text: d });
+  return lines;
 }
 
 function buildMonthlyBrief(cars, segments) {
@@ -1115,6 +1132,7 @@ function buildMonthlyBrief(cars, segments) {
   const carRow = [...cars].reverse().find((r) => segPeriods.has(r.period) && entryValue(carTotalIndustry(r)) != null);
   if (!carRow) return null;
   const P = carRow.period;
+  const [py, pm] = P.split("-").map(Number);
   const carBy = Object.fromEntries(cars.map((r) => [r.period, r]));
 
   const vfBy = Object.fromEntries(cars.map((r) => [r.period, r.brands["VinFast"]]));
@@ -1125,66 +1143,113 @@ function buildMonthlyBrief(cars, segments) {
     segments.map((r) => [r.period, r.passenger_cars_incl_hyundai != null && vfBy[r.period] != null ? r.passenger_cars_incl_hyundai + vfBy[r.period] : null])
   );
   const cvBy = Object.fromEntries(segments.map((r) => [r.period, r.commercial_vehicles]));
+  const brandBy = Object.fromEntries(BRIEF_PV_BRANDS.map((label) => [label, Object.fromEntries(cars.map((r) => [r.period, r.brands[label]]))]));
 
+  // ---- month
   const totIn = momYoy(totalInclBy, P);
   const totEx = momYoy(totalExBy, P);
   const pvIn = momYoy(pvInclBy, P);
   const pvEx = momYoy(pvExBy, P);
   const cv = momYoy(cvBy, P);
-
-  const yoyC = contributions(carRow, carBy[shiftPeriod(P, -12)]);
-  const momC = contributions(carRow, carBy[shiftPeriod(P, -1)]);
-
   const P12 = shiftPeriod(P, -12);
-  const brandYoy = LEGACY_BRANDS.map((label) => {
-    const by = Object.fromEntries(cars.map((r) => [r.period, r.brands[label]]));
+  const brands = BRIEF_PV_BRANDS.map((label) => {
+    const by = brandBy[label];
     const m = momYoy(by, P);
-    const share = m.value != null && totIn.value ? m.value / totIn.value : null;
-    const priorShare = by[P12] != null && totalInclBy[P12] ? by[P12] / totalInclBy[P12] : null;
-    return { name: shortBrand(label), yoy: m.yoy, shareChg: share != null && priorShare != null ? (share - priorShare) * 100 : null };
+    const share = m.value != null && totIn.value ? (m.value / totIn.value) * 100 : null;
+    const prior = by[P12] != null && totalInclBy[P12] ? (by[P12] / totalInclBy[P12]) * 100 : null;
+    return { name: shortBrand(label), yoy: m.yoy, chg: m.mom, share, shareChg: share != null && prior != null ? share - prior : null };
+  });
+  const legacy = brands.filter((b) => b.name !== "VinFast");
+  const getEx = (p) => totalExBy[p];
+  const prevP = shiftPeriod(P, -1);
+  const monthLines = buildBriefLines({
+    chgLabel: "MoM",
+    periodWord: "month",
+    totIn, totEx, pvIn, pvEx, cv, brands,
+    demand: {
+      periodWord: "month",
+      pvExYoy: pvEx.yoy,
+      ytdPct: (fairYtdYoy(pvExBy, P) || {}).pct,
+      legacy,
+      cvYoy: cv.yoy,
+      exC: exVfContributions(industryComponents(carRow), carBy[P12] && industryComponents(carBy[P12])),
+      season: {
+        chg: totEx.mom,
+        norm: seasonalNorm(getEx, P, 1),
+        label: MONTH_LONG[pm - 1],
+        chgLabel: "MoM",
+        note: SEASON_NOTE[pm],
+        prev: { chg: pctChange(totalExBy[prevP], totalExBy[shiftPeriod(P, -2)]), norm: seasonalNorm(getEx, prevP, 1), label: MONTH_LONG[Number(prevP.split("-")[1]) - 1] },
+        two: { chg: pctChange(totalExBy[P], totalExBy[shiftPeriod(P, -2)]), norm: seasonalNorm(getEx, P, 2) },
+      },
+    },
   });
 
-  // Quarter paragraph, only on quarter-end months.
-  let quarterComment = null;
-  let qYoy = null;
-  const [py, pm] = P.split("-").map(Number);
+  // ---- quarter (quarter-end months only)
+  let quarter = null;
   if (pm % 3 === 0) {
-    const Q = [shiftPeriod(P, -2), shiftPeriod(P, -1), P];
-    const Qp = Q.map((p) => shiftPeriod(p, -3));
-    const Qy = Q.map((p) => shiftPeriod(p, -12));
+    const qPeriods = (end) => [shiftPeriod(end, -2), shiftPeriod(end, -1), end];
+    const qSum = (by) => (end) => sumOver(by, qPeriods(end));
     const qm = (by) => {
-      const v = sumOver(by, Q);
-      return { value: v, qoq: pctChange(v, sumOver(by, Qp)), yoy: pctChange(v, sumOver(by, Qy)) };
+      const get = qSum(by);
+      const v = get(P);
+      return { value: v, qoq: pctChange(v, get(shiftPeriod(P, -3))), yoy: pctChange(v, get(P12)) };
     };
-    const comps = (ps) => sumComponents(ps.map((p) => carBy[p]));
-    const q = {
-      pvIn: qm(pvInclBy),
-      totIn: qm(totalInclBy),
-      totEx: qm(totalExBy),
-      pvEx: qm(pvExBy),
-      cv: qm(cvBy),
-      yoyC: contributionsFrom(comps(Q), comps(Qy)),
-      qoqC: contributionsFrom(comps(Q), comps(Qp)),
-    };
-    const legacy = LEGACY_BRANDS.map((label) => {
-      const by = Object.fromEntries(cars.map((r) => [r.period, r.brands[label]]));
-      return { name: shortBrand(label), yoy: qm(by).yoy };
+    const comps = (end) => sumComponents(qPeriods(end).map((p) => carBy[p]));
+    const qTotIn = qm(totalInclBy);
+    const qBrands = BRIEF_PV_BRANDS.map((label) => {
+      const get = qSum(brandBy[label]);
+      const m = qm(brandBy[label]);
+      const share = m.value != null && qTotIn.value ? (m.value / qTotIn.value) * 100 : null;
+      const priorTot = qSum(totalInclBy)(P12);
+      const prior = get(P12) != null && priorTot ? (get(P12) / priorTot) * 100 : null;
+      return { name: shortBrand(label), yoy: m.yoy, chg: m.qoq, share, shareChg: share != null && prior != null ? share - prior : null };
     });
-    quarterComment = { label: `Q${pm / 3} ${py}`, text: buildQuarterComment({ q, legacy }) };
-    qYoy = { label: `Q${pm / 3}`, totIn: q.totIn.yoy, totEx: q.totEx.yoy, pvIn: q.pvIn.yoy, pvEx: q.pvEx.yoy, cv: q.cv.yoy };
+    const getExQ = qSum(totalExBy);
+    const prevQ = shiftPeriod(P, -3);
+    const qLabel = `Q${pm / 3}`;
+    const prevQLabel = `Q${Number(prevQ.split("-")[1]) / 3}`;
+    const q = { totIn: qTotIn, totEx: qm(totalExBy), pvIn: qm(pvInclBy), pvEx: qm(pvExBy), cv: qm(cvBy) };
+    quarter = {
+      label: `${qLabel} ${py}`,
+      short: qLabel,
+      yoy: { totIn: q.totIn.yoy, totEx: q.totEx.yoy, pvIn: q.pvIn.yoy, pvEx: q.pvEx.yoy, cv: q.cv.yoy },
+      lines: buildBriefLines({
+        chgLabel: "QoQ",
+        periodWord: "quarter",
+        ...q,
+        brands: qBrands,
+        demand: {
+          periodWord: "quarter",
+          pvExYoy: q.pvEx.yoy,
+          ytdPct: null,
+          legacy: qBrands.filter((b) => b.name !== "VinFast"),
+          cvYoy: q.cv.yoy,
+          exC: exVfContributions(comps(P), comps(P12)),
+          season: {
+            chg: q.totEx.qoq,
+            norm: seasonalNorm(getExQ, P, 3),
+            label: qLabel,
+            chgLabel: "QoQ",
+            note: null,
+            prev: { chg: pctChange(getExQ(prevQ), getExQ(shiftPeriod(prevQ, -3))), norm: seasonalNorm(getExQ, prevQ, 3), label: prevQLabel },
+            two: null,
+          },
+        },
+      }),
+    };
   }
 
   return {
     period: P,
-    quarterComment,
+    quarter,
     // Rows x (incl. | excl. VinFast); VinFast sells no CV, so CV has no excl. split.
-    qLabel: qYoy ? qYoy.label : null,
     rows: [
-      { label: "Total industry", incl: { ...totIn, q: qYoy && qYoy.totIn }, ex: { ...totEx, q: qYoy && qYoy.totEx } },
-      { label: "Passenger vehicles", incl: { ...pvIn, q: qYoy && qYoy.pvIn }, ex: { ...pvEx, q: qYoy && qYoy.pvEx } },
-      { label: "Commercial vehicles", incl: { ...cv, q: qYoy && qYoy.cv }, ex: null },
+      { label: "Total industry", incl: { ...totIn, q: quarter && quarter.yoy.totIn }, ex: { ...totEx, q: quarter && quarter.yoy.totEx } },
+      { label: "Passenger vehicles", incl: { ...pvIn, q: quarter && quarter.yoy.pvIn }, ex: { ...pvEx, q: quarter && quarter.yoy.pvEx } },
+      { label: "Commercial vehicles", incl: { ...cv, q: quarter && quarter.yoy.cv }, ex: null },
     ],
-    comment: buildBriefComment({ P, totIn, totEx, pvEx, cv, yoyC, momC, brandYoy }),
+    monthLines,
   };
 }
 
@@ -1194,7 +1259,7 @@ function renderMonthlyBrief(containerEl, cars, segments) {
     containerEl.innerHTML = `<p class="muted">Not enough data for the latest month yet.</p>`;
     return;
   }
-  const withQ = brief.qLabel != null;
+  const withQ = brief.quarter != null;
   const cols = withQ ? 4 : 3;
   const pctCell = (pct) => {
     const dir = pct == null ? "flat" : pct >= 0 ? "up" : "down";
@@ -1204,10 +1269,15 @@ function renderMonthlyBrief(containerEl, cars, segments) {
     m
       ? `<td class="brief-units">${fmtInt(m.value)}</td>${pctCell(m.mom)}${pctCell(m.yoy)}${withQ ? pctCell(m.q) : ""}`
       : `<td colspan="${cols}" class="brief-na">n/a — VinFast sells no CVs</td>`;
-  const subHead = `<th class="grp-start">Units</th><th>MoM</th><th>YoY</th>${withQ ? `<th>${escapeHtml(brief.qLabel)} YoY</th>` : ""}`;
+  const subHead = `<th class="grp-start">Units</th><th>MoM</th><th>YoY</th>${withQ ? `<th>${escapeHtml(brief.quarter.short)} YoY</th>` : ""}`;
   const rows = brief.rows
     .map((r) => `<tr><td class="ta-left brief-row">${escapeHtml(r.label)}</td>${group(r.incl)}${group(r.ex)}</tr>`)
     .join("");
+  const block = (title, lines) => `
+    <div class="brief-block">
+      <div class="brief-block-title">${escapeHtml(title)}</div>
+      ${lines.map((l) => `<div class="brief-line"><span class="bl-lbl">${escapeHtml(l.label)}</span><span class="bl-txt">${escapeHtml(l.text)}</span></div>`).join("")}
+    </div>`;
   containerEl.innerHTML = `
     <div class="brief-head"><span class="eyebrow">Monthly brief · ${escapeHtml(fmtPeriodLabel(brief.period))}</span></div>
     <div class="table-wrap">
@@ -1220,10 +1290,10 @@ function renderMonthlyBrief(containerEl, cars, segments) {
       </table>
     </div>
     <div class="dd-narrative brief-body">
-      <p><strong>${escapeHtml(fmtPeriodLabel(brief.period))}.</strong> ${escapeHtml(brief.comment)}</p>
-      ${brief.quarterComment && brief.quarterComment.text ? `<p><strong>${escapeHtml(brief.quarterComment.label)}.</strong> ${escapeHtml(brief.quarterComment.text)}</p>` : ""}
+      ${block(fmtPeriodLabel(brief.period), brief.monthLines)}
+      ${brief.quarter ? block(brief.quarter.label, brief.quarter.lines) : ""}
     </div>
-    <p class="muted brief-note">PV = VAMA whole-market passenger cars (members + CBU importers) + Hyundai TC passenger cars; CV = VAMA whole-market commercial vehicles. Brand contributions (pp) = change in units / prior-period total industry incl. VinFast. Comment is generated from the data with fixed rules.</p>`;
+    <p class="muted brief-note">PV = VAMA whole-market passenger cars (members + CBU importers) + Hyundai TC passenger cars; CV = VAMA whole-market commercial vehicles; market share is of total industry incl. VinFast. Demand view is rule-based: ex-VinFast PV YoY ≥ +5% healthy, ±5% subdued, ≤ −5% weak; seasonal norms = average change for the same month/quarter over the prior 3 years; contributions (pp) are of the prior-period ex-VinFast total.</p>`;
 }
 
 function roseFell(pct) {
