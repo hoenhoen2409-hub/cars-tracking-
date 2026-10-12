@@ -1146,6 +1146,7 @@ function buildMonthlyBrief(cars, segments) {
 
   // Quarter paragraph, only on quarter-end months.
   let quarterComment = null;
+  let qYoy = null;
   const [py, pm] = P.split("-").map(Number);
   if (pm % 3 === 0) {
     const Q = [shiftPeriod(P, -2), shiftPeriod(P, -1), P];
@@ -1157,6 +1158,7 @@ function buildMonthlyBrief(cars, segments) {
     };
     const comps = (ps) => sumComponents(ps.map((p) => carBy[p]));
     const q = {
+      pvIn: qm(pvInclBy),
       totIn: qm(totalInclBy),
       totEx: qm(totalExBy),
       pvEx: qm(pvExBy),
@@ -1169,17 +1171,18 @@ function buildMonthlyBrief(cars, segments) {
       return { name: shortBrand(label), yoy: qm(by).yoy };
     });
     quarterComment = { label: `Q${pm / 3} ${py}`, text: buildQuarterComment({ q, legacy }) };
+    qYoy = { label: `Q${pm / 3}`, totIn: q.totIn.yoy, totEx: q.totEx.yoy, pvIn: q.pvIn.yoy, pvEx: q.pvEx.yoy, cv: q.cv.yoy };
   }
 
   return {
     period: P,
     quarterComment,
-    kpis: [
-      { label: "Total industry", sub: "incl. VinFast", ...totIn },
-      { label: "Total industry", sub: "excl. VinFast", ...totEx },
-      { label: "Passenger vehicles", sub: "incl. VinFast", ...pvIn },
-      { label: "Passenger vehicles", sub: "excl. VinFast", ...pvEx },
-      { label: "Commercial vehicles", sub: "VAMA whole market", ...cv },
+    // Rows x (incl. | excl. VinFast); VinFast sells no CV, so CV has no excl. split.
+    qLabel: qYoy ? qYoy.label : null,
+    rows: [
+      { label: "Total industry", incl: { ...totIn, q: qYoy && qYoy.totIn }, ex: { ...totEx, q: qYoy && qYoy.totEx } },
+      { label: "Passenger vehicles", incl: { ...pvIn, q: qYoy && qYoy.pvIn }, ex: { ...pvEx, q: qYoy && qYoy.pvEx } },
+      { label: "Commercial vehicles", incl: { ...cv, q: qYoy && qYoy.cv }, ex: null },
     ],
     comment: buildBriefComment({ P, totIn, totEx, pvEx, cv, yoyC, momC, brandYoy }),
   };
@@ -1191,22 +1194,31 @@ function renderMonthlyBrief(containerEl, cars, segments) {
     containerEl.innerHTML = `<p class="muted">Not enough data for the latest month yet.</p>`;
     return;
   }
-  const pctLine = (lbl, pct) => `<div class="brief-pct"><span class="brief-pct-lbl">${lbl}</span>${pctSpanHtml(pct, { arrows: false })}</div>`;
-  const cards = brief.kpis
-    .map(
-      (k) => `
-      <div class="kpi brief-kpi">
-        <div class="lbl">${escapeHtml(k.label)}</div>
-        <div class="brief-kpi-sub">${escapeHtml(k.sub)}</div>
-        ${pctLine("MoM", k.mom)}
-        ${pctLine("YoY", k.yoy)}
-        <div class="sub">${fmtInt(k.value)} units</div>
-      </div>`
-    )
+  const withQ = brief.qLabel != null;
+  const cols = withQ ? 4 : 3;
+  const pctCell = (pct) => {
+    const dir = pct == null ? "flat" : pct >= 0 ? "up" : "down";
+    return `<td class="pct ${dir}">${pct == null ? "n/a" : (pct >= 0 ? "+" : "−") + Math.abs(pct).toFixed(1) + "%"}</td>`;
+  };
+  const group = (m) =>
+    m
+      ? `<td class="brief-units">${fmtInt(m.value)}</td>${pctCell(m.mom)}${pctCell(m.yoy)}${withQ ? pctCell(m.q) : ""}`
+      : `<td colspan="${cols}" class="brief-na">n/a — VinFast sells no CVs</td>`;
+  const subHead = `<th class="grp-start">Units</th><th>MoM</th><th>YoY</th>${withQ ? `<th>${escapeHtml(brief.qLabel)} YoY</th>` : ""}`;
+  const rows = brief.rows
+    .map((r) => `<tr><td class="ta-left brief-row">${escapeHtml(r.label)}</td>${group(r.incl)}${group(r.ex)}</tr>`)
     .join("");
   containerEl.innerHTML = `
     <div class="brief-head"><span class="eyebrow">Monthly brief · ${escapeHtml(fmtPeriodLabel(brief.period))}</span></div>
-    <div class="kpis kpis-5">${cards}</div>
+    <div class="table-wrap">
+      <table class="table brief-table">
+        <thead>
+          <tr><th class="ta-left" rowspan="2"></th><th colspan="${cols}" class="brief-group">Incl. VinFast</th><th colspan="${cols}" class="brief-group">Excl. VinFast</th></tr>
+          <tr>${subHead}${subHead}</tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
     <div class="dd-narrative brief-body">
       <p><strong>${escapeHtml(fmtPeriodLabel(brief.period))}.</strong> ${escapeHtml(brief.comment)}</p>
       ${brief.quarterComment && brief.quarterComment.text ? `<p><strong>${escapeHtml(brief.quarterComment.label)}.</strong> ${escapeHtml(brief.quarterComment.text)}</p>` : ""}
