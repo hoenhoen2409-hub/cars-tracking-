@@ -53,6 +53,12 @@ def build_cars_json():
                 # Unknown if any part is missing, rather than an understated sum.
                 OTHERS_LABEL: None if r[OTHERS_COLUMNS].isna().any() else clean(r[OTHERS_COLUMNS].sum()),
             },
+            # Not shown as series -- only so the Monthly Brief can name the
+            # brands inside "Others" when attributing a month's change.
+            "othersDetail": {
+                "Ford": clean(r["ford"]),
+                "Mitsubishi": clean(r["mitsubishi"]),
+            },
             "total_market": clean(r["total_market"]),
             # VAMA's own whole-industry total (members + imported CBU from
             # non-members), from its Cover Letter report -- NOT the same as
