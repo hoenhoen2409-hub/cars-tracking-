@@ -466,7 +466,6 @@ async function init() {
 
   renderHero(meta.latest_car_period, meta.latest_moto_period, meta.generated_at);
   renderMonthlyBrief(document.getElementById("monthly-brief"), cars, segments, motos);
-  renderTopSummary(cars, CAR_BRANDS);
 
   fillYearSelect(document.getElementById("car-year-from"), carYears, state.carYearFrom);
   fillYearSelect(document.getElementById("car-year-to"), carYears, state.carYearTo);
@@ -576,7 +575,6 @@ async function init() {
   renderSegmentToggles();
   renderSegmentSection();
   renderAnnualTable(document.getElementById("annual-table-head"), document.getElementById("annual-table-body"), cars);
-  renderDeepDiveSummary(document.getElementById("deep-dive-summary"), cars, segments, motos, document.getElementById("deep-dive-narrative"));
 }
 
 init().catch((err) => {

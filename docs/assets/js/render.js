@@ -105,7 +105,7 @@ function pctSpanHtml(pct, { arrows = true } = {}) {
 }
 
 // A rowsByPeriod entry is either a plain number (the simple case used by
-// the top-summary and moto KPIs) or a {value, complete} pair (the cars
+// the moto KPIs) or a {value, complete} pair (the cars
 // KPIs, from carTotalIndustry/carTotalIndustryExVf) -- either way, only the
 // value is needed here.
 function entryValue(v) {
@@ -204,77 +204,6 @@ function renderHero(carsLatest, motoLatest, generatedAt) {
   document.getElementById("hero-meta").textContent =
     `DATA AS OF ${carsLatest ? fmtPeriodLabel(carsLatest).toUpperCase() : "—"} (CARS) · ${motoLatest ? fmtPeriodLabel(motoLatest).toUpperCase() : "—"} (MOTORBIKES)`;
   document.getElementById("footer-generated").textContent = `Generated ${generatedAt}`;
-}
-
-// -------------------------------------------------------- top-summary --
-function renderTopSummary(carRows, brandLabels) {
-  const periods = carRows.map((r) => r.period);
-  const marketByPeriod = Object.fromEntries(carRows.map((r) => [r.period, r.total_market]));
-  const kpis = computeKpis(marketByPeriod, periods, "Total Market");
-
-  document.getElementById("ts-kpi-date").textContent = kpis ? `AS OF ${fmtPeriodLabel(kpis.latestPeriod)}` : "";
-  document.getElementById("ts-kpi-value").textContent = kpis ? fmtInt(kpis.latestValue) : "—";
-  document.getElementById("ts-kpi-label").textContent = "Total Market (VAMA + VinFast + Hyundai TC)";
-  document.getElementById("ts-kpi-sub").innerHTML = kpis
-    ? `MoM ${pctSpanHtml(kpis.momPct)} &middot; YoY ${pctSpanHtml(kpis.yoyPct)}`
-    : "Not enough data yet";
-
-  const latestRow = carRows[carRows.length - 1];
-  const shares = brandLabels
-    .map((label) => ({ label, value: latestRow.brands[label] }))
-    .filter((b) => b.value != null && b.value > 0)
-    .sort((a, b) => b.value - a.value);
-  const total = shares.reduce((s, b) => s + b.value, 0) || 1;
-  // Minor brands are already folded into "Others" upstream, so every
-  // remaining series is shown -- no second, client-side "Others" bucket.
-  const shown = shares;
-  const rest = 0;
-
-  document.getElementById("bm-track").innerHTML =
-    shown.map((b) => `<i style="width:${(b.value / total) * 100}%; background:${BRAND_COLORS[b.label]}"></i>`).join("") +
-    (rest > 0 ? `<i style="width:${(rest / total) * 100}%; background:var(--rule-3)"></i>` : "");
-  document.getElementById("bm-legend").innerHTML =
-    shown.map((b) => `<span><i style="background:${BRAND_COLORS[b.label]}"></i>${escapeHtml(b.label)} ${((b.value / total) * 100).toFixed(0)}%</span>`).join("") +
-    (rest > 0 ? `<span><i style="background:var(--rule-3)"></i>Others ${((rest / total) * 100).toFixed(0)}%</span>` : "");
-
-  const maxShare = Math.max(1, ...shown.map((b) => b.value));
-  document.getElementById("contrib-rows").innerHTML = shown
-    .map(
-      (b) => `
-      <div class="ranked-row">
-        <div class="rl-label">${escapeHtml(b.label)}</div>
-        <div class="rl-bar"><i style="width:${(b.value / maxShare) * 100}%; background:${BRAND_COLORS[b.label]}"></i></div>
-        <div class="rl-value tnum">${fmtInt(b.value)}</div>
-      </div>`
-    )
-    .join("");
-
-  const priorPeriod = shiftPeriod(latestRow.period, -1);
-  const priorRow = carRows.find((r) => r.period === priorPeriod);
-  const movers = brandLabels
-    .map((label) => {
-      const cur = latestRow.brands[label];
-      const prev = priorRow ? priorRow.brands[label] : null;
-      return { label, cur, prev, pct: pctChange(cur, prev) };
-    })
-    .filter((m) => m.pct != null)
-    .sort((a, b) => Math.abs(b.pct) - Math.abs(a.pct))
-    .slice(0, 5);
-
-  document.getElementById("ranked-events").innerHTML = movers
-    .map((m) => {
-      const dir = m.pct >= 0 ? "up" : "down";
-      return `
-      <div class="ranked-event">
-        <span class="re-dot" style="background:${m.pct >= 0 ? "var(--act-add)" : "var(--act-exit)"}"></span>
-        <div class="re-body">
-          <span class="re-title">${escapeHtml(m.label)}</span>
-          <div class="re-desc">${fmtInt(m.prev)} → ${fmtInt(m.cur)} units</div>
-        </div>
-        <div class="re-score ${dir} tnum">${m.pct >= 0 ? "+" : ""}${m.pct.toFixed(1)}%</div>
-      </div>`;
-    })
-    .join("");
 }
 
 // ------------------------------------------------------------ line chart
@@ -631,16 +560,6 @@ function renderStackedAreaChart(containerEl, periods, series, { yFormat = (v) =>
   containerEl.innerHTML = `<svg class="chart-svg" viewBox="0 0 ${W} ${H}" width="100%" height="${H}">${grid}${areas}${endLabelsHtml}${xLabels}</svg>`;
 }
 
-function evShareByPeriod(rows) {
-  const out = {};
-  rows.forEach((r) => {
-    const vf = r.brands["VinFast"];
-    const denom = carRowKnownTotal(r);
-    out[r.period] = vf != null && denom > 0 ? (vf / denom) * 100 : null;
-  });
-  return out;
-}
-
 // --------------------------------------- VAMA segment/powertrain (segments.json)
 // `segRows` here are flat {period, year, month, total, passenger_cars,
 // commercial_vehicles, trucks, buses, special_purpose, bev, hybrid,
@@ -827,74 +746,6 @@ function renderAnnualTable(headEl, bodyEl, rows) {
     .join("")}${yoyCellHtml(totalYoy)}</tr>`;
 
   bodyEl.innerHTML = brandRows + totalRow;
-}
-
-// ---------------------------------------------------- Deep Dive Summary
-function ppDeltaSpan(d) {
-  if (d == null || Number.isNaN(d)) return `<span class="muted">n/a</span>`;
-  const dir = d >= 0 ? "up" : "down";
-  return `<span class="${dir}">${d >= 0 ? "▲ +" : "▼ "}${Math.abs(d).toFixed(1)}pp</span>`;
-}
-
-function summaryRowHtml({ title, desc, deltaHtml, dir }) {
-  return `
-    <div class="ranked-event">
-      <span class="re-dot" style="background:${dir === "up" ? "var(--act-add)" : "var(--act-exit)"}"></span>
-      <div class="re-body">
-        <span class="re-title">${escapeHtml(title)}</span>
-        <div class="re-desc">${escapeHtml(desc)}</div>
-      </div>
-      <div class="re-score tnum">${deltaHtml}</div>
-    </div>`;
-}
-
-// Sums a {period: number|null} lookup over whatever calendar months
-// (1..latestMonth) are non-null in BOTH the latest period's year and the
-// prior year, using that same month-set on both sides -- a partial current
-// year (e.g. Honda Motorbikes missing Jun/Jul 2026) is compared fairly
-// against the matching prior-year months instead of a full prior year,
-// which would understate growth (an 8-of-8-month current sum vs. a
-// 6-of-8-month one reads as a much bigger drop than actually happened).
-// Mirrors brandAnnualYoy's logic but for a flat period->value map.
-function fairYtdYoy(rowsByPeriod, latestPeriod) {
-  const [latestYear, latestMonth] = latestPeriod.split("-").map(Number);
-  const priorYear = latestYear - 1;
-  let curSum = 0;
-  let priorSum = 0;
-  let months = 0;
-  for (let m = 1; m <= latestMonth; m++) {
-    const v = rowsByPeriod[`${latestYear}-${String(m).padStart(2, "0")}`];
-    const pv = rowsByPeriod[`${priorYear}-${String(m).padStart(2, "0")}`];
-    if (v == null || pv == null) continue;
-    curSum += v;
-    priorSum += pv;
-    months++;
-  }
-  if (!months) return null;
-  return { months, curSum, priorSum, pct: pctChange(curSum, priorSum) };
-}
-
-// The worst single month's YoY within the same YTD window -- flags "some
-// months down double digits" even when the YTD total itself is only
-// mildly negative.
-function worstMonthYoy(rowsByPeriod, latestPeriod) {
-  const [latestYear, latestMonth] = latestPeriod.split("-").map(Number);
-  let worst = null;
-  for (let m = 1; m <= latestMonth; m++) {
-    const p = `${latestYear}-${String(m).padStart(2, "0")}`;
-    const pct = pctChange(rowsByPeriod[p], rowsByPeriod[`${latestYear - 1}-${String(m).padStart(2, "0")}`]);
-    if (pct != null && (worst == null || pct < worst.pct)) worst = { period: p, pct };
-  }
-  return worst;
-}
-
-function ytdYoyItem(title, ytd, { worstNote = "" } = {}) {
-  return {
-    title: `${title} (${ytd.months}mo YTD YoY)`,
-    desc: `${fmtInt(ytd.priorSum)} → ${fmtInt(ytd.curSum)} units${worstNote}`,
-    deltaHtml: pctSpanHtml(ytd.pct),
-    dir: ytd.pct >= 0 ? "up" : "down",
-  };
 }
 
 // ------------------------------------------------------- monthly brief --
@@ -1214,143 +1065,6 @@ function renderMonthlyBrief(containerEl, cars, segments, motos = []) {
     <p class="muted brief-note">PC (household consumption) = VAMA whole-market passenger cars (members + CBU importers) + Hyundai TC passenger cars (+ VinFast where included). CV (industrial consumption) = VAMA whole-market commercial vehicles. Total auto = PC + CV + special-purpose vehicles (small). Demand read is rule-based (ex-VinFast PC YoY ≥ +5% healthy, ±5% subdued, ≤ −5% weak); seasonal norm = 3-year average change for the same month/quarter.</p>`;
 }
 
-function roseFell(pct) {
-  return pct >= 0 ? "rose" : "fell";
-}
-function upDown(pct) {
-  return pct >= 0 ? "up" : "down";
-}
 function abs1(pct) {
   return Math.abs(pct).toFixed(1);
-}
-
-// Free-text version of the same underlying-demand numbers as the bullets
-// below -- a copy-pasteable analyst-style note, not a UI summary. Both
-// presentations read off the same computed {pcInclVf, pcExVf, cv, moto,
-// worstMonth, worstBrand} inputs so they can't drift apart.
-function buildDemandNarrative({ pcInclVf, pcExVf, cv, moto, worstMonth, worstBrand }) {
-  const carSentences = [];
-  if (pcInclVf) {
-    carSentences.push(
-      `Vietnam's passenger car industry, including VinFast, ${roseFell(pcInclVf.pct)} ${abs1(pcInclVf.pct)}% YoY over the first ${pcInclVf.months} months of the year.`
-    );
-  }
-  if (pcExVf) {
-    const worstText = worstMonth
-      ? `, with the weakest month at ${abs1(worstMonth.pct)}% ${worstMonth.pct >= 0 ? "growth" : "decline"} in ${fmtPeriodLabel(worstMonth.period)}`
-      : "";
-    const brandText = worstBrand ? ` — ${worstBrand.brand} posted the steepest brand-level decline, down ${abs1(worstBrand.pct)}%` : "";
-    carSentences.push(
-      `Excluding VinFast, however, underlying PC demand ${roseFell(pcExVf.pct)} ${abs1(pcExVf.pct)}% YoY${worstText}${brandText}.`
-    );
-  }
-  if (cv) {
-    carSentences.push(`Commercial vehicles held up better, ${upDown(cv.pct)} ${abs1(cv.pct)}% YoY over the same period.`);
-  }
-
-  const motoSentence = moto
-    ? `Honda motorbike volumes were ${upDown(moto.pct)} ${abs1(moto.pct)}% YoY over ${moto.months} months of comparable data.`
-    : "";
-
-  return { carText: carSentences.join(" "), motoText: motoSentence };
-}
-
-function renderDeepDiveNarrative(containerEl, { pcInclVf, pcExVf, cv, moto, worstMonth, worstBrand }) {
-  const { carText, motoText } = buildDemandNarrative({ pcInclVf, pcExVf, cv, moto, worstMonth, worstBrand });
-  if (!carText && !motoText) {
-    containerEl.innerHTML = `<div class="empty-state">Not enough history yet to summarize.</div>`;
-    return;
-  }
-  containerEl.innerHTML = [carText, motoText]
-    .filter(Boolean)
-    .map((block) => `<p>${escapeHtml(block).replace(/\n/g, "<br>")}</p>`)
-    .join("");
-}
-
-// Synthesizes the headline "underlying demand" numbers from cars/segments/
-// motos into a short, scannable list -- computed fresh each load, not
-// hardcoded, so it can't drift out of sync as months are added. Structure
-// mirrors a monthly analyst note: PC industry incl./excl. VinFast, CV
-// industry, Honda Motorbikes, then brand-level color and the EV share
-// shift (VinFast being the reason incl./excl.-VinFast PC diverge so much).
-function renderDeepDiveSummary(containerEl, cars, segments, motos, narrativeEl) {
-  const items = [];
-  const latestPeriod = segments.length ? segments[segments.length - 1].period : null;
-
-  let pcInclVf = null, pcExVf = null, cv = null, moto = null, worstMonth = null;
-  if (latestPeriod) {
-    const vfByPeriod = Object.fromEntries(cars.map((r) => [r.period, r.brands["VinFast"]]));
-    const pcExVfByPeriod = Object.fromEntries(segments.map((r) => [r.period, r.passenger_cars_incl_hyundai]));
-    const pcInclVfByPeriod = Object.fromEntries(
-      segments.map((r) => {
-        const vf = vfByPeriod[r.period];
-        const pcExVf2 = r.passenger_cars_incl_hyundai;
-        return [r.period, pcExVf2 != null && vf != null ? pcExVf2 + vf : null];
-      })
-    );
-    const cvByPeriod = Object.fromEntries(segments.map((r) => [r.period, r.commercial_vehicles]));
-    const motoByPeriod = Object.fromEntries(motos.map((r) => [r.period, r.sales]));
-
-    pcInclVf = fairYtdYoy(pcInclVfByPeriod, latestPeriod);
-    if (pcInclVf) items.push(ytdYoyItem("Passenger Car industry, incl. VinFast", pcInclVf));
-
-    pcExVf = fairYtdYoy(pcExVfByPeriod, latestPeriod);
-    if (pcExVf) {
-      worstMonth = worstMonthYoy(pcExVfByPeriod, latestPeriod);
-      const worstNote = worstMonth ? `; worst month ${fmtPeriodLabel(worstMonth.period)} ${worstMonth.pct >= 0 ? "+" : ""}${worstMonth.pct.toFixed(1)}%` : "";
-      items.push(ytdYoyItem("Passenger Car industry, excl. VinFast", pcExVf, { worstNote }));
-    }
-
-    cv = fairYtdYoy(cvByPeriod, latestPeriod);
-    if (cv) items.push(ytdYoyItem("Commercial Vehicle industry", cv));
-
-    moto = fairYtdYoy(motoByPeriod, latestPeriod);
-    if (moto) items.push(ytdYoyItem("Honda Motorbikes", moto));
-  }
-
-  const { priorYear, latestYear, yoys: allYoys } = brandAnnualYoy(cars);
-  // "Others" is a bucket, not a brand -- never call it fastest/steepest.
-  const yoys = allYoys.filter((c) => c.brand !== "Others");
-  let worstBrand = null;
-  if (yoys.length) {
-    const best = yoys.reduce((a, b) => (b.pct > a.pct ? b : a));
-    worstBrand = yoys.reduce((a, b) => (b.pct < a.pct ? b : a));
-    items.push({
-      title: `Fastest-growing brand (${priorYear}→${latestYear} YoY)`,
-      desc: `${best.brand}: ${fmtInt(best.priorSum)} → ${fmtInt(best.sum)} units`,
-      deltaHtml: pctSpanHtml(best.pct),
-      dir: "up",
-    });
-    if (worstBrand.brand !== best.brand) {
-      items.push({
-        title: `Steepest decline (${priorYear}→${latestYear} YoY)`,
-        desc: `${worstBrand.brand}: ${fmtInt(worstBrand.priorSum)} → ${fmtInt(worstBrand.sum)} units`,
-        deltaHtml: pctSpanHtml(worstBrand.pct),
-        dir: "down",
-      });
-    }
-  }
-
-  if (narrativeEl) renderDeepDiveNarrative(narrativeEl, { pcInclVf, pcExVf, cv, moto, worstMonth, worstBrand });
-
-  const evByPeriod = evShareByPeriod(cars);
-  const firstVfRow = cars.find((r) => r.brands["VinFast"] != null);
-  const latestCarRow = cars[cars.length - 1];
-  if (firstVfRow) {
-    const startShare = evByPeriod[firstVfRow.period];
-    const latestShare = evByPeriod[latestCarRow.period];
-    const momShare = evByPeriod[shiftPeriod(latestCarRow.period, -1)] ?? null;
-    const momDelta = momShare != null ? latestShare - momShare : null;
-    const momNote = momDelta != null ? `; ${momDelta >= 0 ? "+" : ""}${momDelta.toFixed(1)}pp vs. last month` : "";
-    items.push({
-      title: "EV (VinFast) share of market",
-      desc: `${fmtPct1(startShare)} in ${fmtPeriodLabel(firstVfRow.period)} → ${fmtPct1(latestShare)} in ${fmtPeriodLabel(latestCarRow.period)}${momNote}`,
-      deltaHtml: ppDeltaSpan(latestShare - startShare),
-      dir: latestShare >= startShare ? "up" : "down",
-    });
-  }
-
-  containerEl.innerHTML = items.length
-    ? items.map(summaryRowHtml).join("")
-    : `<div class="empty-state">Not enough history yet to summarize.</div>`;
 }
