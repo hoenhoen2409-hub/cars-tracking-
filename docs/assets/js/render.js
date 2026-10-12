@@ -897,6 +897,129 @@ function ytdYoyItem(title, ytd, { worstNote = "" } = {}) {
   };
 }
 
+// ------------------------------------------------------- monthly brief --
+// The page-top note: latest month's PV / CV / total industry MoM & YoY
+// (incl. and excl. VinFast), a rule-based read on underlying demand, then
+// the key brands. PV = VAMA whole-market passenger cars (members + CBU
+// importers) + Hyundai TC passenger cars (segments.passenger_cars_incl_hyundai);
+// CV = VAMA whole-market commercial vehicles; total = carTotalIndustry.
+// Anchored on the latest month present in BOTH cars and segments, so every
+// sentence talks about the same month.
+const BRIEF_BRANDS = ["VinFast", "Toyota", "Honda (car)", "Hyundai (Thanh Cong)"];
+
+function pctPhrase(pct) {
+  if (pct == null) return "n/a";
+  return `${pct >= 0 ? "+" : "−"}${abs1(pct)}%`;
+}
+
+function momYoy(byPeriod, period) {
+  const v = byPeriod[period];
+  return {
+    value: v,
+    mom: pctChange(v, byPeriod[shiftPeriod(period, -1)]),
+    yoy: pctChange(v, byPeriod[shiftPeriod(period, -12)]),
+  };
+}
+
+function demandRead(exVfYoy) {
+  if (exVfYoy == null) return null;
+  if (exVfYoy >= 5) return "expanding";
+  if (exVfYoy > -5) return "broadly flat";
+  return "contracting";
+}
+
+function buildMonthlyBrief(cars, segments) {
+  const segPeriods = new Set(segments.map((r) => r.period));
+  const carRow = [...cars].reverse().find((r) => segPeriods.has(r.period) && entryValue(carTotalIndustry(r)) != null);
+  if (!carRow) return null;
+  const P = carRow.period;
+  const label = fmtPeriodLabel(P);
+
+  const vfBy = Object.fromEntries(cars.map((r) => [r.period, r.brands["VinFast"]]));
+  const totalInclBy = Object.fromEntries(cars.map((r) => [r.period, entryValue(carTotalIndustry(r))]));
+  const totalExBy = Object.fromEntries(cars.map((r) => [r.period, entryValue(carTotalIndustryExVf(r))]));
+  const pvExBy = Object.fromEntries(segments.map((r) => [r.period, r.passenger_cars_incl_hyundai]));
+  const pvInclBy = Object.fromEntries(
+    segments.map((r) => [r.period, r.passenger_cars_incl_hyundai != null && vfBy[r.period] != null ? r.passenger_cars_incl_hyundai + vfBy[r.period] : null])
+  );
+  const cvBy = Object.fromEntries(segments.map((r) => [r.period, r.commercial_vehicles]));
+
+  const totIn = momYoy(totalInclBy, P);
+  const totEx = momYoy(totalExBy, P);
+  const pvIn = momYoy(pvInclBy, P);
+  const pvEx = momYoy(pvExBy, P);
+  const cv = momYoy(cvBy, P);
+  const ytdIn = fairYtdYoy(totalInclBy, P);
+  const ytdEx = fairYtdYoy(totalExBy, P);
+
+  // 1) What happened -- industry level.
+  const p1 =
+    `${label}: total industry sales ${pctPhrase(totIn.mom)} MoM and ${pctPhrase(totIn.yoy)} YoY incl. VinFast ` +
+    `(${fmtInt(totIn.value)} units); excl. VinFast ${pctPhrase(totEx.mom)} MoM and ${pctPhrase(totEx.yoy)} YoY. ` +
+    `Passenger vehicles ${pctPhrase(pvIn.mom)} MoM / ${pctPhrase(pvIn.yoy)} YoY incl. VinFast ` +
+    `(${pctPhrase(pvEx.mom)} / ${pctPhrase(pvEx.yoy)} excl. VinFast); commercial vehicles ${pctPhrase(cv.mom)} MoM / ${pctPhrase(cv.yoy)} YoY.` +
+    (ytdIn && ytdEx ? ` YTD (${ytdIn.months}M): ${pctPhrase(ytdIn.pct)} YoY incl. VinFast, ${pctPhrase(ytdEx.pct)} excl. VinFast.` : "");
+
+  // 2) What it implies for demand -- rule-based, so it reads the same way every month.
+  const parts = [];
+  const read = demandRead(totEx.yoy);
+  if (read) {
+    // Total ex-VF mixes consumer (PV) and business (CV) demand; call out the
+    // consumer side separately when it reads differently.
+    const pvRead = demandRead(pvEx.yoy);
+    const pvNote = pvRead && pvRead !== read ? `, but ex-VinFast passenger demand is ${pvRead} (${pctPhrase(pvEx.yoy)})` : "";
+    parts.push(`Underlying (non-VinFast) demand is ${read} YoY (${pctPhrase(totEx.yoy)})${pvNote}`);
+    const gap = totIn.yoy != null ? totIn.yoy - totEx.yoy : null;
+    if (gap != null && gap >= 5) parts.push(`headline growth is largely VinFast-driven (${abs1(gap)}pp gap between incl. and excl. VinFast)`);
+  }
+  if (totEx.mom != null && totEx.yoy != null && totEx.mom >= 20 && Math.abs(totEx.yoy) < 10) {
+    parts.push(`the sharp MoM rebound mostly reflects a weak prior month rather than a step-up in demand`);
+  }
+  if (cv.yoy != null && pvEx.yoy != null) {
+    const d = cv.yoy - pvEx.yoy;
+    if (d >= 10) parts.push(`CV (${pctPhrase(cv.yoy)} YoY) is outgrowing ex-VinFast PV (${pctPhrase(pvEx.yoy)}), pointing to business/freight-led rather than consumer-led demand`);
+    else if (d <= -10) parts.push(`ex-VinFast PV (${pctPhrase(pvEx.yoy)} YoY) is outgrowing CV (${pctPhrase(cv.yoy)}), pointing to consumer-led demand with softer business/freight activity`);
+  }
+  const joined = parts.join("; ");
+  const p2 = joined ? `${joined[0].toUpperCase()}${joined.slice(1)}.` : "";
+
+  // 3) Key brands vs. the ex-VinFast PV market.
+  const brandSentences = BRIEF_BRANDS.map((b) => {
+    const by = Object.fromEntries(cars.map((r) => [r.period, r.brands[b]]));
+    const m = momYoy(by, P);
+    if (m.value == null) return null;
+    const share = totIn.value ? (m.value / totIn.value) * 100 : null;
+    const priorTot = totalInclBy[shiftPeriod(P, -12)];
+    const priorVal = by[shiftPeriod(P, -12)];
+    const shareChg = share != null && priorTot && priorVal != null ? share - (priorVal / priorTot) * 100 : null;
+    let vs = "";
+    if (b !== "VinFast" && m.yoy != null && pvEx.yoy != null) {
+      vs = m.yoy - pvEx.yoy >= 0 ? ", outperforming the ex-VinFast PV market" : ", underperforming the ex-VinFast PV market";
+    }
+    const shareTxt = share != null ? `; ${share.toFixed(1)}% of total industry${shareChg != null ? ` (${shareChg >= 0 ? "+" : "−"}${Math.abs(shareChg).toFixed(1)}pp YoY)` : ""}` : "";
+    return `${b.replace(" (car)", "").replace(" (Thanh Cong)", "")} ${fmtInt(m.value)} units, ${pctPhrase(m.mom)} MoM / ${pctPhrase(m.yoy)} YoY${vs}${shareTxt}.`;
+  }).filter(Boolean);
+
+  return { period: P, paragraphs: [p1, p2, brandSentences.join(" ")].filter(Boolean) };
+}
+
+function renderMonthlyBrief(containerEl, cars, segments) {
+  const brief = buildMonthlyBrief(cars, segments);
+  if (!brief) {
+    containerEl.innerHTML = `<p class="muted">Not enough data for the latest month yet.</p>`;
+    return;
+  }
+  const [industry, demand, brands] = brief.paragraphs;
+  containerEl.innerHTML = `
+    <div class="brief-head"><span class="eyebrow">Monthly brief · ${escapeHtml(fmtPeriodLabel(brief.period))}</span></div>
+    <div class="dd-narrative brief-body">
+      <p><strong>Industry.</strong> ${escapeHtml(industry)}</p>
+      ${demand ? `<p><strong>Demand read.</strong> ${escapeHtml(demand)}</p>` : ""}
+      ${brands ? `<p><strong>Key brands.</strong> ${escapeHtml(brands)}</p>` : ""}
+    </div>
+    <p class="muted brief-note">PV = VAMA whole-market passenger cars (members + CBU importers) + Hyundai TC passenger cars; CV = VAMA whole-market commercial vehicles. "Demand read" is rule-based (ex-VinFast YoY ≥ +5% expanding, ±5% flat, ≤ −5% contracting), not analyst judgment.</p>`;
+}
+
 function roseFell(pct) {
   return pct >= 0 ? "rose" : "fell";
 }

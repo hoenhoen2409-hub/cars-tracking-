@@ -308,3 +308,12 @@ select.filter-select-native:focus { outline: none; border-color: var(--accent); 
 .card-collapsible > summary:hover h3 { color: var(--accent); }
 .card-collapsible > summary:hover::after { background: var(--accent); color: #fff; }
 .card-collapsible > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: var(--radius-sm); }
+
+/* Monthly brief: page-top analyst note */
+.monthly-brief { margin: 0 56px 24px; }
+@media (max-width: 760px) { .monthly-brief { margin: 0 16px 16px; } }
+.monthly-brief .brief-head { margin-bottom: 12px; }
+.monthly-brief .brief-body { margin-bottom: 10px; }
+.monthly-brief .brief-body p { font-size: 14px; color: var(--ink-1); }
+.monthly-brief .brief-body strong { color: var(--accent-ink); }
+.monthly-brief .brief-note { font-size: 11px; }

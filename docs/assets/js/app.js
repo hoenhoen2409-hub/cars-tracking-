@@ -465,6 +465,7 @@ async function init() {
   state.segPeriodTo = `${state.segYearTo}-${pad2(state.segMonthTo)}`;
 
   renderHero(meta.latest_car_period, meta.latest_moto_period, meta.generated_at);
+  renderMonthlyBrief(document.getElementById("monthly-brief"), cars, segments);
   renderTopSummary(cars, CAR_BRANDS);
 
   fillYearSelect(document.getElementById("car-year-from"), carYears, state.carYearFrom);
