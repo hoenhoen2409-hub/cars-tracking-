@@ -942,9 +942,9 @@ function sumOver(byPeriod, periods) {
   return vals.some((v) => v == null) ? null : vals.reduce((a, v) => a + v, 0);
 }
 
-// Brief comment: one short paragraph (4 sentences) in a fixed order --
-// total (incl. & excl. VinFast) -> PV, implying CV -> key PV brands ->
-// ex-VinFast demand read with seasonality. Quarter-end months add one
+// Brief comment: one short paragraph in a fixed order -- total incl.
+// VinFast -> total excl. VinFast -> ex-VinFast PV, implying CV -> key PV
+// brands -> ex-VinFast demand read with seasonality. Quarter-end months add one
 // sentence on the quarter's total market.
 
 // Calendar-month context for the seasonality clause (VN auto market).
@@ -995,19 +995,17 @@ function joinAnd(items) {
 
 function buildMonthComment({ P, totIn, totEx, pvIn, pvEx, cv, brands, season }) {
   const out = [];
-  // 1) Total, incl. and excl. VinFast.
-  out.push(
-    `Total market sales ${movePhrase(totIn.yoy, totIn.mom, "MoM", "were")}` +
-      (totEx.yoy != null ? ` (excl. VinFast: ${pctR(totEx.yoy)} YoY, ${pctR(totEx.mom)} MoM).` : ".")
-  );
-  // 2) PV, and the CV it implies.
-  const exGap = pvIn.yoy != null && pvEx.yoy != null ? pvIn.yoy - pvEx.yoy : null;
-  out.push(
-    `Passenger vehicles ${movePhrase(pvIn.yoy, pvIn.mom, "MoM", "were")}` +
-      (exGap != null ? (exGap >= 5 ? `, but only ${pctR(pvEx.yoy)} YoY excluding VinFast` : ` (${pctR(pvEx.yoy)} YoY excl. VinFast)`) : "") +
-      `, implying commercial vehicles ${pctR(cv.yoy)} YoY and ${pctR(cv.mom)} MoM.`
-  );
-  // 3) Key PV brands: VinFast vs the legacy names.
+  // 1) Total incl. VinFast, 2) then excl. VinFast.
+  out.push(`Including VinFast, total market sales ${movePhrase(totIn.yoy, totIn.mom, "MoM", "were")}.`);
+  if (totEx.yoy != null) out.push(`Excluding VinFast, sales ${movePhrase(totEx.yoy, totEx.mom, "MoM", "were")}.`);
+  // 3) PV on an ex-VinFast basis, and the CV it implies (VinFast sells no CVs).
+  if (pvEx.yoy != null) {
+    out.push(
+      `Within this, ex-VinFast passenger vehicles ${movePhrase(pvEx.yoy, pvEx.mom, "MoM", "were")}, ` +
+        `implying commercial vehicles ${movePhrase(cv.yoy, cv.mom, "MoM", "were")}.`
+    );
+  }
+  // 4) Key PV brands: VinFast vs the legacy names.
   const vf = brands.find((b) => b.name === "VinFast");
   const legacy = brands.filter((b) => b.name !== "VinFast" && b.yoy != null);
   const down = legacy.filter((b) => b.yoy < 0);
@@ -1022,7 +1020,7 @@ function buildMonthComment({ P, totIn, totEx, pvIn, pvEx, cv, brands, season }) 
     s3 += `${s3 ? ", while " : ""}${legacyParts.join(" and ")}${rebound ? " despite double-digit MoM rebounds" : ""}`;
   }
   if (s3) out.push(`${s3[0].toUpperCase()}${s3.slice(1)}.`);
-  // 4) Demand read (ex-VinFast PV) with seasonality.
+  // 5) Demand read (ex-VinFast PV) with seasonality.
   const verdict = demandVerdict(pvEx.yoy);
   if (verdict) {
     let s4 = `Ex-VinFast passenger demand remains ${verdict}`;
@@ -1047,7 +1045,7 @@ function buildMonthComment({ P, totIn, totEx, pvIn, pvEx, cv, brands, season }) 
 // One sentence on the quarter's total market (incl. and excl. VinFast, with QoQ seasonality).
 function buildQuarterComment({ qLabel, q, vfShareOfGrowth, qoqNorm }) {
   if (q.totIn.yoy == null) return null;
-  let s = `Total market sales ${movePhrase(q.totIn.yoy, q.totIn.qoq, "QoQ", "were")}`;
+  let s = `Including VinFast, total market sales ${movePhrase(q.totIn.yoy, q.totIn.qoq, "QoQ", "were")}`;
   if (q.totIn.yoy > 0 && vfShareOfGrowth != null && vfShareOfGrowth >= 0.5) s += `, largely VinFast-driven`;
   if (q.totEx.yoy != null) {
     s += `; excluding VinFast, sales ${movePhrase(q.totEx.yoy, q.totEx.qoq, "QoQ", "were")}`;
