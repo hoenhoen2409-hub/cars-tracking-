@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="./assets/css/tokens.css?v=663477de77" />
-<link rel="stylesheet" href="./assets/css/styles.css?v=5b8c2f74b7" />
+<link rel="stylesheet" href="./assets/css/styles.css?v=fb842a64e5" />
 </head>
 <body>
 
@@ -129,6 +129,20 @@
       </div>
       <div id="moto-kpis" class="kpis kpis-4"></div>
       <p class="muted" style="margin-top:14px; font-size:12px;">Honda Vietnam did not publish monthly reports before 09/2024.</p>
+
+      <div class="range-totals" style="margin-top:20px;">
+        <div class="range-head"><span class="eyebrow" id="moto-range-label">Range YoY</span></div>
+        <div class="table-wrap">
+          <table class="table">
+            <thead><tr><th class="ta-left">Period</th><th>Units</th><th>Same months, prior year</th><th>YoY</th><th>Months</th></tr></thead>
+            <tbody id="moto-range-body"></tbody>
+          </table>
+        </div>
+        <p class="muted" style="margin-top:10px; font-size:11px;">
+          One row per year in the Year from/to range (current year = YTD), plus the whole range. YoY compares the same
+          months one year earlier. * = like-for-like on only the months that have prior-year data (Honda's monthly data starts Sep 2024).
+        </p>
+      </div>
     </div>
 
     <div class="card">
@@ -302,7 +316,7 @@
   </footer>
 </div>
 
-<script src="./assets/js/render.js?v=beaea7cf28"></script>
-<script src="./assets/js/app.js?v=f719514cad"></script>
+<script src="./assets/js/render.js?v=46552e2270"></script>
+<script src="./assets/js/app.js?v=00f753edd2"></script>
 </body>
 </html>

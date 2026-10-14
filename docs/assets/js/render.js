@@ -705,6 +705,43 @@ function renderCarRangeYoy(headEl, bodyEl, labelEl, cars, from, to, labels) {
     .join("");
 }
 
+// §2 range block: one row per year in the filtered range (current year =
+// YTD) plus the whole range, each against the same months a year earlier.
+function renderMotoRangeYoy(bodyEl, labelEl, motos, filtered) {
+  const by = Object.fromEntries(motos.map((r) => [r.period, r.sales]));
+  const withData = filtered.filter((r) => r.sales != null);
+  if (!withData.length) {
+    labelEl.textContent = "Range YoY";
+    bodyEl.innerHTML = `<tr><td colspan="5" class="empty-state">No data in this range.</td></tr>`;
+    return;
+  }
+  // Full-period YoY when every month has a prior-year value; otherwise a
+  // like-for-like YoY on just the comparable months, marked with *.
+  const rowFor = (label, periods) => {
+    const cur = periods.reduce((a, p) => a + by[p], 0);
+    const comparable = periods.filter((p) => by[shiftPeriod(p, -12)] != null);
+    const full = comparable.length === periods.length;
+    const prior = comparable.reduce((a, p) => a + by[shiftPeriod(p, -12)], 0);
+    const curComp = comparable.reduce((a, p) => a + by[p], 0);
+    const yoy = comparable.length ? pctChange(curComp, prior) : null;
+    const dir = yoy == null ? "flat" : yoy >= 0 ? "up" : "down";
+    const yoyTxt = yoy == null ? "n/a" : `${yoy >= 0 ? "+" : ""}${yoy.toFixed(1)}%${full ? "" : "*"}`;
+    const priorTxt = comparable.length ? `${fmtInt(prior)}${full ? "" : ` <span class="muted">(${comparable.length} of ${periods.length} mo)</span>`}` : "—";
+    return `<tr><td class="ta-left">${escapeHtml(label)}</td><td>${fmtInt(cur)}</td><td>${priorTxt}</td><td class="pct ${dir}">${yoyTxt}</td><td>${periods.length}</td></tr>`;
+  };
+  const years = [...new Set(withData.map((r) => r.year))].sort((a, b) => a - b);
+  const rows = years.map((y) => {
+    const ps = withData.filter((r) => r.year === y).map((r) => r.period);
+    const last = ps[ps.length - 1];
+    const label = ps.length < 12 ? `${y} (${fmtPeriodLabel(ps[0]).split(" ")[0]}–${fmtPeriodLabel(last).split(" ")[0]})` : `${y}`;
+    return rowFor(label, ps);
+  });
+  const all = withData.map((r) => r.period);
+  if (years.length > 1) rows.push(rowFor(`Whole range (${fmtPeriodLabel(all[0])} – ${fmtPeriodLabel(all[all.length - 1])})`, all).replace("<tr>", '<tr class="brief-total">'));
+  labelEl.textContent = `Range YoY · ${fmtPeriodLabel(all[0])} – ${fmtPeriodLabel(all[all.length - 1])}`;
+  bodyEl.innerHTML = rows.join("");
+}
+
 function renderSegmentTable(headEl, bodyEl, filteredRows, allRows, specs) {
   headEl.innerHTML = `<th class="ta-left">Month</th>` + specs.map((s) => `<th>${escapeHtml(s.label)}</th><th>MoM %</th><th>YoY %</th>`).join("");
 

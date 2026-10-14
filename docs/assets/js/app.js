@@ -210,6 +210,7 @@ function renderMotoSection() {
     : `<tr><td colspan="3" class="empty-state">No data in this range.</td></tr>`;
 
   document.getElementById("moto-count-label").textContent = `${filtered.length} months shown`;
+  renderMotoRangeYoy(document.getElementById("moto-range-body"), document.getElementById("moto-range-label"), state.motos, filtered);
 }
 
 function exportMotosCsv() {
