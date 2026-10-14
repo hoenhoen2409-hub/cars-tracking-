@@ -154,6 +154,7 @@ function renderCarsSection() {
     : `<tr><td colspan="${1 + brands.length * 2}" class="empty-state">No data in this range.</td></tr>`;
 
   document.getElementById("car-count-label").textContent = `${filtered.length} months shown · ${brands.length} brand(s) selected`;
+  renderCarRangeYoy(document.getElementById("car-range-head"), document.getElementById("car-range-body"), document.getElementById("car-range-label"), state.cars, state.carPeriodFrom, state.carPeriodTo, brands);
 
   // Flag missing brands for the selected "as of" month (carPeriodTo), not
   // always the dataset's true latest -- the note should explain whatever

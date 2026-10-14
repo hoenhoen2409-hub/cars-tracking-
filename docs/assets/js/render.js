@@ -664,6 +664,47 @@ function renderSegmentRangeTotals(containerEl, labelEl, segments, cars, from, to
     .join("");
 }
 
+// §1 range block: per selected series, the sum over [from, to], the same
+// months a year earlier, YoY, and share of Total Industry (incl. VinFast).
+function renderCarRangeYoy(headEl, bodyEl, labelEl, cars, from, to, labels) {
+  const carBy = Object.fromEntries(cars.map((r) => [r.period, r]));
+  const periods = cars.filter((r) => r.period >= from && r.period <= to).map((r) => r.period);
+  const val = (label, p) => (carBy[p] ? seriesValue(carBy[p], label) : null);
+  // Like-for-like: months where the series has a value now; YoY only if all have a prior-year value.
+  const sumFor = (label) => {
+    const have = periods.filter((p) => val(label, p) != null);
+    if (!have.length) return { cur: null, prior: null, months: 0, have };
+    const cur = have.reduce((a, p) => a + val(label, p), 0);
+    const pv = have.map((p) => val(label, shiftPeriod(p, -12)));
+    return { cur, prior: pv.every((v) => v != null) ? pv.reduce((a, v) => a + v, 0) : null, months: have.length, have };
+  };
+  labelEl.textContent = periods.length ? `Range YoY by brand · ${fmtPeriodLabel(from)} – ${fmtPeriodLabel(to)} (${periods.length} months)` : "Range YoY by brand";
+  headEl.innerHTML = `<th class="ta-left">Brand</th><th>Range total</th><th>Same months, prior year</th><th>YoY</th><th>Share of total</th>`;
+  if (!labels.length) {
+    bodyEl.innerHTML = `<tr><td colspan="5" class="empty-state">Select at least one brand.</td></tr>`;
+    return;
+  }
+  bodyEl.innerHTML = labels
+    .map((label) => {
+      const s = sumFor(label);
+      const yoy = pctChange(s.cur, s.prior);
+      const dir = yoy == null ? "flat" : yoy >= 0 ? "up" : "down";
+      const isTotal = label.startsWith("Total Industry");
+      // Share over the brand's own months, so a partially-missing brand isn't diluted.
+      const totSum = s.have.reduce((a, p) => a + (val("Total Industry", p) ?? 0), 0);
+      const share = !isTotal && s.cur != null && totSum ? (s.cur / totSum) * 100 : null;
+      const gap = s.months && s.months < periods.length ? ` <span class="muted">(${s.months}/${periods.length} mo)</span>` : "";
+      return `<tr>
+        <td class="ta-left">${escapeHtml(label)}${gap}</td>
+        <td>${fmtInt(s.cur)}</td>
+        <td>${fmtInt(s.prior)}</td>
+        <td class="pct ${dir}">${yoy == null ? "n/a" : (yoy >= 0 ? "+" : "") + yoy.toFixed(1) + "%"}</td>
+        <td>${share == null ? "—" : share.toFixed(1) + "%"}</td>
+      </tr>`;
+    })
+    .join("");
+}
+
 function renderSegmentTable(headEl, bodyEl, filteredRows, allRows, specs) {
   headEl.innerHTML = `<th class="ta-left">Month</th>` + specs.map((s) => `<th>${escapeHtml(s.label)}</th><th>MoM %</th><th>YoY %</th>`).join("");
 
