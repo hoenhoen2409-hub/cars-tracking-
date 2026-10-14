@@ -618,6 +618,52 @@ function renderSegmentChart(chartEl, legendEl, segRows, specs, allRows) {
 // `allRows` (full, unfiltered history) is used for the prior-month/prior-
 // year lookups so a row at the edge of the filtered range still shows a
 // correct MoM%/YoY% instead of "n/a" -- same pattern as the §1 car table.
+// Range totals for the Vehicle Segment card: Passenger (always incl. Hyundai
+// TC passenger cars; + VinFast when inclVf), Commercial, and PV + CV, summed
+// over [from, to] with YoY against the same months a year earlier.
+function renderSegmentRangeTotals(containerEl, labelEl, segments, cars, from, to, inclVf) {
+  const vfBy = Object.fromEntries(cars.map((r) => [r.period, r.brands["VinFast"]]));
+  const rows = segments.filter((r) => r.period >= from && r.period <= to);
+  const segBy = Object.fromEntries(segments.map((r) => [r.period, r]));
+  const pv = (p) => {
+    const r = segBy[p];
+    if (!r || r.passenger_cars_incl_hyundai == null) return null;
+    if (!inclVf) return r.passenger_cars_incl_hyundai;
+    return vfBy[p] != null ? r.passenger_cars_incl_hyundai + vfBy[p] : null;
+  };
+  const cv = (p) => (segBy[p] ? segBy[p].commercial_vehicles : null);
+  const both = (p) => (pv(p) != null && cv(p) != null ? pv(p) + cv(p) : null);
+
+  // Sum over months with data; YoY only when every one of those months has a
+  // prior-year value too (like-for-like), otherwise n/a.
+  const sumRange = (get) => {
+    const have = rows.map((r) => r.period).filter((p) => get(p) != null);
+    const cur = have.reduce((a, p) => a + get(p), 0);
+    const priorVals = have.map((p) => get(shiftPeriod(p, -12)));
+    const prior = priorVals.every((v) => v != null) && have.length ? priorVals.reduce((a, v) => a + v, 0) : null;
+    return { cur: have.length ? cur : null, months: have.length, yoy: pctChange(cur, prior) };
+  };
+
+  const vfTxt = inclVf ? "incl. VinFast" : "excl. VinFast";
+  const cards = [
+    { lbl: `Passenger vehicles (${vfTxt})`, sub: "incl. Hyundai", ...sumRange(pv) },
+    { lbl: "Commercial vehicles", sub: "VAMA whole market", ...sumRange(cv) },
+    { lbl: `PV + CV (${vfTxt})`, sub: "", ...sumRange(both) },
+  ];
+  labelEl.textContent = rows.length ? `Range total · ${fmtPeriodLabel(from)} – ${fmtPeriodLabel(to)} (${rows.length} months)` : "Range total";
+  containerEl.innerHTML = cards
+    .map((c) => {
+      const gap = c.months < rows.length ? ` · ${rows.length - c.months} month(s) missing data` : "";
+      return `
+      <div class="kpi">
+        <div class="lbl">${escapeHtml(c.lbl)}</div>
+        <div class="val">${fmtInt(c.cur)}${c.yoy != null ? ` <small>${pctSpanHtml(c.yoy)}</small>` : ""}</div>
+        <div class="sub">${escapeHtml(c.sub ? `${c.sub} · ` : "")}${c.yoy != null ? "YoY vs same months a year earlier" : "YoY n/a (prior-year data incomplete)"}${escapeHtml(gap)}</div>
+      </div>`;
+    })
+    .join("");
+}
+
 function renderSegmentTable(headEl, bodyEl, filteredRows, allRows, specs) {
   headEl.innerHTML = `<th class="ta-left">Month</th>` + specs.map((s) => `<th>${escapeHtml(s.label)}</th><th>MoM %</th><th>YoY %</th>`).join("");
 

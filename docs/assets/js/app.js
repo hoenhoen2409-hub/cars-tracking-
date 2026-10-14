@@ -35,6 +35,7 @@ const state = {
   segMonthTo: null,
   segPeriodFrom: null,
   segPeriodTo: null,
+  segVf: "incl",
   trucks: [],
   truckYearFrom: null,
   truckYearTo: null,
@@ -247,6 +248,8 @@ function renderSegmentSection() {
   renderSegmentChart(document.getElementById("segment-chart"), document.getElementById("segment-chart-legend"), filtered, specs, state.segments);
   renderSegmentTable(document.getElementById("segment-table-head"), document.getElementById("segment-table-body"), filtered, state.segments, specs);
   document.getElementById("seg-count-label").textContent = `${filtered.length} months shown`;
+  document.querySelectorAll("#seg-vf-toggle button").forEach((btn) => btn.classList.toggle("active", btn.dataset.vf === state.segVf));
+  renderSegmentRangeTotals(document.getElementById("seg-range-kpis"), document.getElementById("seg-range-label"), state.segments, state.cars, state.segPeriodFrom, state.segPeriodTo, state.segVf === "incl");
 }
 
 // ------------------------------------------------------ truck imports tab
@@ -573,6 +576,12 @@ async function init() {
   renderShareChart(document.getElementById("share-chart"), document.getElementById("share-chart-legend"), cars);
   renderShareNarrative(document.getElementById("share-narrative"), cars);
   renderSegmentToggles();
+  document.querySelectorAll("#seg-vf-toggle button").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.segVf = btn.dataset.vf;
+      renderSegmentSection();
+    });
+  });
   renderSegmentSection();
   renderAnnualTable(document.getElementById("annual-table-head"), document.getElementById("annual-table-body"), cars);
 }

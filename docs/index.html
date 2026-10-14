@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="./assets/css/tokens.css?v=663477de77" />
-<link rel="stylesheet" href="./assets/css/styles.css?v=e40a745856" />
+<link rel="stylesheet" href="./assets/css/styles.css?v=5b8c2f74b7" />
 </head>
 <body>
 
@@ -185,6 +185,21 @@
           </p>
         </div>
       </div>
+      <div class="range-totals">
+        <div class="range-head">
+          <span class="eyebrow" id="seg-range-label">Range total</span>
+          <div class="view-toggle" id="seg-vf-toggle">
+            <button type="button" data-vf="incl">Incl. VinFast</button>
+            <button type="button" data-vf="excl">Excl. VinFast</button>
+          </div>
+        </div>
+        <div class="kpis kpis-3" id="seg-range-kpis"></div>
+        <p class="muted" style="margin-top:10px; font-size:11px;">
+          Sum over the From/To range above. Passenger = VAMA whole-market passenger cars (members + CBU importers)
+          + Hyundai Thanh Cong passenger cars, plus VinFast when "Incl. VinFast" (VinFast sells no CVs). YoY compares
+          the same months one year earlier.
+        </p>
+      </div>
       <div class="chart-wrap" id="segment-chart"></div>
       <div class="chart-legend" id="segment-chart-legend"></div>
     </div>
@@ -273,7 +288,7 @@
   </footer>
 </div>
 
-<script src="./assets/js/render.js?v=3ed7dc2822"></script>
-<script src="./assets/js/app.js?v=d6531e8c1b"></script>
+<script src="./assets/js/render.js?v=1c611f2d9b"></script>
+<script src="./assets/js/app.js?v=282193506d"></script>
 </body>
 </html>
