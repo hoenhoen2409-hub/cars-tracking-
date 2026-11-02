@@ -9,10 +9,10 @@
       "Thaco (total)": 4476,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 3496,
-      "Others": 5005
+      "Ford": 2360,
+      "Others": 2645
     },
     "othersDetail": {
-      "Ford": 2360,
       "Mitsubishi": 1145
     },
     "total_market": null,
@@ -28,10 +28,10 @@
       "Thaco (total)": 6971,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 5467,
-      "Others": 7293
+      "Ford": 2632,
+      "Others": 4661
     },
     "othersDetail": {
-      "Ford": 2632,
       "Mitsubishi": 2279
     },
     "total_market": null,
@@ -47,10 +47,10 @@
       "Thaco (total)": 8445,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 5773,
-      "Others": 10676
+      "Ford": 3676,
+      "Others": 7000
     },
     "othersDetail": {
-      "Ford": 3676,
       "Mitsubishi": 3656
     },
     "total_market": null,
@@ -66,10 +66,10 @@
       "Thaco (total)": 6658,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 4592,
-      "Others": 7818
+      "Ford": 3298,
+      "Others": 4520
     },
     "othersDetail": {
-      "Ford": 3298,
       "Mitsubishi": 1700
     },
     "total_market": null,
@@ -85,10 +85,10 @@
       "Thaco (total)": 6459,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 3575,
-      "Others": 7316
+      "Ford": 2336,
+      "Others": 4980
     },
     "othersDetail": {
-      "Ford": 2336,
       "Mitsubishi": 1803
     },
     "total_market": null,
@@ -104,10 +104,10 @@
       "Thaco (total)": 7366,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 5108,
-      "Others": 8018
+      "Ford": 3121,
+      "Others": 4897
     },
     "othersDetail": {
-      "Ford": 3121,
       "Mitsubishi": 2264
     },
     "total_market": null,
@@ -123,10 +123,10 @@
       "Thaco (total)": 8237,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 4035,
-      "Others": 9223
+      "Ford": 3150,
+      "Others": 6073
     },
     "othersDetail": {
-      "Ford": 3150,
       "Mitsubishi": 3518
     },
     "total_market": null,
@@ -142,10 +142,10 @@
       "Thaco (total)": 7814,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 3145,
-      "Others": 7476
+      "Ford": 2795,
+      "Others": 4681
     },
     "othersDetail": {
-      "Ford": 2795,
       "Mitsubishi": 2418
     },
     "total_market": null,
@@ -161,10 +161,10 @@
       "Thaco (total)": 8960,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 5977,
-      "Others": 8361
+      "Ford": 3118,
+      "Others": 5243
     },
     "othersDetail": {
-      "Ford": 3118,
       "Mitsubishi": 2863
     },
     "total_market": null,
@@ -180,10 +180,10 @@
       "Thaco (total)": 9471,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 7458,
-      "Others": 7798
+      "Ford": 3062,
+      "Others": 4736
     },
     "othersDetail": {
-      "Ford": 3062,
       "Mitsubishi": 2457
     },
     "total_market": null,
@@ -199,10 +199,10 @@
       "Thaco (total)": 9140,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 7980,
-      "Others": 8941
+      "Ford": 3922,
+      "Others": 5019
     },
     "othersDetail": {
-      "Ford": 3922,
       "Mitsubishi": 2517
     },
     "total_market": null,
@@ -218,10 +218,10 @@
       "Thaco (total)": 10683,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 10884,
-      "Others": 12558
+      "Ford": 4854,
+      "Others": 7704
     },
     "othersDetail": {
-      "Ford": 4854,
       "Mitsubishi": 4274
     },
     "total_market": null,
@@ -237,10 +237,10 @@
       "Thaco (total)": 5219,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 3569,
-      "Others": 7247
+      "Ford": 2671,
+      "Others": 4576
     },
     "othersDetail": {
-      "Ford": 2671,
       "Mitsubishi": 1793
     },
     "total_market": null,
@@ -256,10 +256,10 @@
       "Thaco (total)": 3643,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 2033,
-      "Others": 3862
+      "Ford": 1664,
+      "Others": 2198
     },
     "othersDetail": {
-      "Ford": 1664,
       "Mitsubishi": 818
     },
     "total_market": null,
@@ -275,10 +275,10 @@
       "Thaco (total)": 6851,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 4542,
-      "Others": 10585
+      "Ford": 3686,
+      "Others": 6899
     },
     "othersDetail": {
-      "Ford": 3686,
       "Mitsubishi": 3439
     },
     "total_market": null,
@@ -294,10 +294,10 @@
       "Thaco (total)": 6512,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 4276,
-      "Others": 8242
+      "Ford": 3053,
+      "Others": 5189
     },
     "othersDetail": {
-      "Ford": 3053,
       "Mitsubishi": 2508
     },
     "total_market": null,
@@ -313,10 +313,10 @@
       "Thaco (total)": 6465,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 4914,
-      "Others": 8769
+      "Ford": 3270,
+      "Others": 5499
     },
     "othersDetail": {
-      "Ford": 3270,
       "Mitsubishi": 3151
     },
     "total_market": null,
@@ -332,10 +332,10 @@
       "Thaco (total)": 7169,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 5047,
-      "Others": 8268
+      "Ford": 3307,
+      "Others": 4961
     },
     "othersDetail": {
-      "Ford": 3307,
       "Mitsubishi": 2913
     },
     "total_market": null,
@@ -351,10 +351,10 @@
       "Thaco (total)": 6764,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 5329,
-      "Others": 9125
+      "Ford": 3150,
+      "Others": 5975
     },
     "othersDetail": {
-      "Ford": 3150,
       "Mitsubishi": 3835
     },
     "total_market": null,
@@ -370,10 +370,10 @@
       "Thaco (total)": 6366,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 4679,
-      "Others": 9182
+      "Ford": 3270,
+      "Others": 5912
     },
     "othersDetail": {
-      "Ford": 3270,
       "Mitsubishi": 4091
     },
     "total_market": null,
@@ -389,10 +389,10 @@
       "Thaco (total)": 9425,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 6518,
-      "Others": 12005
+      "Ford": 3967,
+      "Others": 8038
     },
     "othersDetail": {
-      "Ford": 3967,
       "Mitsubishi": 5385
     },
     "total_market": null,
@@ -408,10 +408,10 @@
       "Thaco (total)": 10304,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 7639,
-      "Others": 12468
+      "Ford": 5052,
+      "Others": 7416
     },
     "othersDetail": {
-      "Ford": 5052,
       "Mitsubishi": 4401
     },
     "total_market": null,
@@ -427,10 +427,10 @@
       "Thaco (total)": 12286,
       "VinFast": null,
       "Hyundai (Thanh Cong)": 10303,
-      "Others": 13994
+      "Ford": 5593,
+      "Others": 8401
     },
     "othersDetail": {
-      "Ford": 5593,
       "Mitsubishi": 5056
     },
     "total_market": null,
@@ -446,10 +446,10 @@
       "Thaco (total)": 6495,
       "VinFast": 20000.0,
       "Hyundai (Thanh Cong)": 8316,
-      "Others": 9892
+      "Ford": 3492,
+      "Others": 6400
     },
     "othersDetail": {
-      "Ford": 3492,
       "Mitsubishi": 3808
     },
     "total_market": 55719.0,
@@ -465,10 +465,10 @@
       "Thaco (total)": 5003,
       "VinFast": 10503.0,
       "Hyundai (Thanh Cong)": 3074,
-      "Others": 5501
+      "Ford": 2452,
+      "Others": 3049
     },
     "othersDetail": {
-      "Ford": 2452,
       "Mitsubishi": 1716
     },
     "total_market": 29253.0,
@@ -484,10 +484,10 @@
       "Thaco (total)": 6096,
       "VinFast": 12500.0,
       "Hyundai (Thanh Cong)": 3022,
-      "Others": 6163
+      "Ford": 2758,
+      "Others": 3405
     },
     "othersDetail": {
-      "Ford": 2758,
       "Mitsubishi": 1792
     },
     "total_market": 32703.0,
@@ -503,10 +503,10 @@
       "Thaco (total)": 7304,
       "VinFast": 12100.0,
       "Hyundai (Thanh Cong)": 5368,
-      "Others": 10955
+      "Ford": 4272,
+      "Others": 6683
     },
     "othersDetail": {
-      "Ford": 4272,
       "Mitsubishi": 4412
     },
     "total_market": 43547.0,
@@ -522,10 +522,10 @@
       "Thaco (total)": 7346,
       "VinFast": 9588.0,
       "Hyundai (Thanh Cong)": 4470,
-      "Others": 8132
+      "Ford": 3997,
+      "Others": 4135
     },
     "othersDetail": {
-      "Ford": 3997,
       "Mitsubishi": 2038
     },
     "total_market": 37244.0,
@@ -541,10 +541,10 @@
       "Thaco (total)": 6961,
       "VinFast": 11496.0,
       "Hyundai (Thanh Cong)": 4063,
-      "Others": 8548
+      "Ford": 4054,
+      "Others": 4494
     },
     "othersDetail": {
-      "Ford": 4054,
       "Mitsubishi": 2172
     },
     "total_market": 38217.0,
@@ -560,10 +560,10 @@
       "Thaco (total)": 7894,
       "VinFast": 11382.0,
       "Hyundai (Thanh Cong)": 4197,
-      "Others": 10163
+      "Ford": 4167,
+      "Others": 5996
     },
     "othersDetail": {
-      "Ford": 4167,
       "Mitsubishi": 3663
     },
     "total_market": 41372.0,
@@ -579,10 +579,10 @@
       "Thaco (total)": 7550,
       "VinFast": 11479.0,
       "Hyundai (Thanh Cong)": 3601,
-      "Others": 9738
+      "Ford": 4139,
+      "Others": 5599
     },
     "othersDetail": {
-      "Ford": 4139,
       "Mitsubishi": 3231
     },
     "total_market": 41653.0,
@@ -598,10 +598,10 @@
       "Thaco (total)": 5949,
       "VinFast": 10922.0,
       "Hyundai (Thanh Cong)": 3701,
-      "Others": 8293
+      "Ford": 3546,
+      "Others": 4747
     },
     "othersDetail": {
-      "Ford": 3546,
       "Mitsubishi": 2180
     },
     "total_market": 36311.0,
@@ -617,10 +617,10 @@
       "Thaco (total)": 6581,
       "VinFast": 13914.0,
       "Hyundai (Thanh Cong)": 4296,
-      "Others": 10993
+      "Ford": 4270,
+      "Others": 6723
     },
     "othersDetail": {
-      "Ford": 4270,
       "Mitsubishi": 3805
     },
     "total_market": 44501.0,
@@ -636,10 +636,10 @@
       "Thaco (total)": 7581,
       "VinFast": 20380.0,
       "Hyundai (Thanh Cong)": 5260,
-      "Others": 13181
+      "Ford": 5206,
+      "Others": 7975
     },
     "othersDetail": {
-      "Ford": 5206,
       "Mitsubishi": 5082
     },
     "total_market": 57484.0,
@@ -655,10 +655,10 @@
       "Thaco (total)": 8612,
       "VinFast": 23186.0,
       "Hyundai (Thanh Cong)": 5463,
-      "Others": 13360
+      "Ford": 5446,
+      "Others": 7914
     },
     "othersDetail": {
-      "Ford": 5446,
       "Mitsubishi": 5056
     },
     "total_market": 62338.0,
@@ -674,10 +674,10 @@
       "Thaco (total)": 12065,
       "VinFast": 27649.0,
       "Hyundai (Thanh Cong)": 6704,
-      "Others": 18717
+      "Ford": 6143,
+      "Others": 12574
     },
     "othersDetail": {
-      "Ford": 6143,
       "Mitsubishi": 8960
     },
     "total_market": 77054.0,
@@ -693,10 +693,10 @@
       "Thaco (total)": 9267,
       "VinFast": 16172.0,
       "Hyundai (Thanh Cong)": 5872,
-      "Others": 12943
+      "Ford": 5121,
+      "Others": 7822
     },
     "othersDetail": {
-      "Ford": 5121,
       "Mitsubishi": 5039
     },
     "total_market": 51818.0,
@@ -712,10 +712,10 @@
       "Thaco (total)": 5037,
       "VinFast": 9903.0,
       "Hyundai (Thanh Cong)": 3080,
-      "Others": 5686
+      "Ford": 2473,
+      "Others": 3213
     },
     "othersDetail": {
-      "Ford": 2473,
       "Mitsubishi": 1784
     },
     "total_market": 28648.0,
@@ -731,10 +731,10 @@
       "Thaco (total)": 8787,
       "VinFast": 27609.0,
       "Hyundai (Thanh Cong)": 4546,
-      "Others": 12582
+      "Ford": 4538,
+      "Others": 8044
     },
     "othersDetail": {
-      "Ford": 4538,
       "Mitsubishi": 5086
     },
     "total_market": 63506.0,
@@ -750,10 +750,10 @@
       "Thaco (total)": 7756,
       "VinFast": 24774.0,
       "Hyundai (Thanh Cong)": 3904,
-      "Others": 8515
+      "Ford": 2866,
+      "Others": 5649
     },
     "othersDetail": {
-      "Ford": 2866,
       "Mitsubishi": 3439
     },
     "total_market": 53157.0,
@@ -769,10 +769,10 @@
       "Thaco (total)": 7341,
       "VinFast": 19503.0,
       "Hyundai (Thanh Cong)": 3921,
-      "Others": 9272
+      "Ford": 3493,
+      "Others": 5779
     },
     "othersDetail": {
-      "Ford": 3493,
       "Mitsubishi": 3111
     },
     "total_market": 47560.0,
@@ -788,10 +788,10 @@
       "Thaco (total)": 7365,
       "VinFast": 17955.0,
       "Hyundai (Thanh Cong)": 3746,
-      "Others": 8495
+      "Ford": 2741,
+      "Others": 5754
     },
     "othersDetail": {
-      "Ford": 2741,
       "Mitsubishi": 3158
     },
     "total_market": 46057.0,
@@ -807,10 +807,10 @@
       "Thaco (total)": 7505,
       "VinFast": 21781.0,
       "Hyundai (Thanh Cong)": 3543,
-      "Others": 8746
+      "Ford": 3129,
+      "Others": 5617
     },
     "othersDetail": {
-      "Ford": 3129,
       "Mitsubishi": 3216
     },
     "total_market": 50570.0,
@@ -826,10 +826,10 @@
       "Thaco (total)": 5983,
       "VinFast": 20161.0,
       "Hyundai (Thanh Cong)": 2928,
-      "Others": 7140
+      "Ford": 2242,
+      "Others": 4898
     },
     "othersDetail": {
-      "Ford": 2242,
       "Mitsubishi": 3209
     },
     "total_market": 41980.0,
@@ -845,10 +845,10 @@
       "Thaco (total)": 7509,
       "VinFast": 23624.0,
       "Hyundai (Thanh Cong)": 3872,
-      "Others": 10263
+      "Ford": 3750,
+      "Others": 6513
     },
     "othersDetail": {
-      "Ford": 3750,
       "Mitsubishi": 3890
     },
     "total_market": 53705.0,

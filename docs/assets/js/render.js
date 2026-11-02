@@ -1,7 +1,7 @@
 // Pure rendering helpers: plain data in, HTML/SVG strings or DOM writes out.
 // No framework -- at this scale (tens of rows) it isn't needed.
 
-// "Others" = Ford + Mitsubishi + Peugeot + VAMA's remaining members (folded
+// "Others" = Mitsubishi + Peugeot + VAMA's remaining members (folded
 // together in export_site_data.py; the source CSV keeps each column).
 const BRAND_COLORS = {
   "Toyota": "#0051CC",
@@ -9,6 +9,7 @@ const BRAND_COLORS = {
   "Thaco (total)": "#171819",
   "VinFast": "#0AA630",
   "Hyundai (Thanh Cong)": "#DB2777",
+  "Ford": "#7C3AED",
   "Others": "#ACAEB0",
 };
 
@@ -1067,7 +1068,7 @@ function buildMonthlyBrief(cars, segments) {
   // Non-VAMA CBU importers = VAMA whole-market total minus the VAMA member brands.
   const impBy = Object.fromEntries(
     cars.map((r) => {
-      const members = ["Toyota", "Honda (car)", "Thaco (total)", "Others"].map((k) => r.brands[k]);
+      const members = ["Toyota", "Honda (car)", "Thaco (total)", "Ford", "Others"].map((k) => r.brands[k]);
       return [r.period, r.vamaIndustryTotal != null && members.every((v) => v != null) ? r.vamaIndustryTotal - members.reduce((a, v) => a + v, 0) : null];
     })
   );

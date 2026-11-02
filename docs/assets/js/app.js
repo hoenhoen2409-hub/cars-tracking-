@@ -6,7 +6,7 @@ const CAR_BRANDS = Object.keys(BRAND_COLORS);
 // only since it also drives brand-composition logic (missingBrands, share
 // chart, etc.) where "Total Industry" would double-count.
 const TOGGLE_BRANDS = Object.keys(TOGGLE_COLORS);
-const DEFAULT_BRANDS = ["Toyota", "Honda (car)", "VinFast", "Hyundai (Thanh Cong)", "Total Industry", "Total Industry (excl. VinFast)"];
+const DEFAULT_BRANDS = ["Toyota", "Honda (car)", "VinFast", "Hyundai (Thanh Cong)", "Ford", "Total Industry", "Total Industry (excl. VinFast)"];
 const DEFAULT_SEGMENTS = SEGMENT_TOGGLE_SPECS.map((s) => s.key);
 
 const state = {

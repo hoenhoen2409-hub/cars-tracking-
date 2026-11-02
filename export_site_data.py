@@ -23,13 +23,14 @@ CAR_BRAND_COLUMNS = {
     "Thaco (total)": "thaco_total",
     "VinFast": "vinfast",
     "Hyundai (Thanh Cong)": "hyundai_tc",
+    "Ford": "ford",
 }
 
 # Brands the dashboard doesn't show on their own: folded into "Others"
 # together with VAMA's own "others" column. The CSV keeps every column, so
 # a brand can be broken back out by moving it to CAR_BRAND_COLUMNS.
 OTHERS_LABEL = "Others"
-OTHERS_COLUMNS = ["ford", "mitsubishi", "peugeot", "others"]
+OTHERS_COLUMNS = ["mitsubishi", "peugeot", "others"]
 
 
 def clean(value):
@@ -58,7 +59,6 @@ def build_cars_json():
             # Not shown as series -- only so the Monthly Brief can name the
             # brands inside "Others" when attributing a month's change.
             "othersDetail": {
-                "Ford": clean(r["ford"]),
                 "Mitsubishi": clean(r["mitsubishi"]),
             },
             "total_market": clean(r["total_market"]),
