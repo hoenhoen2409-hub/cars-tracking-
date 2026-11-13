@@ -382,5 +382,17 @@
     "totalEstimated": false,
     "source_url": "https://www.customs.gov.vn/index.jsp?pageId=442&tkId=10149",
     "note": null
+  },
+  {
+    "period": "2026-09",
+    "year": 2026,
+    "month": 9,
+    "china": 2104,
+    "total": 3732,
+    "totalValueUsd": 108367069.0,
+    "chinaEstimated": false,
+    "totalEstimated": false,
+    "source_url": "https://www.customs.gov.vn/index.jsp?pageId=442&tkId=10228",
+    "note": null
   }
 ]

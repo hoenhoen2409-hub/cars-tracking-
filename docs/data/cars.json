@@ -853,5 +853,24 @@
     },
     "total_market": 53705.0,
     "vamaIndustryTotal": 35094
+  },
+  {
+    "period": "2026-10",
+    "year": 2026,
+    "month": 10,
+    "brands": {
+      "Toyota": 6132,
+      "Honda (car)": 1657,
+      "Thaco (total)": 7835,
+      "VinFast": 22896.0,
+      "Hyundai (Thanh Cong)": 3422,
+      "Ford": 2561,
+      "Others": 4621
+    },
+    "othersDetail": {
+      "Mitsubishi": 2179
+    },
+    "total_market": 49124.0,
+    "vamaIndustryTotal": 28957
   }
 ]

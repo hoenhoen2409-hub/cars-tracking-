@@ -673,5 +673,20 @@
     "hybrid": 2168.0,
     "bus_chassis": 0.0,
     "passenger_cars_incl_hyundai": 27389
+  },
+  {
+    "period": "2026-10",
+    "year": 2026,
+    "month": 10,
+    "total": 28957,
+    "passenger_cars": 20715,
+    "commercial_vehicles": 7698,
+    "trucks": 5431.0,
+    "buses": 304.0,
+    "special_purpose": 544,
+    "bev": 7.0,
+    "hybrid": 1891.0,
+    "bus_chassis": 25.0,
+    "passenger_cars_incl_hyundai": 23099
   }
 ]
