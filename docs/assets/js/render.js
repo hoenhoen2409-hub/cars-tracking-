@@ -979,7 +979,7 @@ function buildMonthComment({ totIn, totEx, vf, pvEx, cv, cvYtdYoy, pvSeason }) {
     let s = `Commercial vehicles ${strengthVerb(cv.yoy)} ${pair(cv.yoy, cv.mom, "MoM")}`;
     if (cvYtdYoy != null) {
       const d = cv.yoy - cvYtdYoy;
-      s += d <= -3 ? `, slowing from YTD growth of ${sgn(cvYtdYoy)}` : d >= 3 ? `, ahead of YTD growth of ${sgn(cvYtdYoy)}` : `, in line with YTD growth of ${sgn(cvYtdYoy)}`;
+      s += cv.yoy < 0 && cvYtdYoy > 0 ? `, reversing YTD growth of ${sgn(cvYtdYoy)}` : d <= -3 ? `, slowing from YTD growth of ${sgn(cvYtdYoy)}` : d >= 3 ? `, ahead of YTD growth of ${sgn(cvYtdYoy)}` : `, in line with YTD growth of ${sgn(cvYtdYoy)}`;
     }
     out.push(`${s}.`);
   }
