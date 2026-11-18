@@ -207,6 +207,87 @@ function renderHero(carsLatest, motoLatest, generatedAt) {
   document.getElementById("footer-generated").textContent = `Generated ${generatedAt}`;
 }
 
+// ------------------------------------------------------- hover tooltip
+// Shared crosshair hover for every SVG chart: moving the mouse anywhere over
+// the plot snaps to the nearest period, draws a vertical guide and shows an
+// HTML tooltip with the period + every series' value. xAt(i) is in viewBox
+// units; content(i) returns { title, rows: [{ color, label, value }] }.
+function attachChartHover(containerEl, { n, xAt, W, H, padL, padR, padT, padB, content }) {
+  const svg = containerEl.querySelector("svg");
+  if (!svg || !n) return;
+  containerEl.style.position = "relative";
+  const ns = "http://www.w3.org/2000/svg";
+  const guide = document.createElementNS(ns, "line");
+  guide.setAttribute("class", "chart-guide");
+  guide.setAttribute("y1", padT);
+  guide.setAttribute("y2", H - padB);
+  guide.style.display = "none";
+  svg.appendChild(guide);
+  const hit = document.createElementNS(ns, "rect");
+  hit.setAttribute("x", padL);
+  hit.setAttribute("y", 0);
+  hit.setAttribute("width", Math.max(0, W - padL - padR));
+  hit.setAttribute("height", H);
+  hit.setAttribute("fill", "transparent");
+  svg.appendChild(hit);
+  const tip = document.createElement("div");
+  tip.className = "chart-tip";
+  tip.style.display = "none";
+  containerEl.appendChild(tip);
+  let last = -1;
+  const hide = () => {
+    guide.style.display = "none";
+    tip.style.display = "none";
+    last = -1;
+  };
+  const move = (ev) => {
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return;
+    const pt = svg.createSVGPoint();
+    pt.x = ev.clientX;
+    pt.y = ev.clientY;
+    const vx = pt.matrixTransform(ctm.inverse()).x;
+    let best = 0, bestD = Infinity;
+    for (let i = 0; i < n; i++) {
+      const d = Math.abs(xAt(i) - vx);
+      if (d < bestD) { bestD = d; best = i; }
+    }
+    if (best !== last) {
+      last = best;
+      const c = content(best);
+      guide.setAttribute("x1", xAt(best));
+      guide.setAttribute("x2", xAt(best));
+      tip.innerHTML = `<div class="chart-tip-title">${escapeHtml(c.title)}</div>` +
+        c.rows.map((r) => `<div class="chart-tip-row"><i style="background:${r.color}"></i><span>${escapeHtml(r.label)}</span><b>${escapeHtml(r.value)}</b></div>`).join("");
+    }
+    guide.style.display = "";
+    tip.style.display = "";
+    const box = containerEl.getBoundingClientRect();
+    const gx = ctm.a * xAt(best) + ctm.e - box.left;
+    const tw = tip.offsetWidth;
+    const left = gx + 14 + tw > box.width ? gx - 14 - tw : gx + 14;
+    tip.style.left = `${Math.max(0, left)}px`;
+    tip.style.top = `${Math.max(0, ev.clientY - box.top - tip.offsetHeight / 2)}px`;
+  };
+  svg.addEventListener("mousemove", move);
+  svg.addEventListener("mouseleave", hide);
+  svg.addEventListener("touchstart", (e) => move(e.touches[0]), { passive: true });
+  svg.addEventListener("touchmove", (e) => move(e.touches[0]), { passive: true });
+}
+
+// Evenly spaced x-axis tick indices (always includes the last period).
+function tickIndices(n, maxTicks = 12) {
+  if (n <= 1) return [0];
+  const step = Math.max(1, Math.ceil(n / maxTicks));
+  const idx = [];
+  for (let i = 0; i < n; i += step) idx.push(i);
+  if (idx.length > 1 && n - 1 - idx[idx.length - 1] < step / 2) idx.pop();
+  if (idx[idx.length - 1] !== n - 1) idx.push(n - 1);
+  return idx;
+}
+
+const fmtPctSigned = (p) => (p == null ? "n/a" : `${p >= 0 ? "+" : "−"}${Math.abs(p).toFixed(1)}%`);
+
 // ------------------------------------------------------------ line chart
 // yFormat/tooltipFormat let callers reuse this for non-unit series (e.g.
 // percentage share) without duplicating the whole chart -- default to the
@@ -244,26 +325,31 @@ function renderLineChart(containerEl, periods, series, { yFormat = fmtCompact, t
       marks += `<path class="chart-line" d="M${x(i0).toFixed(1)},${y(v0).toFixed(1)} L${x(i1).toFixed(1)},${y(v1).toFixed(1)}" style="stroke:${s.color}" />`;
     }
     known.forEach(([i, v]) => {
-      const p = periods[i];
-      // s.moms/s.yoys (parallel to s.values) are optional -- callers with
-      // access to full unfiltered history (e.g. renderSegmentChart) can
-      // supply them so the tooltip reads like the detail table's MoM/YoY
-      // columns; callers that don't just get the plain value, as before.
-      const mom = s.moms ? s.moms[i] : undefined;
-      const yoy = s.yoys ? s.yoys[i] : undefined;
-      const momYoyText = mom !== undefined || yoy !== undefined
-        ? ` (MoM ${mom == null ? "n/a" : (mom >= 0 ? "+" : "") + mom.toFixed(1) + "%"}, YoY ${yoy == null ? "n/a" : (yoy >= 0 ? "+" : "") + yoy.toFixed(1) + "%"})`
-        : "";
-      marks += `<circle class="chart-dot" cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="3" style="stroke:${s.color}"><title>${escapeHtml(s.label)} · ${fmtPeriodLabel(p)}: ${tooltipFormat(v)}${momYoyText}</title></circle>`;
+      marks += `<circle class="chart-dot" cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="3" style="stroke:${s.color}"/>`;
     });
   });
 
-  const tickIdx = periods.length > 1 ? [0, Math.floor((periods.length - 1) / 2), periods.length - 1] : [0];
-  const xLabels = [...new Set(tickIdx)]
+  const xLabels = tickIndices(periods.length)
     .map((i) => `<text x="${x(i).toFixed(1)}" y="${H - 8}" text-anchor="middle">${fmtPeriodShort(periods[i])}</text>`)
     .join("");
 
   containerEl.innerHTML = `<svg class="chart-svg" viewBox="0 0 ${W} ${H}" width="100%" height="${H}">${grid}${marks}${xLabels}</svg>`;
+  // s.moms/s.yoys (parallel to s.values) are optional -- callers with the
+  // full unfiltered history (e.g. renderSegmentChart) supply them so the
+  // tooltip shows MoM/YoY like the detail table.
+  attachChartHover(containerEl, {
+    n: periods.length, xAt: x, W, H, padL, padR, padT, padB,
+    content: (i) => ({
+      title: fmtPeriodLabel(periods[i]),
+      rows: series
+        .filter((s) => s.values[i] != null)
+        .sort((a, b) => b.values[i] - a.values[i])
+        .map((s) => {
+          const extra = s.moms || s.yoys ? ` (MoM ${fmtPctSigned(s.moms ? s.moms[i] : null)}, YoY ${fmtPctSigned(s.yoys ? s.yoys[i] : null)})` : "";
+          return { color: s.color, label: s.label, value: `${tooltipFormat(s.values[i])}${extra}` };
+        }),
+    }),
+  });
 }
 
 function renderChartLegend(containerEl, series) {
@@ -296,16 +382,30 @@ function renderBarChart(containerEl, periods, values) {
       const v = values[i];
       if (v == null) return "";
       const h = H - padB - y(v);
-      return `<rect x="${x(i).toFixed(1)}" y="${y(v).toFixed(1)}" width="${barW.toFixed(1)}" height="${h.toFixed(1)}" rx="2"><title>${fmtPeriodLabel(p)}: ${fmtInt(v)}</title></rect>`;
+      return `<rect x="${x(i).toFixed(1)}" y="${y(v).toFixed(1)}" width="${barW.toFixed(1)}" height="${h.toFixed(1)}" rx="2"/>`;
     })
     .join("");
 
-  const tickIdx = n > 1 ? [0, Math.floor((n - 1) / 2), n - 1] : [0];
-  const xLabels = [...new Set(tickIdx)]
+  const xLabels = tickIndices(n)
     .map((i) => `<text x="${(x(i) + barW / 2).toFixed(1)}" y="${H - 8}" text-anchor="middle">${fmtPeriodShort(periods[i])}</text>`)
     .join("");
 
   containerEl.innerHTML = `<svg class="chart-svg" viewBox="0 0 ${W} ${H}" width="100%" height="${H}"><g class="chart-bar">${grid}${bars}</g>${xLabels}</svg>`;
+  const byPeriod = Object.fromEntries(periods.map((p, i) => [p, values[i]]));
+  attachChartHover(containerEl, {
+    n, xAt: (i) => x(i) + barW / 2, W, H, padL, padR, padT, padB,
+    content: (i) => {
+      const p = periods[i], v = values[i];
+      return {
+        title: fmtPeriodLabel(p),
+        rows: v == null ? [] : [{
+          color: "var(--accent)",
+          label: "Units",
+          value: `${fmtInt(v)} (MoM ${fmtPctSigned(pctChange(v, byPeriod[shiftPeriod(p, -1)]))}, YoY ${fmtPctSigned(pctChange(v, byPeriod[shiftPeriod(p, -12)]))})`,
+        }],
+      };
+    },
+  });
 }
 
 // ----------------------------------------------------- stacked bar chart
@@ -340,8 +440,7 @@ function renderStackedBarChart(containerEl, labels, series, { tooltipLabels = la
       if (v == null || v <= 0) return;
       const top = y(base + v);
       const h = y(base) - top;
-      const share = totals[i] ? ` (${((v / totals[i]) * 100).toFixed(1)}%)` : "";
-      bars += `<rect x="${x(i).toFixed(1)}" y="${top.toFixed(1)}" width="${barW.toFixed(1)}" height="${h.toFixed(1)}" style="fill:${s.color}"><title>${escapeHtml(tooltipLabels[i])} · ${escapeHtml(s.label)}: ${fmtInt(v)}${share}</title></rect>`;
+      bars += `<rect x="${x(i).toFixed(1)}" y="${top.toFixed(1)}" width="${barW.toFixed(1)}" height="${h.toFixed(1)}" style="fill:${s.color}"/>`;
       base += v;
     });
     // Only label a bar whose every segment is known -- otherwise the sum
@@ -357,6 +456,16 @@ function renderStackedBarChart(containerEl, labels, series, { tooltipLabels = la
     .join("");
 
   containerEl.innerHTML = `<svg class="chart-svg chart-stacked" viewBox="0 0 ${W} ${H}" width="100%" height="${H}">${grid}${bars}${xLabels}</svg>`;
+  attachChartHover(containerEl, {
+    n, xAt: (i) => x(i) + barW / 2, W, H, padL, padR, padT, padB,
+    content: (i) => {
+      const rows = [...series].reverse()
+        .filter((s) => s.values[i] != null)
+        .map((s) => ({ color: s.color, label: s.label, value: `${fmtInt(s.values[i])}${totals[i] ? ` (${((s.values[i] / totals[i]) * 100).toFixed(1)}%)` : ""}` }));
+      if (series.every((s) => s.values[i] != null)) rows.push({ color: "transparent", label: "Total", value: fmtInt(totals[i]) });
+      return { title: tooltipLabels[i], rows };
+    },
+  });
 }
 
 // ------------------------------------------------- market structure (§3)
@@ -518,7 +627,7 @@ function renderStackedAreaChart(containerEl, periods, series, { yFormat = (v) =>
     for (let i = 0; i < n; i++) d += `${i === 0 ? "M" : "L"}${x(i).toFixed(1)},${y(topAt(i)).toFixed(1)} `;
     for (let i = n - 1; i >= 0; i--) d += `L${x(i).toFixed(1)},${y(bottomAt(i)).toFixed(1)} `;
     d += "Z";
-    areas += `<path d="${d}" fill="${s.color}" fill-opacity="0.88" stroke="${s.color}" stroke-width="0.5"><title>${escapeHtml(s.label)}</title></path>`;
+    areas += `<path d="${d}" fill="${s.color}" fill-opacity="0.88" stroke="${s.color}" stroke-width="0.5"/>`;
 
     // Direct end-of-line labels so the latest share/brand can be read
     // straight off the chart instead of cross-referencing the legend.
@@ -553,12 +662,21 @@ function renderStackedAreaChart(containerEl, periods, series, { yFormat = (v) =>
       .join("");
   }
 
-  const tickIdx = n > 1 ? [0, Math.floor((n - 1) / 2), n - 1] : [0];
-  const xLabels = [...new Set(tickIdx)]
+  const xLabels = tickIndices(n)
     .map((i) => `<text x="${x(i).toFixed(1)}" y="${H - 8}" text-anchor="middle">${fmtPeriodShort(periods[i])}</text>`)
     .join("");
 
   containerEl.innerHTML = `<svg class="chart-svg" viewBox="0 0 ${W} ${H}" width="100%" height="${H}">${grid}${areas}${endLabelsHtml}${xLabels}</svg>`;
+  attachChartHover(containerEl, {
+    n, xAt: x, W, H, padL, padR, padT, padB,
+    content: (i) => ({
+      title: fmtPeriodLabel(periods[i]),
+      rows: series
+        .filter((s) => s.values[i] != null)
+        .sort((a, b) => b.values[i] - a.values[i])
+        .map((s) => ({ color: s.color, label: s.label, value: yFormat(s.values[i].toFixed(1)) })),
+    }),
+  });
 }
 
 // --------------------------------------- VAMA segment/powertrain (segments.json)

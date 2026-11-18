@@ -330,3 +330,12 @@ select.filter-select-native:focus { outline: none; border-color: var(--accent); 
 .range-totals { margin: 4px 0 22px; }
 .range-totals .range-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
 @media (max-width: 760px) { .kpis-3 { grid-template-columns: 1fr; } }
+
+/* Chart hover: vertical guide + floating tooltip (attachChartHover in render.js) */
+.chart-guide { stroke: var(--ink-3); stroke-width: 1; stroke-dasharray: 3 3; pointer-events: none; }
+.chart-tip { position: absolute; z-index: 5; pointer-events: none; min-width: 150px; max-width: 360px; padding: 8px 10px; background: var(--bg-paper); border: 1px solid var(--rule-1); border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,.12); font-size: 12px; color: var(--ink-2); }
+.chart-tip-title { font-weight: 700; color: var(--ink-1); margin-bottom: 4px; }
+.chart-tip-row { display: flex; align-items: center; gap: 6px; line-height: 1.5; white-space: nowrap; }
+.chart-tip-row i { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.chart-tip-row span { flex: 1; }
+.chart-tip-row b { font-weight: 600; color: var(--ink-1); font-variant-numeric: tabular-nums; }
